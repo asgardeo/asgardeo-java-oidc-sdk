@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.util;
+package io.asgardio.java.oidc.sdk;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,7 +30,13 @@ public class SSOAgentConstants {
     // Oauth response parameters and session attributes
     public static final String ERROR = "error";
     public static final String ACCESS_TOKEN = "access_token";
+    public static final String ID_TOKEN = "id_token";
     public static final String SESSION_STATE = "session_state";
+    public static final String USER = "user";
+
+    // Keystore file properties
+    public static final String KEYSTORE_NAME = "keystorename";
+    public static final String KEYSTORE_PASSWORD = "keystorepassword";
 
     // application specific request parameters and session attributes
     public static final String CONSUMER_KEY = "consumerKey";
@@ -45,6 +51,7 @@ public class SSOAgentConstants {
     public static final String OIDC_SESSION_IFRAME_ENDPOINT = "sessionIFrameEndpoint";
     public static final String OIDC_TOKEN_ENDPOINT = "tokenEndpoint";
     public static final String POST_LOGOUT_REDIRECTION_URI = "postLogoutRedirectURI";
+    public static final String AUTHENTICATED = "authenticated";
 
     // request headers
     public static final String REFERER = "referer";

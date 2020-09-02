@@ -21,6 +21,9 @@ package io.asgardio.java.oidc.sdk.bean;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A data model class to define the User element.
+ */
 public class User {
 
     private String subject;
