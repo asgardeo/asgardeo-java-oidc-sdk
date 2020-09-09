@@ -22,13 +22,18 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.asgardio.java.oidc.sdk.SSOAgentConstants;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OIDCAgentConfig {
 
@@ -43,16 +48,42 @@ public class OIDCAgentConfig {
     private static URI logoutEndpoint;
     private static URI tokenEndpoint;
     private static URI postLogoutRedirectURI;
-    private final Set<String> skipURIs = new HashSet<String>();
+    private static Set<String> skipURIs = new HashSet<String>();
 
-    private OIDCAgentConfig() {
+    public OIDCAgentConfig() {
 
     }
 
-    public static void initConfig(Properties properties) {
+    public void initConfig(Properties properties) throws SSOAgentClientException {
 
         consumerKey = new ClientID(properties.getProperty(SSOAgentConstants.CONSUMER_KEY));
         consumerSecret = new Secret(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET));
+        indexPage = properties.getProperty(SSOAgentConstants.INDEX_PAGE);
+
+        try {
+            callbackUrl = new URI(properties.getProperty(SSOAgentConstants.CALL_BACK_URL));
+            authorizeEndpoint = new URI(properties.getProperty(SSOAgentConstants.OAUTH2_AUTHZ_ENDPOINT));
+            logoutEndpoint = new URI(properties.getProperty(SSOAgentConstants.OIDC_LOGOUT_ENDPOINT));
+            tokenEndpoint = new URI(properties.getProperty(SSOAgentConstants.OIDC_TOKEN_ENDPOINT));
+            postLogoutRedirectURI = new URI(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI));
+        } catch (URISyntaxException e) {
+            throw new SSOAgentClientException("URL not formatted properly.", e);
+        }
+
+        String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
+    if (StringUtils.isNotBlank(scopeString)) {
+            String[] scopes = (String[]) Stream
+                    .of(scopeString.split(","))
+                    .toArray();
+            scope = new Scope(scopes);
+        }
+
+        String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
+        if (StringUtils.isNotBlank(skipURIsString)) {
+            skipURIs = Stream
+                    .of(skipURIsString.split(","))
+                    .collect(Collectors.toSet());
+        }
 
     }
 }
