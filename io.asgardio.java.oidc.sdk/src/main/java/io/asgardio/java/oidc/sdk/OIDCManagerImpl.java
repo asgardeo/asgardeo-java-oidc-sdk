@@ -21,11 +21,23 @@ package io.asgardio.java.oidc.sdk;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import io.asgardio.java.oidc.sdk.bean.User;
+import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
 public class OIDCManagerImpl implements OIDCManager {
+
+    private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
+
+    private OIDCAgentConfig oidcAgentConfig = null;
+
+    public OIDCManagerImpl(OIDCAgentConfig oidcAgentConfig) {
+
+        this.oidcAgentConfig = oidcAgentConfig;
+    }
 
     @Override
     public void init() {
@@ -33,7 +45,12 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public User signIn() {
+    public void login() {
+
+    }
+
+    @Override
+    public AuthenticationContext authenticate() {
 
         return null;
     }

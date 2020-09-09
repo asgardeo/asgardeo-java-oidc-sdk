@@ -16,35 +16,8 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk;
+package io.asgardio.java.oidc.sdk.bean;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
-import io.asgardio.java.oidc.sdk.bean.User;
+public class AuthenticationContext {
 
-import java.util.Map;
-
-public interface OIDCManager {
-
-    void init();
-
-    void login();
-
-    AuthenticationContext authenticate();
-
-    void signOut();
-
-    Map<String, Object> getUserInfo();
-
-    void validateAuthentication();
-
-    AccessToken getAccessToken();
-
-    JWT getIDToken();
-
-    RefreshToken getRefreshToken();
-
-    void singleLogout();
 }
