@@ -20,6 +20,10 @@ package io.asgardio.java.oidc.sdk;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
@@ -43,7 +47,7 @@ public class OIDCManagerImpl implements OIDCManager {
 
     private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
 
-    private OIDCAgentConfig oidcAgentConfig = null;
+    private OIDCAgentConfig oidcAgentConfig;
 
     public OIDCManagerImpl(OIDCAgentConfig oidcAgentConfig) {
 
@@ -109,6 +113,33 @@ public class OIDCManagerImpl implements OIDCManager {
         logger.log(Level.INFO, "Invalidating the session in the client side upon RP-Initiated logout.");
         currentSession.invalidate();
         return logoutRequest;
+    }
+
+    @Override
+    public boolean isActiveSessionPresent(HttpServletRequest request) {
+
+        HttpSession currentSession = request.getSession(false);
+
+        return currentSession != null
+                && currentSession.getAttribute(SSOAgentConstants.AUTHENTICATED) != null
+                && (boolean) currentSession.getAttribute(SSOAgentConstants.AUTHENTICATED);
+    }
+
+    @Override
+    public AuthorizationRequest authorize() {
+
+        ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
+        ClientID clientID = oidcAgentConfig.getConsumerKey();
+        Scope authScope = oidcAgentConfig.getScope();
+        URI callBackURI = oidcAgentConfig.getCallbackUrl();
+        URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
+
+        AuthorizationRequest authzRequest = new AuthorizationRequest.Builder(responseType, clientID)
+                .scope(authScope)
+                .redirectionURI(callBackURI)
+                .endpointURI(authorizationEndpoint)
+                .build();
+        return authzRequest;
     }
 
     private LogoutRequest getLogoutRequest(HttpSession session) throws SSOAgentException {

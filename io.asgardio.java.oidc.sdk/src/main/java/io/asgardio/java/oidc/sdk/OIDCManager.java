@@ -19,6 +19,7 @@
 package io.asgardio.java.oidc.sdk;
 
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
@@ -29,6 +30,7 @@ import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 public interface OIDCManager {
 
@@ -51,4 +53,8 @@ public interface OIDCManager {
     RefreshToken getRefreshToken();
 
     LogoutRequest singleLogout(HttpServletRequest request) throws SSOAgentException;
+
+    boolean isActiveSessionPresent(HttpServletRequest request);
+
+    AuthorizationRequest authorize();
 }

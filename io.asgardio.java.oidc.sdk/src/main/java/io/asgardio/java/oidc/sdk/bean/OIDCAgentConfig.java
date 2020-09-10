@@ -180,16 +180,16 @@ public class OIDCAgentConfig {
             throw new SSOAgentClientException("URL not formatted properly.", e);
         }
 
-//        String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
-//        if (StringUtils.isNotBlank(scopeString)) {
-//            String[] scopeArray = scopeString.split(",");
-//            this.scope = new Scope(scopeArray);
+        String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
+        if (StringUtils.isNotBlank(scopeString)) {
+            String[] scopeArray = scopeString.split(",");
+            this.scope = new Scope(scopeArray);
 
 //            String[] scopes = (String[]) Stream
 //                    .of(scopeString.split(","))
 //                    .toArray();
 //            this.scope = new Scope(scopes);
-//        }
+        }
 
         String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
         if (StringUtils.isNotBlank(skipURIsString)) {
