@@ -32,23 +32,132 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class OIDCAgentConfig {
 
     private static final Logger logger = LogManager.getLogger(OIDCAgentConfig.class);
 
-    private static ClientID consumerKey;
-    private static Secret consumerSecret;
-    private static String indexPage;
-    private static URI callbackUrl;
-    private static Scope scope;
-    private static URI authorizeEndpoint;
-    private static URI logoutEndpoint;
-    private static URI tokenEndpoint;
-    private static URI postLogoutRedirectURI;
-    private static Set<String> skipURIs = new HashSet<String>();
+    private ClientID consumerKey;
+    private Secret consumerSecret;
+    private String indexPage;
+    private String logoutURL;
+    private URI callbackUrl;
+    private Scope scope;
+    private URI authorizeEndpoint;
+    private URI logoutEndpoint;
+    private URI tokenEndpoint;
+    private URI postLogoutRedirectURI;
+    private Set<String> skipURIs = new HashSet<String>();
+
+    public ClientID getConsumerKey() {
+
+        return consumerKey;
+    }
+
+    public void setConsumerKey(ClientID consumerKey) {
+
+        this.consumerKey = consumerKey;
+    }
+
+    public Secret getConsumerSecret() {
+
+        return consumerSecret;
+    }
+
+    public void setConsumerSecret(Secret consumerSecret) {
+
+        this.consumerSecret = consumerSecret;
+    }
+
+    public String getIndexPage() {
+
+        return indexPage;
+    }
+
+    public void setIndexPage(String indexPage) {
+
+        this.indexPage = indexPage;
+    }
+
+    public String getLogoutURL() {
+
+        return logoutURL;
+    }
+
+    public void setLogoutURL(String logoutURL) {
+
+        this.logoutURL = logoutURL;
+    }
+
+    public URI getCallbackUrl() {
+
+        return callbackUrl;
+    }
+
+    public void setCallbackUrl(URI callbackUrl) {
+
+        this.callbackUrl = callbackUrl;
+    }
+
+    public Scope getScope() {
+
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+
+        this.scope = scope;
+    }
+
+    public URI getAuthorizeEndpoint() {
+
+        return authorizeEndpoint;
+    }
+
+    public void setAuthorizeEndpoint(URI authorizeEndpoint) {
+
+        this.authorizeEndpoint = authorizeEndpoint;
+    }
+
+    public URI getLogoutEndpoint() {
+
+        return logoutEndpoint;
+    }
+
+    public void setLogoutEndpoint(URI logoutEndpoint) {
+
+        this.logoutEndpoint = logoutEndpoint;
+    }
+
+    public URI getTokenEndpoint() {
+
+        return tokenEndpoint;
+    }
+
+    public void setTokenEndpoint(URI tokenEndpoint) {
+
+        this.tokenEndpoint = tokenEndpoint;
+    }
+
+    public URI getPostLogoutRedirectURI() {
+
+        return postLogoutRedirectURI;
+    }
+
+    public void setPostLogoutRedirectURI(URI postLogoutRedirectURI) {
+
+        this.postLogoutRedirectURI = postLogoutRedirectURI;
+    }
+
+    public Set<String> getSkipURIs() {
+
+        return skipURIs;
+    }
+
+    public void setSkipURIs(Set<String> skipURIs) {
+
+        this.skipURIs = skipURIs;
+    }
 
     public OIDCAgentConfig() {
 
@@ -59,6 +168,7 @@ public class OIDCAgentConfig {
         consumerKey = new ClientID(properties.getProperty(SSOAgentConstants.CONSUMER_KEY));
         consumerSecret = new Secret(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET));
         indexPage = properties.getProperty(SSOAgentConstants.INDEX_PAGE);
+        logoutURL = properties.getProperty(SSOAgentConstants.LOGOUT_URL);
 
         try {
             callbackUrl = new URI(properties.getProperty(SSOAgentConstants.CALL_BACK_URL));
@@ -70,19 +180,27 @@ public class OIDCAgentConfig {
             throw new SSOAgentClientException("URL not formatted properly.", e);
         }
 
-        String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
-    if (StringUtils.isNotBlank(scopeString)) {
-            String[] scopes = (String[]) Stream
-                    .of(scopeString.split(","))
-                    .toArray();
-            scope = new Scope(scopes);
-        }
+//        String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
+//        if (StringUtils.isNotBlank(scopeString)) {
+//            String[] scopeArray = scopeString.split(",");
+//            this.scope = new Scope(scopeArray);
+
+//            String[] scopes = (String[]) Stream
+//                    .of(scopeString.split(","))
+//                    .toArray();
+//            this.scope = new Scope(scopes);
+//        }
 
         String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
         if (StringUtils.isNotBlank(skipURIsString)) {
-            skipURIs = Stream
-                    .of(skipURIsString.split(","))
-                    .collect(Collectors.toSet());
+            String[] skipURIArray = skipURIsString.split(",");
+            for (String skipURI : skipURIArray) {
+                skipURIs.add(skipURI);
+            }
+
+//            skipURIs = Stream
+//                    .of(skipURIsString.split(","))
+//                    .collect(Collectors.toSet());
         }
 
     }

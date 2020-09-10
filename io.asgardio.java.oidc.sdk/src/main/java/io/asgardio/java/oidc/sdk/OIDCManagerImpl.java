@@ -19,14 +19,25 @@
 package io.asgardio.java.oidc.sdk;
 
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
 import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.Map;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 public class OIDCManagerImpl implements OIDCManager {
 
@@ -90,7 +101,28 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void singleLogout() {
+    public LogoutRequest singleLogout(HttpServletRequest request) throws SSOAgentException {
 
+        HttpSession currentSession = request.getSession(false);
+        LogoutRequest logoutRequest = getLogoutRequest(currentSession);
+
+        logger.log(Level.INFO, "Invalidating the session in the client side upon RP-Initiated logout.");
+        currentSession.invalidate();
+        return logoutRequest;
+    }
+
+    private LogoutRequest getLogoutRequest(HttpSession session) throws SSOAgentException {
+
+        LogoutRequest logoutRequest;
+        try {
+            URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
+            URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
+            JWT jwtIdToken = JWTParser.parse((String) session.getAttribute(SSOAgentConstants.ID_TOKEN));
+            logoutRequest = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, null);
+
+        } catch (ParseException e) {
+            throw new SSOAgentException("Error while fetching logout URL.", e);
+        }
+        return logoutRequest;
     }
 }
