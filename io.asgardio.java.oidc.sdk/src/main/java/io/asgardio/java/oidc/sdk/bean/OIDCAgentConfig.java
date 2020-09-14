@@ -182,7 +182,7 @@ public class OIDCAgentConfig {
 
         String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
         if (StringUtils.isNotBlank(scopeString)) {
-            String[] scopeArray = scopeString.split(",");
+        String[] scopeArray = scopeString.split(",");
             this.scope = new Scope(scopeArray);
 
 //            String[] scopes = (String[]) Stream

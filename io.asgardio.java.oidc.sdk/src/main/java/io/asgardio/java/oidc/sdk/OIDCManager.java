@@ -24,11 +24,17 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 
+import java.io.IOException;
 import java.util.Map;
 
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -36,7 +42,7 @@ public interface OIDCManager {
 
     void init();
 
-    void login();
+    void login(ServletRequest request, ServletResponse response) throws IOException;
 
     AuthenticationContext authenticate();
 
@@ -57,4 +63,16 @@ public interface OIDCManager {
     boolean isActiveSessionPresent(HttpServletRequest request);
 
     AuthorizationRequest authorize();
+
+    static OIDCAgentConfig getConfig(FilterConfig filterConfig) throws SSOAgentException {
+
+        ServletContext servletContext = filterConfig.getServletContext();
+        Object configBeanAttribute = servletContext.getAttribute(SSOAgentConstants.CONFIG_BEAN_NAME);
+
+        if (!(configBeanAttribute instanceof OIDCAgentConfig)) {
+            throw new SSOAgentException("Cannot find " + SSOAgentConstants.CONFIG_BEAN_NAME +
+                    " attribute of OIDCAgentConfig type in the servletContext. Cannot proceed further.");
+        }
+        return (OIDCAgentConfig) configBeanAttribute;
+    }
 }

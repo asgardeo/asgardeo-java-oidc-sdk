@@ -43,7 +43,7 @@ public class SSOAgentConstants {
     // application specific request parameters and session attributes
     public static final String CONSUMER_KEY = "consumerKey";
     public static final String CONSUMER_SECRET = "consumerSecret";
-    public static final String CALL_BACK_URL = "callBackUrl";
+    public static final String CALL_BACK_URL = "callBackURL";
     public static final String SKIP_URIS = "skipURIs";
     public static final String INDEX_PAGE = "indexPage";
     public static final String LOGOUT_URL = "logoutURL";

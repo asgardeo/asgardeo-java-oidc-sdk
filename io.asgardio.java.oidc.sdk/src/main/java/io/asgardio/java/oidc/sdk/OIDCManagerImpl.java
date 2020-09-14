@@ -34,13 +34,17 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Map;
-import java.util.Properties;
 
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class OIDCManagerImpl implements OIDCManager {
@@ -60,8 +64,11 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void login() {
+    public void login(ServletRequest request, ServletResponse response) throws IOException {
 
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        AuthorizationRequest authorizationRequest = authorize();
+        httpServletResponse.sendRedirect(authorizationRequest.toURI().toString());
     }
 
     @Override
