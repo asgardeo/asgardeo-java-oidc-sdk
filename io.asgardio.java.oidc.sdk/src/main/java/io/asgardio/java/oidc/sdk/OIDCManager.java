@@ -36,6 +36,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public interface OIDCManager {
@@ -57,6 +58,8 @@ public interface OIDCManager {
     JWT getIDToken();
 
     RefreshToken getRefreshToken();
+
+    void handleOIDCCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
     LogoutRequest singleLogout(HttpServletRequest request) throws SSOAgentException;
 

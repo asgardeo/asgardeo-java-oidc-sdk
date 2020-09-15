@@ -83,12 +83,21 @@ public class OIDCRequestResolver {
         return request.getRequestURI().contains(callbackContext);
     }
 
+    public String getIndexPage() {
+
+        String indexPage = oidcAgentConfig.getIndexPage();
+        if (StringUtils.isNotBlank(indexPage)) {
+            return indexPage;
+        }
+        return request.getContextPath();
+    }
     private void logErrorAuthorizationResponse(AuthorizationResponse authzResponse) {
 
         AuthorizationErrorResponse errorResponse = authzResponse.toErrorResponse();
         JSONObject responseObject = errorResponse.getErrorObject().toJSONObject();
         logger.log(Level.INFO, "Error response object: ", responseObject);
     }
+
 
 
 }
