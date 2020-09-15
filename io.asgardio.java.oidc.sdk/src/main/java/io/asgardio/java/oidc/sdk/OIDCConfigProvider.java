@@ -16,27 +16,36 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.util;
+package io.asgardio.java.oidc.sdk;
 
-import io.asgardio.java.oidc.sdk.SSOAgentConstants;
 import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
-public class OIDCFilterUtils {
+public class OIDCConfigProvider {
 
-    public static OIDCAgentConfig getOIDCAgentConfig(FilterConfig filterConfig) throws SSOAgentException {
+    private OIDCAgentConfig oidcAgentConfig = null;
+    private final ServletContext servletContext;
 
-        ServletContext servletContext = filterConfig.getServletContext();
+    public OIDCConfigProvider(ServletContext servletContext) {
+
+        this.servletContext = servletContext;
+    }
+
+    public void init() throws SSOAgentException {
+
         Object configBeanAttribute = servletContext.getAttribute(SSOAgentConstants.CONFIG_BEAN_NAME);
 
         if (!(configBeanAttribute instanceof OIDCAgentConfig)) {
             throw new SSOAgentException("Cannot find " + SSOAgentConstants.CONFIG_BEAN_NAME +
                     " attribute of OIDCAgentConfig type in the servletContext. Cannot proceed further.");
         }
-        return (OIDCAgentConfig) configBeanAttribute;
+        this.oidcAgentConfig = (OIDCAgentConfig) configBeanAttribute;
     }
 
+    public OIDCAgentConfig getOidcAgentConfig() {
+
+        return oidcAgentConfig;
+    }
 }

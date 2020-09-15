@@ -61,7 +61,7 @@ public interface OIDCManager {
 
     void handleOIDCCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    LogoutRequest singleLogout(HttpServletRequest request) throws SSOAgentException;
+    void singleLogout(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException, IOException;
 
     boolean isActiveSessionPresent(HttpServletRequest request);
 

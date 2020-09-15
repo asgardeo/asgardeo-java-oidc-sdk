@@ -160,14 +160,15 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public LogoutRequest singleLogout(HttpServletRequest request) throws SSOAgentException {
+    public void singleLogout(HttpServletRequest request, HttpServletResponse response)
+            throws SSOAgentException, IOException {
 
         HttpSession currentSession = request.getSession(false);
         LogoutRequest logoutRequest = getLogoutRequest(currentSession);
 
         logger.log(Level.INFO, "Invalidating the session in the client side upon RP-Initiated logout.");
         currentSession.invalidate();
-        return logoutRequest;
+        response.sendRedirect(logoutRequest.toURI().toString());
     }
 
     @Override
@@ -205,7 +206,6 @@ public class OIDCManagerImpl implements OIDCManager {
             URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
             JWT jwtIdToken = JWTParser.parse((String) session.getAttribute(SSOAgentConstants.ID_TOKEN));
             logoutRequest = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, null);
-
         } catch (ParseException e) {
             throw new SSOAgentException("Error while fetching logout URL.", e);
         }
