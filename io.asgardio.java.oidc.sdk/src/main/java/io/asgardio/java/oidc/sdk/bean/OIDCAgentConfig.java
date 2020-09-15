@@ -184,11 +184,6 @@ public class OIDCAgentConfig {
         if (StringUtils.isNotBlank(scopeString)) {
         String[] scopeArray = scopeString.split(",");
             this.scope = new Scope(scopeArray);
-
-//            String[] scopes = (String[]) Stream
-//                    .of(scopeString.split(","))
-//                    .toArray();
-//            this.scope = new Scope(scopes);
         }
 
         String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
@@ -197,10 +192,6 @@ public class OIDCAgentConfig {
             for (String skipURI : skipURIArray) {
                 skipURIs.add(skipURI);
             }
-
-//            skipURIs = Stream
-//                    .of(skipURIsString.split(","))
-//                    .collect(Collectors.toSet());
         }
 
     }

@@ -86,7 +86,7 @@ public class OIDCManagerImpl implements OIDCManager {
     public void login(ServletRequest request, ServletResponse response) throws IOException {
 
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        AuthorizationRequest authorizationRequest = authorize();
+        AuthorizationRequest authorizationRequest = getAuthorizationRequest();
         httpServletResponse.sendRedirect(authorizationRequest.toURI().toString());
     }
 
@@ -94,11 +94,6 @@ public class OIDCManagerImpl implements OIDCManager {
     public AuthenticationContext authenticate() {
 
         return null;
-    }
-
-    @Override
-    public void signOut() {
-
     }
 
     @Override
@@ -181,8 +176,7 @@ public class OIDCManagerImpl implements OIDCManager {
                 && (boolean) currentSession.getAttribute(SSOAgentConstants.AUTHENTICATED);
     }
 
-    @Override
-    public AuthorizationRequest authorize() {
+    private AuthorizationRequest getAuthorizationRequest() {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
@@ -190,12 +184,12 @@ public class OIDCManagerImpl implements OIDCManager {
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
 
-        AuthorizationRequest authzRequest = new AuthorizationRequest.Builder(responseType, clientID)
+        AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
                 .scope(authScope)
                 .redirectionURI(callBackURI)
                 .endpointURI(authorizationEndpoint)
                 .build();
-        return authzRequest;
+        return authorizationRequest;
     }
 
     private LogoutRequest getLogoutRequest(HttpSession session) throws SSOAgentException {

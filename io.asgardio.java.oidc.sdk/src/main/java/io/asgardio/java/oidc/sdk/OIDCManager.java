@@ -47,8 +47,6 @@ public interface OIDCManager {
 
     AuthenticationContext authenticate();
 
-    void signOut();
-
     Map<String, Object> getUserInfo();
 
     void validateAuthentication();
@@ -64,18 +62,4 @@ public interface OIDCManager {
     void singleLogout(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException, IOException;
 
     boolean isActiveSessionPresent(HttpServletRequest request);
-
-    AuthorizationRequest authorize();
-
-    static OIDCAgentConfig getConfig(FilterConfig filterConfig) throws SSOAgentException {
-
-        ServletContext servletContext = filterConfig.getServletContext();
-        Object configBeanAttribute = servletContext.getAttribute(SSOAgentConstants.CONFIG_BEAN_NAME);
-
-        if (!(configBeanAttribute instanceof OIDCAgentConfig)) {
-            throw new SSOAgentException("Cannot find " + SSOAgentConstants.CONFIG_BEAN_NAME +
-                    " attribute of OIDCAgentConfig type in the servletContext. Cannot proceed further.");
-        }
-        return (OIDCAgentConfig) configBeanAttribute;
-    }
 }
