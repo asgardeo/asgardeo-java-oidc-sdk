@@ -21,6 +21,7 @@ package io.asgardio.java.oidc.sdk.bean;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import io.asgardio.java.oidc.sdk.SSOAgentConstants;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +47,8 @@ public class OIDCAgentConfig {
     private URI authorizeEndpoint;
     private URI logoutEndpoint;
     private URI tokenEndpoint;
+    private Issuer issuer;
+    private URI jwksEndpoint;
     private URI postLogoutRedirectURI;
     private Set<String> skipURIs = new HashSet<String>();
 
@@ -139,6 +142,26 @@ public class OIDCAgentConfig {
         this.tokenEndpoint = tokenEndpoint;
     }
 
+    public Issuer getIssuer() {
+
+        return issuer;
+    }
+
+    public void setIssuer(Issuer issuer) {
+
+        this.issuer = issuer;
+    }
+
+    public URI getJwksEndpoint() {
+
+        return jwksEndpoint;
+    }
+
+    public void setJwksEndpoint(URI jwksEndpoint) {
+
+        this.jwksEndpoint = jwksEndpoint;
+    }
+
     public URI getPostLogoutRedirectURI() {
 
         return postLogoutRedirectURI;
@@ -175,6 +198,8 @@ public class OIDCAgentConfig {
             authorizeEndpoint = new URI(properties.getProperty(SSOAgentConstants.OAUTH2_AUTHZ_ENDPOINT));
             logoutEndpoint = new URI(properties.getProperty(SSOAgentConstants.OIDC_LOGOUT_ENDPOINT));
             tokenEndpoint = new URI(properties.getProperty(SSOAgentConstants.OIDC_TOKEN_ENDPOINT));
+            issuer = new Issuer(properties.getProperty(SSOAgentConstants.OIDC_ISSUER));
+            jwksEndpoint = new URI(properties.getProperty(SSOAgentConstants.OIDC_JWKS_ENDPOINT));
             postLogoutRedirectURI = new URI(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI));
         } catch (URISyntaxException e) {
             throw new SSOAgentClientException("URL not formatted properly.", e);
