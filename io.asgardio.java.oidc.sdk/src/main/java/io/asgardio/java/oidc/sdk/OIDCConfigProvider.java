@@ -44,6 +44,11 @@ public class OIDCConfigProvider {
         this.oidcAgentConfig = (OIDCAgentConfig) configBeanAttribute;
     }
 
+    public void init(OIDCAgentConfig config) throws SSOAgentException {
+
+        this.oidcAgentConfig = config;
+    }
+
     public OIDCAgentConfig getOidcAgentConfig() {
 
         return oidcAgentConfig;

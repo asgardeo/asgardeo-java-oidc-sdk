@@ -83,11 +83,10 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void login(ServletRequest request, ServletResponse response) throws IOException {
+    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         AuthorizationRequest authorizationRequest = getAuthorizationRequest();
-        httpServletResponse.sendRedirect(authorizationRequest.toURI().toString());
+        response.sendRedirect(authorizationRequest.toURI().toString());
     }
 
     @Override
@@ -151,11 +150,10 @@ public class OIDCManagerImpl implements OIDCManager {
             clearSession(request);
             response.sendRedirect(requestResolver.getIndexPage());
         }
-
     }
 
     @Override
-    public void singleLogout(HttpServletRequest request, HttpServletResponse response)
+    public void logout(HttpServletRequest request, HttpServletResponse response)
             throws SSOAgentException, IOException {
 
         HttpSession currentSession = request.getSession(false);
@@ -269,7 +267,21 @@ public class OIDCManagerImpl implements OIDCManager {
         }
 
         //TODO validate IdToken (Signature, ref. spec)
+
+//        Issuer issuer = oidcAgentConfig.getIssuer();
+//        URL jwkSetURL = oidcAgentConfig.getJwksEndpoint().toURL();
+//        JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
+//        ClientID clientID = oidcAgentConfig.getConsumerKey();
+//
+//        IDTokenValidator validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURL);
+
         try {
+//            JWT idTokenJWT = JWTParser.parse(idToken);
+//            IDTokenClaimsSet claims;
+//
+//            Nonce expectedNonce = new Nonce(null);
+//            claims = validator.validate(idTokenJWT, expectedNonce);
+
             JWTClaimsSet claimsSet = SignedJWT.parse(idToken).getJWTClaimsSet();
             User user = new User(claimsSet.getSubject(), getUserAttributes(idToken));
             session.setAttribute(SSOAgentConstants.ID_TOKEN, idToken);

@@ -41,9 +41,19 @@ import javax.servlet.http.HttpSession;
 
 public interface OIDCManager {
 
-    void init();
+    // rename (sendForLogin)
+    void login(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    void login(ServletRequest request, ServletResponse response) throws IOException;
+    void handleOIDCCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+    void logout(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException, IOException;
+
+    boolean isActiveSessionPresent(HttpServletRequest request);
+
+
+
+
+    void init();
 
     AuthenticationContext authenticate();
 
@@ -56,10 +66,4 @@ public interface OIDCManager {
     JWT getIDToken();
 
     RefreshToken getRefreshToken();
-
-    void handleOIDCCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
-
-    void singleLogout(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException, IOException;
-
-    boolean isActiveSessionPresent(HttpServletRequest request);
 }
