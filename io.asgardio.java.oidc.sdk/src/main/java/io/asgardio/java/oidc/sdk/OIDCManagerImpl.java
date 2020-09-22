@@ -41,6 +41,7 @@ import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
@@ -50,6 +51,7 @@ import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import net.minidev.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,8 +62,6 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -83,9 +83,10 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState)
+            throws IOException {
 
-        AuthorizationRequest authorizationRequest = getAuthorizationRequest();
+        AuthorizationRequest authorizationRequest = getAuthorizationRequest(sessionState);
         response.sendRedirect(authorizationRequest.toURI().toString());
     }
 
@@ -153,11 +154,11 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response)
+    public void logout(HttpServletRequest request, HttpServletResponse response, String sessionState)
             throws SSOAgentException, IOException {
 
         HttpSession currentSession = request.getSession(false);
-        LogoutRequest logoutRequest = getLogoutRequest(currentSession);
+        LogoutRequest logoutRequest = getLogoutRequest(currentSession, sessionState);
 
         logger.log(Level.INFO, "Invalidating the session in the client side upon RP-Initiated logout.");
         currentSession.invalidate();
@@ -174,30 +175,39 @@ public class OIDCManagerImpl implements OIDCManager {
                 && (boolean) currentSession.getAttribute(SSOAgentConstants.AUTHENTICATED);
     }
 
-    private AuthorizationRequest getAuthorizationRequest() {
+    private AuthorizationRequest getAuthorizationRequest(String sessionState) {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
         Scope authScope = oidcAgentConfig.getScope();
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
+        State state = null;
+        if (StringUtils.isNotBlank(sessionState)) {
+            state = new State(sessionState);
+        }
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
                 .scope(authScope)
+                .state(state)
                 .redirectionURI(callBackURI)
                 .endpointURI(authorizationEndpoint)
                 .build();
         return authorizationRequest;
     }
 
-    private LogoutRequest getLogoutRequest(HttpSession session) throws SSOAgentException {
+    private LogoutRequest getLogoutRequest(HttpSession session, String sessionState) throws SSOAgentException {
 
         LogoutRequest logoutRequest;
         try {
             URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
             URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
             JWT jwtIdToken = JWTParser.parse((String) session.getAttribute(SSOAgentConstants.ID_TOKEN));
-            logoutRequest = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, null);
+            State state = null;
+            if (StringUtils.isNotBlank(sessionState)) {
+                state = new State(sessionState);
+            }
+            logoutRequest = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state);
         } catch (ParseException e) {
             throw new SSOAgentException("Error while fetching logout URL.", e);
         }

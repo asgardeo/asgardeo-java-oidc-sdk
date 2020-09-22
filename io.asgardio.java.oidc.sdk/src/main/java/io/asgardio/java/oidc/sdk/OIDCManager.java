@@ -19,39 +19,27 @@
 package io.asgardio.java.oidc.sdk;
 
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
-import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 public interface OIDCManager {
 
-    // rename (sendForLogin)
-    void login(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState) throws IOException;
 
     void handleOIDCCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    void logout(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException, IOException;
+    void logout(HttpServletRequest request, HttpServletResponse response, String sessionState) throws SSOAgentException,
+            IOException;
 
     boolean isActiveSessionPresent(HttpServletRequest request);
-
-
-
 
     void init();
 
