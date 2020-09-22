@@ -23,13 +23,13 @@
     <parent>
         <artifactId>java-oidc-sdk</artifactId>
         <groupId>io.asgardio.java.oidc.sdk</groupId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>io.asgardio.java.oidc.sdk</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <name>Asgardio - Java OIDC SDK core</name>
     <url>http://asgardio.io</url>
 
@@ -50,10 +50,6 @@
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.ops4j.pax.logging</groupId>-->
-<!--            <artifactId>pax-logging-api</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.wso2.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -72,27 +68,12 @@
         <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
