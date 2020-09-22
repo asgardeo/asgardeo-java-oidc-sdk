@@ -22,6 +22,7 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.State;
 import io.asgardio.java.oidc.sdk.SSOAgentConstants;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +47,7 @@ public class OIDCAgentConfig {
     private String logoutURL;
     private URI callbackUrl;
     private Scope scope;
+    private State state;
     private URI authorizeEndpoint;
     private URI logoutEndpoint;
     private URI tokenEndpoint;
@@ -172,6 +174,16 @@ public class OIDCAgentConfig {
     public void setScope(Scope scope) {
 
         this.scope = scope;
+    }
+
+    public State getState() {
+
+        return state;
+    }
+
+    public void setState(State state) {
+
+        this.state = state;
     }
 
     /**
@@ -357,12 +369,14 @@ public class OIDCAgentConfig {
         consumerKey = new ClientID(oidcProperties.get("ClientId"));
         consumerSecret = new Secret(oidcProperties.get("ClientSecret"));
         scope = new Scope("openid");
+        state = new State(oidcProperties.get("state"));
 
         try {
             callbackUrl = new URI(oidcProperties.get("callbackUrl"));
             tokenEndpoint = new URI(oidcProperties.get("OAuth2TokenEPUrl"));
             authorizeEndpoint = new URI(oidcProperties.get("OAuth2AuthzEPUrl"));
             logoutEndpoint = new URI(oidcProperties.get("OIDCLogoutEPUrl"));
+            postLogoutRedirectURI = callbackUrl;
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
