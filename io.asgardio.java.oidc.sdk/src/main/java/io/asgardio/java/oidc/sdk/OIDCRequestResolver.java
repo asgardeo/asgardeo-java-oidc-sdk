@@ -36,8 +36,8 @@ public class OIDCRequestResolver {
 
     private static final Logger logger = LogManager.getLogger(OIDCRequestResolver.class);
 
-    OIDCAgentConfig oidcAgentConfig = null;
-    HttpServletRequest request = null;
+    OIDCAgentConfig oidcAgentConfig;
+    HttpServletRequest request;
 
     public OIDCRequestResolver(HttpServletRequest request, OIDCAgentConfig oidcAgentConfig) {
 
@@ -91,13 +91,12 @@ public class OIDCRequestResolver {
         }
         return request.getContextPath();
     }
+
     private void logErrorAuthorizationResponse(AuthorizationResponse authzResponse) {
 
         AuthorizationErrorResponse errorResponse = authzResponse.toErrorResponse();
         JSONObject responseObject = errorResponse.getErrorObject().toJSONObject();
         logger.log(Level.INFO, "Error response object: ", responseObject);
     }
-
-
 
 }

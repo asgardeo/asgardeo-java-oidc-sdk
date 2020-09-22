@@ -21,36 +21,9 @@ package io.asgardio.java.oidc.sdk;
 import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 
-import javax.servlet.ServletContext;
+public interface OIDCConfigProvider {
 
-public class OIDCConfigProvider {
+    void init() throws SSOAgentException;
 
-    private OIDCAgentConfig oidcAgentConfig = null;
-    private final ServletContext servletContext;
-
-    public OIDCConfigProvider(ServletContext servletContext) {
-
-        this.servletContext = servletContext;
-    }
-
-    public void init() throws SSOAgentException {
-
-        Object configBeanAttribute = servletContext.getAttribute(SSOAgentConstants.CONFIG_BEAN_NAME);
-
-        if (!(configBeanAttribute instanceof OIDCAgentConfig)) {
-            throw new SSOAgentException("Cannot find " + SSOAgentConstants.CONFIG_BEAN_NAME +
-                    " attribute of OIDCAgentConfig type in the servletContext. Cannot proceed further.");
-        }
-        this.oidcAgentConfig = (OIDCAgentConfig) configBeanAttribute;
-    }
-
-    public void init(OIDCAgentConfig config) throws SSOAgentException {
-
-        this.oidcAgentConfig = config;
-    }
-
-    public OIDCAgentConfig getOidcAgentConfig() {
-
-        return oidcAgentConfig;
-    }
+    OIDCAgentConfig getOidcAgentConfig();
 }

@@ -18,6 +18,70 @@
 
 package io.asgardio.java.oidc.sdk.bean;
 
-public class AuthenticationContext {
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
+import java.io.Serializable;
+
+public class AuthenticationContext implements Serializable {
+
+    private static final long serialVersionUID = -1127206359989462943L;
+
+    private User user;
+    private State state;
+    private AccessToken accessToken;
+    private RefreshToken refreshToken;
+    private JWT idToken;
+
+    public User getUser() {
+
+        return user;
+    }
+
+    public void setUser(User user) {
+
+        this.user = user;
+    }
+
+    public State getState() {
+
+        return state;
+    }
+
+    public void setState(State state) {
+
+        this.state = state;
+    }
+
+    public AccessToken getAccessToken() {
+
+        return accessToken;
+    }
+
+    public void setAccessToken(AccessToken accessToken) {
+
+        this.accessToken = accessToken;
+    }
+
+    public RefreshToken getRefreshToken() {
+
+        return refreshToken;
+    }
+
+    public void setRefreshToken(RefreshToken refreshToken) {
+
+        this.refreshToken = refreshToken;
+    }
+
+    public JWT getIdToken() {
+
+        return idToken;
+    }
+
+    public void setIdToken(JWT idToken) {
+
+        this.idToken = idToken;
+    }
 }
