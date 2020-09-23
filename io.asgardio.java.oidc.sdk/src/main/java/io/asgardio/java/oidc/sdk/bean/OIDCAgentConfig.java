@@ -22,208 +22,154 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.State;
-import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 
 import java.net.URI;
-import java.util.Map;
-import java.util.Properties;
+import java.util.HashSet;
 import java.util.Set;
 
-public interface OIDCAgentConfig {
+public class OIDCAgentConfig {
 
-    /**
-     * Reads the properties from a source and sets them to class parameters.
-     *
-     * @param properties {@link Properties} of the client application.
-     */
-    public void initConfig(Properties properties) throws SSOAgentClientException;
+    private ClientID consumerKey;
+    private Secret consumerSecret;
+    private String indexPage;
+    private String logoutURL;
+    private URI callbackUrl;
+    private Scope scope;
+    private URI authorizeEndpoint;
+    private URI logoutEndpoint;
+    private URI tokenEndpoint;
+    private Issuer issuer;
+    private URI jwksEndpoint;
+    private URI postLogoutRedirectURI;
+    private Set<String> skipURIs = new HashSet<String>();
 
-    public void initConfig(Map<String, String> oidcProperties);
+    public ClientID getConsumerKey() {
 
-    /**
-     * Returns the consumer key.
-     *
-     * @return {@link ClientID} of the client application.
-     */
-    public ClientID getConsumerKey();
+        return consumerKey;
+    }
 
-    /**
-     * Sets the consumer key.
-     *
-     * @param consumerKey {@link ClientID} of the client application.
-     */
-    public void setConsumerKey(ClientID consumerKey);
+    public void setConsumerKey(ClientID consumerKey) {
 
-    /**
-     * Returns the consumer secret.
-     *
-     * @return {@link Secret} client secret of the application.
-     */
-    public Secret getConsumerSecret();
+        this.consumerKey = consumerKey;
+    }
 
-    /**
-     * Sets the consumer secret.
-     *
-     * @param consumerSecret {@link Secret} of the client application.
-     */
-    public void setConsumerSecret(Secret consumerSecret);
+    public Secret getConsumerSecret() {
 
-    /**
-     * Returns the index page.
-     *
-     * @return Index page of the application.
-     */
-    public String getIndexPage();
+        return consumerSecret;
+    }
 
-    /**
-     * Sets the index page.
-     *
-     * @param indexPage Index page of the client application.
-     */
-    public void setIndexPage(String indexPage);
+    public void setConsumerSecret(Secret consumerSecret) {
 
-    /**
-     * Returns the logout URL.
-     *
-     * @return Logout URL of the application.
-     */
-    public String getLogoutURL();
+        this.consumerSecret = consumerSecret;
+    }
 
-    /**
-     * Sets the logout URL.
-     *
-     * @param logoutURL Logout URL of the client application.
-     */
-    public void setLogoutURL(String logoutURL);
+    public String getIndexPage() {
 
-    /**
-     * Returns the callback URL.
-     *
-     * @return Callback URL of the application.
-     */
-    public URI getCallbackUrl();
+        return indexPage;
+    }
 
-    /**
-     * Sets the callback URL.
-     *
-     * @param callbackUrl Callback URL of the client application.
-     */
-    public void setCallbackUrl(URI callbackUrl);
+    public void setIndexPage(String indexPage) {
 
-    /**
-     * Returns the scope.
-     *
-     * @return {@link Scope} Scope of the application.
-     */
-    public Scope getScope();
+        this.indexPage = indexPage;
+    }
 
-    /**
-     * Sets the scope.
-     *
-     * @param scope {@link Scope} of the client application.
-     */
-    public void setScope(Scope scope);
+    public String getLogoutURL() {
 
-    public State getState();
+        return logoutURL;
+    }
 
-    public void setState(State state);
+    public void setLogoutURL(String logoutURL) {
 
-    /**
-     * Returns the authorize endpoint.
-     *
-     * @return Authorize endpoint of the OIDC provider.
-     */
-    public URI getAuthorizeEndpoint();
+        this.logoutURL = logoutURL;
+    }
 
-    /**
-     * Sets the authorize endpoint.
-     *
-     * @param authorizeEndpoint Authorize endpoint of the OIDC provider.
-     */
-    public void setAuthorizeEndpoint(URI authorizeEndpoint);
+    public URI getCallbackUrl() {
 
-    /**
-     * Returns the logout endpoint.
-     *
-     * @return Logout endpoint of the OIDC provider.
-     */
-    public URI getLogoutEndpoint();
+        return callbackUrl;
+    }
 
-    /**
-     * Sets the logout endpoint.
-     *
-     * @param logoutEndpoint Logout endpoint of the OIDC provider.
-     */
-    public void setLogoutEndpoint(URI logoutEndpoint);
+    public void setCallbackUrl(URI callbackUrl) {
 
-    /**
-     * Returns the token endpoint.
-     *
-     * @return Token endpoint of the OIDC provider.
-     */
-    public URI getTokenEndpoint();
+        this.callbackUrl = callbackUrl;
+    }
 
-    /**
-     * Sets the token endpoint.
-     *
-     * @param tokenEndpoint Token endpoint of the OIDC provider.
-     */
-    public void setTokenEndpoint(URI tokenEndpoint);
+    public Scope getScope() {
 
-    /**
-     * Returns the issuer ID.
-     *
-     * @return {@link Issuer} Issuer ID of the OIDC provider.
-     */
-    public Issuer getIssuer();
+        return scope;
+    }
 
-    /**
-     * Sets the issuer ID.
-     *
-     * @param issuer {@link Issuer} Issuer ID of the OIDC provider.
-     */
-    public void setIssuer(Issuer issuer);
+    public void setScope(Scope scope) {
 
-    /**
-     * Returns the JWKS endpoint.
-     *
-     * @return JWKS endpoint of the OIDC provider.
-     */
-    public URI getJwksEndpoint();
+        this.scope = scope;
+    }
 
-    /**
-     * Sets the JWKS endpoint.
-     *
-     * @param jwksEndpoint JWKS endpoint of the OIDC provider.
-     */
-    public void setJwksEndpoint(URI jwksEndpoint);
+    public URI getAuthorizeEndpoint() {
 
-    /**
-     * Returns the post logout redirect URI.
-     *
-     * @return Post logout redirect URI of the application.
-     */
-    public URI getPostLogoutRedirectURI();
+        return authorizeEndpoint;
+    }
 
-    /**
-     * Sets the post logout redirect URI.
-     *
-     * @param postLogoutRedirectURI Post logout redirect URI of the application.
-     */
-    public void setPostLogoutRedirectURI(URI postLogoutRedirectURI);
+    public void setAuthorizeEndpoint(URI authorizeEndpoint) {
 
-    /**
-     * Returns the skip URIs.
-     *
-     * @return Skip URIs of the application.
-     */
-    public Set<String> getSkipURIs();
+        this.authorizeEndpoint = authorizeEndpoint;
+    }
 
-    /**
-     * Sets the skip URIs.
-     *
-     * @param skipURIs The set of application pages which need not be secured.
-     */
-    public void setSkipURIs(Set<String> skipURIs);
+    public URI getLogoutEndpoint() {
+
+        return logoutEndpoint;
+    }
+
+    public void setLogoutEndpoint(URI logoutEndpoint) {
+
+        this.logoutEndpoint = logoutEndpoint;
+    }
+
+    public URI getTokenEndpoint() {
+
+        return tokenEndpoint;
+    }
+
+    public void setTokenEndpoint(URI tokenEndpoint) {
+
+        this.tokenEndpoint = tokenEndpoint;
+    }
+
+    public Issuer getIssuer() {
+
+        return issuer;
+    }
+
+    public void setIssuer(Issuer issuer) {
+
+        this.issuer = issuer;
+    }
+
+    public URI getJwksEndpoint() {
+
+        return jwksEndpoint;
+    }
+
+    public void setJwksEndpoint(URI jwksEndpoint) {
+
+        this.jwksEndpoint = jwksEndpoint;
+    }
+
+    public URI getPostLogoutRedirectURI() {
+
+        return postLogoutRedirectURI;
+    }
+
+    public void setPostLogoutRedirectURI(URI postLogoutRedirectURI) {
+
+        this.postLogoutRedirectURI = postLogoutRedirectURI;
+    }
+
+    public Set<String> getSkipURIs() {
+
+        return skipURIs;
+    }
+
+    public void setSkipURIs(Set<String> skipURIs) {
+
+        this.skipURIs = skipURIs;
+    }
 }

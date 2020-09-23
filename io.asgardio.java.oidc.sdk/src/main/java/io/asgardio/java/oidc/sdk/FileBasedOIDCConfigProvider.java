@@ -18,39 +18,105 @@
 
 package io.asgardio.java.oidc.sdk;
 
-import io.asgardio.java.oidc.sdk.bean.FileBasedOIDCAgentConfig;
-import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
+import org.apache.commons.lang.StringUtils;
 
-import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
 
-    private FileBasedOIDCAgentConfig fileBasedOidcAgentConfig = null;
-    private final ServletContext servletContext;
+    private OIDCAgentConfig oidcAgentConfig;
 
-    public FileBasedOIDCConfigProvider(ServletContext servletContext) {
+    public FileBasedOIDCConfigProvider(File file) throws SSOAgentClientException {
 
-        this.servletContext = servletContext;
-    }
-
-    public void init() throws SSOAgentException {
-
-        Object configBeanAttribute = servletContext.getAttribute(SSOAgentConstants.CONFIG_BEAN_NAME);
-
-        if (!(configBeanAttribute instanceof FileBasedOIDCAgentConfig)) {
-            throw new SSOAgentException("Cannot find " + SSOAgentConstants.CONFIG_BEAN_NAME +
-                    " attribute of OIDCAgentConfig type in the servletContext. Cannot proceed further.");
+        Properties properties = new Properties();
+        try {
+            InputStream fileInputStream = new FileInputStream(file);
+            properties.load(fileInputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        this.fileBasedOidcAgentConfig = (FileBasedOIDCAgentConfig) configBeanAttribute;
+        initConfig(properties);
     }
 
-    public void init(FileBasedOIDCAgentConfig config) throws SSOAgentException {
+    private void initConfig(Properties properties) throws SSOAgentClientException {
 
-        this.fileBasedOidcAgentConfig = config;
+        ClientID consumerKey = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CONSUMER_KEY)) ?
+                new ClientID(properties.getProperty(SSOAgentConstants.CONSUMER_KEY)) : null;
+        Secret consumerSecret = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET)) ?
+                new Secret(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET)) : null;
+        String indexPage = properties.getProperty(SSOAgentConstants.INDEX_PAGE);
+        String logoutURL = properties.getProperty(SSOAgentConstants.LOGOUT_URL);
+        try {
+            URI callbackUrl = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) ?
+                    new URI(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) : null;
+            URI authorizeEndpoint =
+                    StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.OAUTH2_AUTHZ_ENDPOINT)) ?
+                            new URI(properties.getProperty(SSOAgentConstants.OAUTH2_AUTHZ_ENDPOINT)) : null;
+            URI logoutEndpoint =
+                    StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.OIDC_LOGOUT_ENDPOINT)) ?
+                            new URI(properties.getProperty(SSOAgentConstants.OIDC_LOGOUT_ENDPOINT)) : null;
+            URI tokenEndpoint = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.OIDC_TOKEN_ENDPOINT)) ?
+                    new URI(properties.getProperty(SSOAgentConstants.OIDC_TOKEN_ENDPOINT)) : null;
+            URI jwksEndpoint = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.OIDC_JWKS_ENDPOINT)) ?
+                    new URI(properties.getProperty(SSOAgentConstants.OIDC_JWKS_ENDPOINT)) : null;
+            URI postLogoutRedirectURI =
+                    StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) ?
+                            new URI(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) :
+                            callbackUrl;
+            oidcAgentConfig.setCallbackUrl(callbackUrl);
+            oidcAgentConfig.setAuthorizeEndpoint(authorizeEndpoint);
+            oidcAgentConfig.setLogoutEndpoint(logoutEndpoint);
+            oidcAgentConfig.setTokenEndpoint(tokenEndpoint);
+            oidcAgentConfig.setJwksEndpoint(jwksEndpoint);
+            oidcAgentConfig.setPostLogoutRedirectURI(postLogoutRedirectURI);
+        } catch (URISyntaxException e) {
+            throw new SSOAgentClientException("URL not formatted properly.", e);
+        }
+
+        Issuer issuer = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.OIDC_ISSUER)) ?
+                new Issuer(properties.getProperty(SSOAgentConstants.OIDC_ISSUER)) : null;
+        String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
+        if (StringUtils.isNotBlank(scopeString)) {
+            String[] scopeArray = scopeString.split(",");
+            Scope scope = new Scope(scopeArray);
+            oidcAgentConfig.setScope(scope);
+        }
+
+        Set<String> skipURIs = new HashSet<String>();
+        String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
+        if (StringUtils.isNotBlank(skipURIsString)) {
+            String[] skipURIArray = skipURIsString.split(",");
+            for (String skipURI : skipURIArray) {
+                skipURIs.add(skipURI);
+            }
+        }
+        oidcAgentConfig.setConsumerKey(consumerKey);
+        oidcAgentConfig.setConsumerSecret(consumerSecret);
+        oidcAgentConfig.setIndexPage(indexPage);
+        oidcAgentConfig.setLogoutURL(logoutURL);
+        oidcAgentConfig.setIssuer(issuer);
+        oidcAgentConfig.setSkipURIs(skipURIs);
     }
 
-    public FileBasedOIDCAgentConfig getOidcAgentConfig() {
+    public OIDCAgentConfig getOidcAgentConfig() {
 
-        return fileBasedOidcAgentConfig;
+        return oidcAgentConfig;
     }
 }

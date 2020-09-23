@@ -34,9 +34,11 @@ public interface OIDCManager {
 
     void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState) throws IOException;
 
-    void handleOIDCCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    AuthenticationContext handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
+            throws IOException;
 
-    void logout(HttpServletRequest request, HttpServletResponse response, String sessionState) throws SSOAgentException,
+    void logout(AuthenticationContext context, HttpServletResponse response, String sessionState)
+            throws SSOAgentException,
             IOException;
 
     boolean isActiveSessionPresent(HttpServletRequest request);

@@ -46,9 +46,8 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfigManager;
 import io.asgardio.java.oidc.sdk.bean.User;
-import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -70,11 +69,13 @@ public class OIDCManagerImpl implements OIDCManager {
 
     private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
 
-    private OIDCAgentConfig oidcAgentConfig;
+    private OIDCAgentConfigManager oidcAgentConfig;
 
-    public OIDCManagerImpl(OIDCAgentConfig oidcAgentConfig) {
+    public OIDCManagerImpl(OIDCAgentConfigManager oidcAgentConfig) {
 
         this.oidcAgentConfig = oidcAgentConfig;
+        //validate config
+        //authz code val, logout val
     }
 
     @Override
@@ -126,14 +127,16 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void handleOIDCCallback(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public AuthenticationContext handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
 
         OIDCRequestResolver requestResolver = new OIDCRequestResolver(request, oidcAgentConfig);
+        AuthenticationContext context = new AuthenticationContext();
 
         if (!requestResolver.isError() && requestResolver.isAuthorizationCodeResponse()) {
             logger.log(Level.INFO, "Handling the OIDC Authorization response.");
             try {
-                boolean isAuthenticated = handleAuthentication(request, response);
+                boolean isAuthenticated = handleAuthentication(request, context);
                 if (isAuthenticated) {
                     logger.log(Level.INFO, "Authentication successful. Redirecting to the target page.");
                     response.sendRedirect("home.jsp"); //TODO: target page
@@ -151,17 +154,14 @@ public class OIDCManagerImpl implements OIDCManager {
             clearSession(request);
             response.sendRedirect(requestResolver.getIndexPage());
         }
+        return context;
     }
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, String sessionState)
-            throws SSOAgentException, IOException {
+    public void logout(AuthenticationContext context, HttpServletResponse response, String sessionState)
+            throws IOException {
 
-        HttpSession currentSession = request.getSession(false);
-        LogoutRequest logoutRequest = getLogoutRequest(currentSession, sessionState);
-
-        logger.log(Level.INFO, "Invalidating the session in the client side upon RP-Initiated logout.");
-        currentSession.invalidate();
+        LogoutRequest logoutRequest = getLogoutRequest(context, sessionState);
         response.sendRedirect(logoutRequest.toURI().toString());
     }
 
@@ -196,22 +196,16 @@ public class OIDCManagerImpl implements OIDCManager {
         return authorizationRequest;
     }
 
-    private LogoutRequest getLogoutRequest(HttpSession session, String sessionState) throws SSOAgentException {
+    private LogoutRequest getLogoutRequest(AuthenticationContext context, String sessionState) {
 
-        LogoutRequest logoutRequest;
-        try {
-            URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
-            URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
-            JWT jwtIdToken = JWTParser.parse((String) session.getAttribute(SSOAgentConstants.ID_TOKEN));
-            State state = null;
-            if (StringUtils.isNotBlank(sessionState)) {
-                state = new State(sessionState);
-            }
-            logoutRequest = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state);
-        } catch (ParseException e) {
-            throw new SSOAgentException("Error while fetching logout URL.", e);
+        URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
+        URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
+        JWT jwtIdToken = context.getIdToken();
+        State state = null;
+        if (StringUtils.isNotBlank(sessionState)) {
+            state = new State(sessionState);
         }
-        return logoutRequest;
+        return new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state);
     }
 
     private void clearSession(HttpServletRequest request) {
@@ -222,7 +216,7 @@ public class OIDCManagerImpl implements OIDCManager {
         }
     }
 
-    private boolean handleAuthentication(final HttpServletRequest request, final HttpServletResponse response)
+    private boolean handleAuthentication(final HttpServletRequest request, AuthenticationContext context)
             throws SSOAgentServerException, IOException {
 
         HttpSession session = request.getSession();
@@ -252,7 +246,7 @@ public class OIDCManagerImpl implements OIDCManager {
                 handleErrorTokenResponse(tokenRequest, tokenResponse);
                 return false;
             } else {
-                handleSuccessTokenResponse(session, tokenResponse);
+                handleSuccessTokenResponse(session, tokenResponse, context);
                 return true;
             }
         } catch (com.nimbusds.oauth2.sdk.ParseException e) {
@@ -261,7 +255,8 @@ public class OIDCManagerImpl implements OIDCManager {
         }
     }
 
-    private void handleSuccessTokenResponse(HttpSession session, TokenResponse tokenResponse)
+    private void handleSuccessTokenResponse(HttpSession session, TokenResponse tokenResponse,
+                                            AuthenticationContext context)
             throws SSOAgentServerException {
 
         AccessTokenResponse successResponse = tokenResponse.toSuccessResponse();
@@ -297,6 +292,9 @@ public class OIDCManagerImpl implements OIDCManager {
             session.setAttribute(SSOAgentConstants.ID_TOKEN, idToken);
             session.setAttribute(SSOAgentConstants.USER, user);
             session.setAttribute(SSOAgentConstants.AUTHENTICATED, true);
+
+            context.setIdToken(JWTParser.parse(idToken));
+            context.setUser(user);
         } catch (ParseException e) {
             throw new SSOAgentServerException("Error while parsing id_token.");
         }

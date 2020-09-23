@@ -19,11 +19,9 @@
 package io.asgardio.java.oidc.sdk;
 
 import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
-import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfigManager;
 
 public interface OIDCConfigProvider {
-
-    void init() throws SSOAgentException;
 
     OIDCAgentConfig getOidcAgentConfig();
 }

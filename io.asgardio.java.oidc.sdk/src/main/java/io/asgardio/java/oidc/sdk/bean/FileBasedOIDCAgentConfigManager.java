@@ -22,7 +22,6 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.State;
 import io.asgardio.java.oidc.sdk.SSOAgentConstants;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import org.apache.commons.lang.StringUtils;
@@ -33,16 +32,15 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 //file-based OIDC Agent Config
-public class FileBasedOIDCAgentConfig implements OIDCAgentConfig, Serializable {
+public class FileBasedOIDCAgentConfigManager implements OIDCAgentConfigManager, Serializable {
 
     private static final long serialVersionUID = 8862715306614922993L;
 
-    private static final Logger logger = LogManager.getLogger(FileBasedOIDCAgentConfig.class);
+    private static final Logger logger = LogManager.getLogger(FileBasedOIDCAgentConfigManager.class);
 
     private ClientID consumerKey;
     private Secret consumerSecret;
@@ -50,7 +48,6 @@ public class FileBasedOIDCAgentConfig implements OIDCAgentConfig, Serializable {
     private String logoutURL;
     private URI callbackUrl;
     private Scope scope;
-    private State state;
     private URI authorizeEndpoint;
     private URI logoutEndpoint;
     private URI tokenEndpoint;
@@ -130,16 +127,6 @@ public class FileBasedOIDCAgentConfig implements OIDCAgentConfig, Serializable {
     public void setScope(Scope scope) {
 
         this.scope = scope;
-    }
-
-    public State getState() {
-
-        return state;
-    }
-
-    public void setState(State state) {
-
-        this.state = state;
     }
 
     @Override
@@ -226,10 +213,11 @@ public class FileBasedOIDCAgentConfig implements OIDCAgentConfig, Serializable {
         this.skipURIs = skipURIs;
     }
 
-    public FileBasedOIDCAgentConfig() {
+    public FileBasedOIDCAgentConfigManager() {
 
     }
 
+    //mv to config provider
     @Override
     public void initConfig(Properties properties) throws SSOAgentClientException {
 
@@ -255,7 +243,8 @@ public class FileBasedOIDCAgentConfig implements OIDCAgentConfig, Serializable {
                     new URI(properties.getProperty(SSOAgentConstants.OIDC_JWKS_ENDPOINT)) : null;
             postLogoutRedirectURI =
                     StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) ?
-                            new URI(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) : null;
+                            new URI(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) :
+                            callbackUrl;
         } catch (URISyntaxException e) {
             throw new SSOAgentClientException("URL not formatted properly.", e);
         }
@@ -273,26 +262,5 @@ public class FileBasedOIDCAgentConfig implements OIDCAgentConfig, Serializable {
                 skipURIs.add(skipURI);
             }
         }
-    }
-
-    @Override
-    public void initConfig(Map<String, String> oidcProperties) {
-
-        consumerKey = new ClientID(oidcProperties.get("ClientId"));
-        consumerSecret = new Secret(oidcProperties.get("ClientSecret"));
-        scope = new Scope("openid");
-//        state = new State(oidcProperties.get("state"));
-
-        try {
-            callbackUrl = new URI(oidcProperties.get("callbackUrl"));
-            tokenEndpoint = new URI(oidcProperties.get("OAuth2TokenEPUrl"));
-            authorizeEndpoint = new URI(oidcProperties.get("OAuth2AuthzEPUrl"));
-            logoutEndpoint = StringUtils.isNotBlank(oidcProperties.get("OIDCLogoutEPUrl")) ?
-                    new URI(oidcProperties.get("OIDCLogoutEPUrl")) : null;
-            postLogoutRedirectURI = callbackUrl;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
     }
 }
