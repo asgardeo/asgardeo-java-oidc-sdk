@@ -19,7 +19,6 @@
 package io.asgardio.java.oidc.sdk;
 
 import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfigManager;
 
 public interface OIDCConfigProvider {
 

@@ -21,7 +21,7 @@ package io.asgardio.java.oidc.sdk;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfigManager;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -36,10 +36,10 @@ public class OIDCRequestResolver {
 
     private static final Logger logger = LogManager.getLogger(OIDCRequestResolver.class);
 
-    OIDCAgentConfigManager oidcAgentConfig;
+    OIDCAgentConfig oidcAgentConfig;
     HttpServletRequest request;
 
-    public OIDCRequestResolver(HttpServletRequest request, OIDCAgentConfigManager oidcAgentConfig) {
+    public OIDCRequestResolver(HttpServletRequest request, OIDCAgentConfig oidcAgentConfig) {
 
         this.request = request;
         this.oidcAgentConfig = oidcAgentConfig;

@@ -23,14 +23,14 @@ import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfigManager;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.URI;
 
 public class OIDCRequestBuilder {
 
-    public String buildAuthorizationRequest(String state, OIDCAgentConfigManager oidcAgentConfig) {
+    public static String buildAuthorizationRequest(String state, OIDCAgentConfig oidcAgentConfig) {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();

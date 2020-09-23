@@ -46,7 +46,7 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfigManager;
+import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import net.minidev.json.JSONObject;
@@ -69,9 +69,9 @@ public class OIDCManagerImpl implements OIDCManager {
 
     private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
 
-    private OIDCAgentConfigManager oidcAgentConfig;
+    private OIDCAgentConfig oidcAgentConfig;
 
-    public OIDCManagerImpl(OIDCAgentConfigManager oidcAgentConfig) {
+    public OIDCManagerImpl(OIDCAgentConfig oidcAgentConfig) {
 
         this.oidcAgentConfig = oidcAgentConfig;
         //validate config
@@ -87,8 +87,8 @@ public class OIDCManagerImpl implements OIDCManager {
     public void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState)
             throws IOException {
 
-        AuthorizationRequest authorizationRequest = getAuthorizationRequest(sessionState);
-        response.sendRedirect(authorizationRequest.toURI().toString());
+        String authorizationRequest = OIDCRequestBuilder.buildAuthorizationRequest(sessionState, oidcAgentConfig);
+        response.sendRedirect(authorizationRequest);
     }
 
     @Override
@@ -173,27 +173,6 @@ public class OIDCManagerImpl implements OIDCManager {
         return currentSession != null
                 && currentSession.getAttribute(SSOAgentConstants.AUTHENTICATED) != null
                 && (boolean) currentSession.getAttribute(SSOAgentConstants.AUTHENTICATED);
-    }
-
-    private AuthorizationRequest getAuthorizationRequest(String sessionState) {
-
-        ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
-        ClientID clientID = oidcAgentConfig.getConsumerKey();
-        Scope authScope = oidcAgentConfig.getScope();
-        URI callBackURI = oidcAgentConfig.getCallbackUrl();
-        URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
-        State state = null;
-        if (StringUtils.isNotBlank(sessionState)) {
-            state = new State(sessionState);
-        }
-
-        AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
-                .scope(authScope)
-                .state(state)
-                .redirectionURI(callBackURI)
-                .endpointURI(authorizationEndpoint)
-                .build();
-        return authorizationRequest;
     }
 
     private LogoutRequest getLogoutRequest(AuthenticationContext context, String sessionState) {

@@ -25,6 +25,9 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +42,8 @@ import java.util.Set;
 
 public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
 
+    private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
+
     private OIDCAgentConfig oidcAgentConfig;
 
     public FileBasedOIDCConfigProvider(File file) throws SSOAgentClientException {
@@ -48,9 +53,10 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
             InputStream fileInputStream = new FileInputStream(file);
             properties.load(fileInputStream);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error(String.format("File %s not found.", file.getAbsolutePath()));
+            throw new SSOAgentClientException(e.getMessage(), e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.FATAL, "Error while loading properties.", e);
         }
         initConfig(properties);
     }
