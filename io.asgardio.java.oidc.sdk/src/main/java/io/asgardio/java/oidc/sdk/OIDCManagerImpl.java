@@ -28,10 +28,8 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
@@ -45,9 +43,10 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
-import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
+import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.bean.User;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -71,11 +70,10 @@ public class OIDCManagerImpl implements OIDCManager {
 
     private OIDCAgentConfig oidcAgentConfig;
 
-    public OIDCManagerImpl(OIDCAgentConfig oidcAgentConfig) {
+    public OIDCManagerImpl(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
 
+        validateConfig(oidcAgentConfig);
         this.oidcAgentConfig = oidcAgentConfig;
-        //validate config
-        //authz code val, logout val
     }
 
     @Override
@@ -92,7 +90,7 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public AuthenticationContext authenticate() {
+    public AuthenticationInfo authenticate() {
 
         return null;
     }
@@ -127,11 +125,11 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public AuthenticationContext handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
+    public AuthenticationInfo handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
         OIDCRequestResolver requestResolver = new OIDCRequestResolver(request, oidcAgentConfig);
-        AuthenticationContext context = new AuthenticationContext();
+        AuthenticationInfo context = new AuthenticationInfo();
 
         if (!requestResolver.isError() && requestResolver.isAuthorizationCodeResponse()) {
             logger.log(Level.INFO, "Handling the OIDC Authorization response.");
@@ -158,10 +156,9 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void logout(AuthenticationContext context, HttpServletResponse response, String sessionState)
-            throws IOException {
+    public void logout(AuthenticationInfo context, HttpServletResponse response, String state) throws IOException {
 
-        LogoutRequest logoutRequest = getLogoutRequest(context, sessionState);
+        LogoutRequest logoutRequest = getLogoutRequest(context, state);
         response.sendRedirect(logoutRequest.toURI().toString());
     }
 
@@ -175,7 +172,7 @@ public class OIDCManagerImpl implements OIDCManager {
                 && (boolean) currentSession.getAttribute(SSOAgentConstants.AUTHENTICATED);
     }
 
-    private LogoutRequest getLogoutRequest(AuthenticationContext context, String sessionState) {
+    private LogoutRequest getLogoutRequest(AuthenticationInfo context, String sessionState) {
 
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
@@ -195,7 +192,7 @@ public class OIDCManagerImpl implements OIDCManager {
         }
     }
 
-    private boolean handleAuthentication(final HttpServletRequest request, AuthenticationContext context)
+    private boolean handleAuthentication(final HttpServletRequest request, AuthenticationInfo context)
             throws SSOAgentServerException, IOException {
 
         HttpSession session = request.getSession();
@@ -235,7 +232,7 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     private void handleSuccessTokenResponse(HttpSession session, TokenResponse tokenResponse,
-                                            AuthenticationContext context)
+                                            AuthenticationInfo context)
             throws SSOAgentServerException {
 
         AccessTokenResponse successResponse = tokenResponse.toSuccessResponse();
@@ -342,5 +339,43 @@ public class OIDCManagerImpl implements OIDCManager {
             throw new SSOAgentServerException("Error while parsing JWT.");
         }
         return userClaimValueMap;
+    }
+
+    private void validateConfig(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
+
+        validateForCode(oidcAgentConfig);
+        if (StringUtils.isNotBlank(oidcAgentConfig.getLogoutEndpoint().toString())) {
+            validateForOIDCLogout(oidcAgentConfig);
+        }
+    }
+
+    private void validateForCode(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
+
+        Scope scope = oidcAgentConfig.getScope();
+        if (scope.isEmpty() || !scope.contains(SSOAgentConstants.OIDC_OPENID)) {
+            logger.error("scope defined incorrectly.");
+            throw new SSOAgentClientException("Scope parameter defined incorrectly. Scope parameter must contain the " +
+                    "value 'openid'.");
+        }
+
+        if (oidcAgentConfig.getConsumerKey() == null) {
+            logger.error("Consumer Key is null.");
+            throw new SSOAgentClientException("Consumer Key/Client ID must not be null. This refers to the client " +
+                    "identifier assigned to the Relying Party during its registration with the OpenID Provider.");
+        }
+
+        if (StringUtils.isEmpty(oidcAgentConfig.getCallbackUrl().toString())) {
+            logger.error("Callback URL is null.");
+            throw new SSOAgentClientException("Callback URL/Redirection URL must not be null. This refers to the " +
+                    "Relying Party's redirection URIs registered with the OpenID Provider.");
+        }
+    }
+
+    private void validateForOIDCLogout(OIDCAgentConfig oidcAgentConfig) {
+
+        if (StringUtils.isBlank(oidcAgentConfig.getPostLogoutRedirectURI().toString())) {
+            URI callbackURI = oidcAgentConfig.getCallbackUrl();
+            oidcAgentConfig.setPostLogoutRedirectURI(callbackURI);
+        }
     }
 }

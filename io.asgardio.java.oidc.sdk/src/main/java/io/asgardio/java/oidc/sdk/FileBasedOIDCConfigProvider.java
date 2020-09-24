@@ -42,9 +42,9 @@ import java.util.Set;
 
 public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
 
-    private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
+    private static final Logger logger = LogManager.getLogger(FileBasedOIDCConfigProvider.class);
 
-    private OIDCAgentConfig oidcAgentConfig;
+    private final OIDCAgentConfig oidcAgentConfig = new OIDCAgentConfig();
 
     public FileBasedOIDCConfigProvider(File file) throws SSOAgentClientException {
 

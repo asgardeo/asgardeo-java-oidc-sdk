@@ -57,6 +57,7 @@ public class SSOAgentConstants {
     public static final String OIDC_JWKS_ENDPOINT = "jwksEndpoint";
     public static final String POST_LOGOUT_REDIRECTION_URI = "postLogoutRedirectURI";
     public static final String AUTHENTICATED = "authenticated";
+    public static final String OIDC_OPENID = "openid";
 
     // request headers
     public static final String REFERER = "referer";

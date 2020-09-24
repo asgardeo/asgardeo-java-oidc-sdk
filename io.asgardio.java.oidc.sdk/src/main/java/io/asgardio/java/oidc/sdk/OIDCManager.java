@@ -21,7 +21,7 @@ package io.asgardio.java.oidc.sdk;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import io.asgardio.java.oidc.sdk.bean.AuthenticationContext;
+import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 
 import java.io.IOException;
@@ -34,18 +34,17 @@ public interface OIDCManager {
 
     void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState) throws IOException;
 
-    AuthenticationContext handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
+    AuthenticationInfo handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
             throws IOException;
 
-    void logout(AuthenticationContext context, HttpServletResponse response, String sessionState)
-            throws SSOAgentException,
-            IOException;
+    void logout(AuthenticationInfo context, HttpServletResponse response, String state)
+            throws SSOAgentException, IOException;
 
     boolean isActiveSessionPresent(HttpServletRequest request);
 
     void init();
 
-    AuthenticationContext authenticate();
+    AuthenticationInfo authenticate();
 
     Map<String, Object> getUserInfo();
 
