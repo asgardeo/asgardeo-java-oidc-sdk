@@ -23,6 +23,7 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -35,7 +36,7 @@ public interface OIDCManager {
     void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState) throws IOException;
 
     AuthenticationInfo handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
-            throws IOException;
+            throws IOException, SSOAgentServerException;
 
     void logout(AuthenticationInfo context, HttpServletResponse response, String state)
             throws SSOAgentException, IOException;

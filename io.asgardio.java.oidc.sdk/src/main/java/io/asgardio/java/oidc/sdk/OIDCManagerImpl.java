@@ -126,37 +126,41 @@ public class OIDCManagerImpl implements OIDCManager {
 
     @Override
     public AuthenticationInfo handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws SSOAgentServerException {
 
         OIDCRequestResolver requestResolver = new OIDCRequestResolver(request, oidcAgentConfig);
-        AuthenticationInfo context = new AuthenticationInfo();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo();
 
         if (!requestResolver.isError() && requestResolver.isAuthorizationCodeResponse()) {
             logger.log(Level.INFO, "Handling the OIDC Authorization response.");
             try {
-                boolean isAuthenticated = handleAuthentication(request, context);
+                boolean isAuthenticated = handleAuthentication(request, authenticationInfo);
                 if (isAuthenticated) {
                     logger.log(Level.INFO, "Authentication successful. Redirecting to the target page.");
-                    response.sendRedirect("home.jsp"); //TODO: target page
+//                    response.sendRedirect("home.jsp"); //TODO: target page
+                    return authenticationInfo;
                 } else {
                     logger.log(Level.ERROR, "Authentication failed. Invalidating the session.");
                     request.getSession().invalidate();
-//                    throw new SSOAgentServerException()
+                    throw new SSOAgentServerException("Authentication Failed.");
                 }
-            } catch (IOException | SSOAgentServerException e) {
-                response.sendRedirect(requestResolver.getIndexPage());
+            } catch (IOException e) {
+                throw new SSOAgentServerException("Authentication Failed.");
             }
         } else {
             logger.log(Level.INFO, "Clearing the active session and redirecting.");
             clearSession(request);
-            response.sendRedirect(requestResolver.getIndexPage());
+            throw new SSOAgentServerException("Authentication Failed.");
         }
-        return context;
     }
 
     @Override
     public void logout(AuthenticationInfo context, HttpServletResponse response, String state) throws IOException {
 
+        if (oidcAgentConfig.getPostLogoutRedirectURI() == null) {
+            URI callbackURI = oidcAgentConfig.getCallbackUrl();
+            oidcAgentConfig.setPostLogoutRedirectURI(callbackURI);
+        }
         LogoutRequest logoutRequest = getLogoutRequest(context, state);
         response.sendRedirect(logoutRequest.toURI().toString());
     }
@@ -191,7 +195,7 @@ public class OIDCManagerImpl implements OIDCManager {
         }
     }
 
-    private boolean handleAuthentication(final HttpServletRequest request, AuthenticationInfo context)
+    private boolean handleAuthentication(final HttpServletRequest request, AuthenticationInfo authenticationInfo)
             throws SSOAgentServerException, IOException {
 
         HttpSession session = request.getSession();
@@ -221,7 +225,7 @@ public class OIDCManagerImpl implements OIDCManager {
                 handleErrorTokenResponse(tokenRequest, tokenResponse);
                 return false;
             } else {
-                handleSuccessTokenResponse(session, tokenResponse, context);
+                handleSuccessTokenResponse(session, tokenResponse, authenticationInfo);
                 return true;
             }
         } catch (com.nimbusds.oauth2.sdk.ParseException e) {
@@ -231,15 +235,13 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     private void handleSuccessTokenResponse(HttpSession session, TokenResponse tokenResponse,
-                                            AuthenticationInfo context)
+                                            AuthenticationInfo authenticationInfo)
             throws SSOAgentServerException {
 
         AccessTokenResponse successResponse = tokenResponse.toSuccessResponse();
         AccessToken accessToken = successResponse.getTokens().getAccessToken();
         RefreshToken refreshToken = successResponse.getTokens().getRefreshToken();
         session.setAttribute(SSOAgentConstants.ACCESS_TOKEN, accessToken);
-        context.setAccessToken(accessToken);
-        context.setRefreshToken(refreshToken);
         String idToken;
         try {
             idToken = successResponse.getCustomParameters().get(SSOAgentConstants.ID_TOKEN).toString();
@@ -270,8 +272,10 @@ public class OIDCManagerImpl implements OIDCManager {
             session.setAttribute(SSOAgentConstants.USER, user);
             session.setAttribute(SSOAgentConstants.AUTHENTICATED, true);
 
-            context.setIdToken(JWTParser.parse(idToken));
-            context.setUser(user);
+            authenticationInfo.setIdToken(JWTParser.parse(idToken));
+            authenticationInfo.setUser(user);
+            authenticationInfo.setAccessToken(accessToken);
+            authenticationInfo.setRefreshToken(refreshToken);
         } catch (ParseException e) {
             throw new SSOAgentServerException("Error while parsing id_token.");
         }
@@ -345,9 +349,6 @@ public class OIDCManagerImpl implements OIDCManager {
     private void validateConfig(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
 
         validateForCode(oidcAgentConfig);
-        if (StringUtils.isNotBlank(oidcAgentConfig.getLogoutEndpoint().toString())) {
-            validateForOIDCLogout(oidcAgentConfig);
-        }
     }
 
     private void validateForCode(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
@@ -369,14 +370,6 @@ public class OIDCManagerImpl implements OIDCManager {
             logger.error("Callback URL is null.");
             throw new SSOAgentClientException("Callback URL/Redirection URL must not be null. This refers to the " +
                     "Relying Party's redirection URIs registered with the OpenID Provider.");
-        }
-    }
-
-    private void validateForOIDCLogout(OIDCAgentConfig oidcAgentConfig) {
-
-        if (StringUtils.isBlank(oidcAgentConfig.getPostLogoutRedirectURI().toString())) {
-            URI callbackURI = oidcAgentConfig.getCallbackUrl();
-            oidcAgentConfig.setPostLogoutRedirectURI(callbackURI);
         }
     }
 }
