@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.bean;
+package io.asgardio.java.oidc.sdk.config.model;
 
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;

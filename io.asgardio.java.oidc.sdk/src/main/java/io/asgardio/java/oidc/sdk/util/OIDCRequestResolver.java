@@ -16,12 +16,13 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk;
+package io.asgardio.java.oidc.sdk.util;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.SSOAgentConstants;
+import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;

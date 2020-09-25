@@ -16,13 +16,14 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk;
+package io.asgardio.java.oidc.sdk.config;
 
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.SSOAgentConstants;
+import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;

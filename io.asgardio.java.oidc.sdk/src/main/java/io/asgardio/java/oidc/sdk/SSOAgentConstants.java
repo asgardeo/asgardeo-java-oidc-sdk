@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public class SSOAgentConstants {
 
-    public static final String CONFIG_BEAN_NAME = "io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig";
+    public static final String CONFIG_BEAN_NAME = "io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig";
 
     // Oauth response parameters and session attributes
     public static final String ERROR = "error";

@@ -44,10 +44,12 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
+import io.asgardio.java.oidc.sdk.util.OIDCRequestBuilder;
+import io.asgardio.java.oidc.sdk.util.OIDCRequestResolver;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -137,7 +139,7 @@ public class OIDCManagerImpl implements OIDCManager {
                 boolean isAuthenticated = handleAuthentication(request, authenticationInfo);
                 if (isAuthenticated) {
                     logger.log(Level.INFO, "Authentication successful. Redirecting to the target page.");
-//                    response.sendRedirect("home.jsp"); //TODO: target page
+//                    response.sendRedirect("home.jsp"); TODO: target page
                     return authenticationInfo;
                 } else {
                     logger.log(Level.ERROR, "Authentication failed. Invalidating the session.");

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk;
+package io.asgardio.java.oidc.sdk.config;
 
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 
 public interface OIDCConfigProvider {
 

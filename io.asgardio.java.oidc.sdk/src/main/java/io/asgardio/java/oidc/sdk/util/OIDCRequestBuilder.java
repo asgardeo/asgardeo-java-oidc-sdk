@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk;
+package io.asgardio.java.oidc.sdk.util;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
-import io.asgardio.java.oidc.sdk.bean.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.URI;
