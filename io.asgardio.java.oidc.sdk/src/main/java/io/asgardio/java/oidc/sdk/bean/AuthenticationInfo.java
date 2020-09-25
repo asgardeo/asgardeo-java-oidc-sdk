@@ -22,7 +22,11 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
-public class AuthenticationInfo {
+import java.io.Serializable;
+
+public class AuthenticationInfo implements Serializable {
+
+    private static final long serialVersionUID = 976008884476935474L;
 
     private User user;
     private AccessToken accessToken;

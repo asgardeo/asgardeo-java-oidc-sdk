@@ -18,13 +18,16 @@
 
 package io.asgardio.java.oidc.sdk.bean;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A data model class to define the User element.
  */
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = -2609465712885072108L;
 
     private String subject;
     private Map<String, Object> attributes = new HashMap<>();

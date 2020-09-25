@@ -141,8 +141,7 @@ public class OIDCManagerImpl implements OIDCManager {
                 } else {
                     logger.log(Level.ERROR, "Authentication failed. Invalidating the session.");
                     request.getSession().invalidate();
-                    // redirect to index TODO error.jsp
-                    response.sendRedirect(requestResolver.getIndexPage());
+//                    throw new SSOAgentServerException()
                 }
             } catch (IOException | SSOAgentServerException e) {
                 response.sendRedirect(requestResolver.getIndexPage());
@@ -237,8 +236,10 @@ public class OIDCManagerImpl implements OIDCManager {
 
         AccessTokenResponse successResponse = tokenResponse.toSuccessResponse();
         AccessToken accessToken = successResponse.getTokens().getAccessToken();
-
+        RefreshToken refreshToken = successResponse.getTokens().getRefreshToken();
         session.setAttribute(SSOAgentConstants.ACCESS_TOKEN, accessToken);
+        context.setAccessToken(accessToken);
+        context.setRefreshToken(refreshToken);
         String idToken;
         try {
             idToken = successResponse.getCustomParameters().get(SSOAgentConstants.ID_TOKEN).toString();
