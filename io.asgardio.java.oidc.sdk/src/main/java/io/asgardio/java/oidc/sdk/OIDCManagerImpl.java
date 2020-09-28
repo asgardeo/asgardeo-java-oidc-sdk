@@ -48,8 +48,8 @@ import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
-import io.asgardio.java.oidc.sdk.util.OIDCRequestBuilder;
-import io.asgardio.java.oidc.sdk.util.OIDCRequestResolver;
+import io.asgardio.java.oidc.sdk.request.OIDCRequestBuilder;
+import io.asgardio.java.oidc.sdk.request.OIDCRequestResolver;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -87,7 +87,8 @@ public class OIDCManagerImpl implements OIDCManager {
     public void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState)
             throws IOException {
 
-        String authorizationRequest = OIDCRequestBuilder.buildAuthorizationRequest(sessionState, oidcAgentConfig);
+        OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
+        String authorizationRequest = requestBuilder.buildAuthorizationRequest(sessionState);
         response.sendRedirect(authorizationRequest);
     }
 

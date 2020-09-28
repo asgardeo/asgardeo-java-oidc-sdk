@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.util;
+package io.asgardio.java.oidc.sdk.request;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;

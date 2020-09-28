@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.util;
+package io.asgardio.java.oidc.sdk.request;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ResponseType;
@@ -25,12 +25,23 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
 
 public class OIDCRequestBuilder {
 
-    public static String buildAuthorizationRequest(String state, OIDCAgentConfig oidcAgentConfig) {
+    private static final Logger logger = LogManager.getLogger(OIDCRequestResolver.class);
+
+    OIDCAgentConfig oidcAgentConfig;
+
+    public OIDCRequestBuilder(OIDCAgentConfig oidcAgentConfig) {
+
+        this.oidcAgentConfig = oidcAgentConfig;
+    }
+
+    public String buildAuthorizationRequest(String state) {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
