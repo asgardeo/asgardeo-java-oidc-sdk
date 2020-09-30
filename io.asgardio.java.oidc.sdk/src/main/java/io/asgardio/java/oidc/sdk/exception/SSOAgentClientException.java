@@ -23,13 +23,25 @@ package io.asgardio.java.oidc.sdk.exception;
  */
 public class SSOAgentClientException extends SSOAgentException {
 
+    private static final long serialVersionUID = 7038967084217855809L;
+
     public SSOAgentClientException(String message) {
 
         super(message);
     }
 
+    public SSOAgentClientException(String message, String errorCode, Throwable cause) {
+
+        super(message, errorCode, cause);
+    }
+
     public SSOAgentClientException(String message, Throwable cause) {
 
         super(message, cause);
+    }
+
+    public SSOAgentClientException(String message, String errorCode) {
+
+        super(message, errorCode);
     }
 }

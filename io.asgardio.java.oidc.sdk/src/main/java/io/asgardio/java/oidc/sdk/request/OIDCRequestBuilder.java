@@ -18,11 +18,14 @@
 
 package io.asgardio.java.oidc.sdk.request;
 
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.LogoutRequest;
+import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -60,6 +63,18 @@ public class OIDCRequestBuilder {
                 .endpointURI(authorizationEndpoint)
                 .build();
         return authorizationRequest.toURI().toString();
+    }
+
+    public String buildLogoutRequest(AuthenticationInfo authenticationInfo, String state) {
+
+        URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
+        URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
+        JWT jwtIdToken = authenticationInfo.getIdToken();
+        State stateParam = null;
+        if (StringUtils.isNotBlank(state)) {
+            stateParam = new State(state);
+        }
+        return new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, stateParam).toURI().toString();
     }
 
 }

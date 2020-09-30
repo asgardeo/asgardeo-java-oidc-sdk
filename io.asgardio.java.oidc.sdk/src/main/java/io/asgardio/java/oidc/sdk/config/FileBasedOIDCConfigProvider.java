@@ -30,9 +30,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -47,15 +44,11 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
 
     private final OIDCAgentConfig oidcAgentConfig = new OIDCAgentConfig();
 
-    public FileBasedOIDCConfigProvider(File file) throws SSOAgentClientException {
+    public FileBasedOIDCConfigProvider(InputStream fileInputStream) throws SSOAgentClientException {
 
         Properties properties = new Properties();
         try {
-            InputStream fileInputStream = new FileInputStream(file);
             properties.load(fileInputStream);
-        } catch (FileNotFoundException e) {
-            logger.error(String.format("File %s not found.", file.getAbsolutePath()));
-            throw new SSOAgentClientException(e.getMessage(), e);
         } catch (IOException e) {
             logger.log(Level.FATAL, "Error while loading properties.", e);
         }
