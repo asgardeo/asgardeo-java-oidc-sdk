@@ -109,12 +109,14 @@ public class OIDCManagerImpl implements OIDCManager {
                 return authenticationInfo;
             } else {
                 logger.log(Level.ERROR, "Authentication failed. Invalidating the session.");
-                throw new SSOAgentServerException("Authentication Failed.", "ErrorCode"); //TODO
+                throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
+                        SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
             }
 
         } else {
             logger.log(Level.INFO, "Clearing the active session and redirecting.");
-            throw new SSOAgentServerException("Authentication Failed.", "ErrorCode"); //TODO
+            throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
         }
     }
 
@@ -132,7 +134,8 @@ public class OIDCManagerImpl implements OIDCManager {
         try {
             response.sendRedirect(logoutRequest);
         } catch (IOException e) {
-            throw new SSOAgentException(e.getMessage(), e);
+            throw new SSOAgentException(SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getMessage(),
+                    SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getCode(), e);
         }
     }
 
@@ -181,7 +184,8 @@ public class OIDCManagerImpl implements OIDCManager {
             idToken = successResponse.getCustomParameters().get(SSOAgentConstants.ID_TOKEN).toString();
         } catch (NullPointerException e) {
             logger.log(Level.ERROR, "id_token is null.");
-            throw new SSOAgentServerException("null id token.", "ErrorCode"); //TODO
+            throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getMessage(),
+                    SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getCode(), e);
         }
 
         //TODO validate IdToken (Signature, ref. spec)
@@ -208,7 +212,8 @@ public class OIDCManagerImpl implements OIDCManager {
             authenticationInfo.setAccessToken(accessToken);
             authenticationInfo.setRefreshToken(refreshToken);
         } catch (ParseException e) {
-            throw new SSOAgentServerException("Error while parsing id_token.", "ErrorCode"); //TODO
+            throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getMessage(),
+                    SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getCode(), e);
         }
     }
 
@@ -272,7 +277,8 @@ public class OIDCManagerImpl implements OIDCManager {
                 }
             }
         } catch (ParseException e) {
-            throw new SSOAgentServerException("Error while parsing JWT.", "ErrorCode"); //TODO
+            throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.JWT_PARSE.getMessage(),
+                    SSOAgentConstants.ErrorMessages.JWT_PARSE.getCode(), e);
         }
         return userClaimValueMap;
     }
@@ -287,20 +293,20 @@ public class OIDCManagerImpl implements OIDCManager {
         Scope scope = oidcAgentConfig.getScope();
         if (scope.isEmpty() || !scope.contains(SSOAgentConstants.OIDC_OPENID)) {
             logger.error("scope defined incorrectly.");
-            throw new SSOAgentClientException("Scope parameter defined incorrectly. Scope parameter must contain the " +
-                    "value 'openid'.");
+            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_SCOPE.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_SCOPE.getCode());
         }
 
         if (oidcAgentConfig.getConsumerKey() == null) {
             logger.error("Consumer Key is null.");
-            throw new SSOAgentClientException("Consumer Key/Client ID must not be null. This refers to the client " +
-                    "identifier assigned to the Relying Party during its registration with the OpenID Provider.");
+            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getCode());
         }
 
         if (StringUtils.isEmpty(oidcAgentConfig.getCallbackUrl().toString())) {
             logger.error("Callback URL is null.");
-            throw new SSOAgentClientException("Callback URL/Redirection URL must not be null. This refers to the " +
-                    "Relying Party's redirection URIs registered with the OpenID Provider.");
+            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CALLBACK_URL.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CALLBACK_URL.getCode());
         }
     }
 

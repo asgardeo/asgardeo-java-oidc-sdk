@@ -73,4 +73,46 @@ public class SSOAgentConstants {
 
     public static final Set<String> OIDC_METADATA_CLAIMS = new HashSet<>(
             Arrays.asList("at_hash", "sub", "iss", "aud", "nbf", "c_hash", "azp", "amr", "sid", "exp", "iat"));
+
+    public enum ErrorMessages {
+
+        AUTHENTICATION_FAILED("18001", "Authentication Failed."),
+        ID_TOKEN_NULL("18002", "Null ID token."),
+        ID_TOKEN_PARSE("18003", "Error found with parsing the ID token."),
+        JWT_PARSE("18004", "Error found with parsing JWT."),
+        AGENT_CONFIG_SCOPE("18005",
+                "Scope parameter defined incorrectly. Scope parameter must contain the value 'openid'"),
+        AGENT_CONFIG_CLIENT_ID("18006",
+                "Consumer Key/Client ID must not be null. This refers to the client identifier assigned to the " +
+                        "Relying Party during its registration with the OpenID Provider."),
+        AGENT_CONFIG_CALLBACK_URL("18007",
+                "Callback URL/Redirection URL must not be null. This refers to the Relying Party's redirection URIs " +
+                        "registered with the OpenID Provider."),
+        SERVLET_CONNECTION("18008", "Error found with connection.");
+
+        private final String code;
+        private final String message;
+
+        ErrorMessages(String code, String message) {
+
+            this.code = code;
+            this.message = message;
+        }
+
+        public String getCode() {
+
+            return code;
+        }
+
+        public String getMessage() {
+
+            return message;
+        }
+
+        @Override
+        public String toString() {
+
+            return code + " - " + message;
+        }
+    }
 }
