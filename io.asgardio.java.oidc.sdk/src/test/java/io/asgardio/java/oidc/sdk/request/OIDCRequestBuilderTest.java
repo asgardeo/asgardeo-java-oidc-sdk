@@ -38,8 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-@PrepareForTest({OIDCAgentConfig.class})
-public class OIDCRequestBuilderTest extends PowerMockTestCase {
+public class OIDCRequestBuilderTest {
 
     @Mock
     OIDCAgentConfig oidcAgentConfig;

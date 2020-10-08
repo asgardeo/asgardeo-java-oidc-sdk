@@ -170,6 +170,12 @@
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-inline</artifactId>
+                <version>3.5.13</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -254,6 +260,7 @@
         <testng.version>7.3.0</testng.version>
         <org.powermock.version>2.0.7</org.powermock.version>
         <mockito.version>3.5.13</mockito.version>
+        <mockito.api.version>1.7.4</mockito.api.version>
     </properties>
 
     <modules>
