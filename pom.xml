@@ -164,6 +164,12 @@
                 <version>${org.powermock.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -247,6 +253,7 @@
         <log4j.version>2.11.2</log4j.version>
         <testng.version>7.3.0</testng.version>
         <org.powermock.version>2.0.7</org.powermock.version>
+        <mockito.version>3.5.13</mockito.version>
     </properties>
 
     <modules>
