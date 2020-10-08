@@ -151,6 +151,19 @@
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents-apache.wso2.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-testng</artifactId>
+                <version>${org.powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -232,6 +245,8 @@
         <httpcomponents-apache.wso2.version>4.3.1.wso2v1</httpcomponents-apache.wso2.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <log4j.version>2.11.2</log4j.version>
+        <testng.version>7.3.0</testng.version>
+        <org.powermock.version>2.0.7</org.powermock.version>
     </properties>
 
     <modules>
