@@ -36,11 +36,13 @@ public class UserTest {
 
     @Test
     public void testGetSubject() {
+
         assertEquals(user.getSubject(), subject);
     }
 
     @Test
     public void testGetAttributes() {
+
         assertEquals(user.getAttributes(), attributes);
     }
 }

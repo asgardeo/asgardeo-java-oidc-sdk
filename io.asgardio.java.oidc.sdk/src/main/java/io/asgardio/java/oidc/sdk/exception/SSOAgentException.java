@@ -18,10 +18,12 @@
 
 package io.asgardio.java.oidc.sdk.exception;
 
+import javax.servlet.ServletException;
+
 /**
  * This class is used to denote the exceptions thrown from the OIDC SSO agent module.
  */
-public class SSOAgentException extends Exception {
+public class SSOAgentException extends ServletException {
 
     private static final long serialVersionUID = 2427874190311733363L;
     private String errorCode;

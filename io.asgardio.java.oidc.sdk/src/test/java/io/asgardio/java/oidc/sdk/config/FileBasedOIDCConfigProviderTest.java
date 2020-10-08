@@ -44,7 +44,6 @@ public class FileBasedOIDCConfigProviderTest {
         } catch (FileNotFoundException e) {
             //Mock behaviour. Hence ignored.
         }
-
     }
 
     @Test
