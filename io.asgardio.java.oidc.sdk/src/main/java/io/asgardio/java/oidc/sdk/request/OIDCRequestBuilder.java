@@ -76,5 +76,4 @@ public class OIDCRequestBuilder {
         }
         return new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, stateParam).toURI().toString();
     }
-
 }

@@ -77,11 +77,6 @@ public class OIDCManagerImpl implements OIDCManager {
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
     public void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState)
             throws SSOAgentException {
 
@@ -308,40 +303,5 @@ public class OIDCManagerImpl implements OIDCManager {
             throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CALLBACK_URL.getMessage(),
                     SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CALLBACK_URL.getCode());
         }
-    }
-
-    @Override
-    public AuthenticationInfo authenticate() {
-
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> getUserInfo() {
-
-        return null;
-    }
-
-    @Override
-    public void validateAuthentication() {
-
-    }
-
-    @Override
-    public AccessToken getAccessToken() {
-
-        return null;
-    }
-
-    @Override
-    public JWT getIDToken() {
-
-        return null;
-    }
-
-    @Override
-    public RefreshToken getRefreshToken() {
-
-        return null;
     }
 }

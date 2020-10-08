@@ -42,18 +42,18 @@ public interface OIDCManager {
     void logout(AuthenticationInfo context, HttpServletResponse response, String state)
             throws SSOAgentException;
 
-    void init();
-
-    AuthenticationInfo authenticate();
-
-    Map<String, Object> getUserInfo();
-
-    void validateAuthentication();
-
-    AccessToken getAccessToken();
-
-    JWT getIDToken();
-
-    RefreshToken getRefreshToken();
+//    void init();
+//
+//    AuthenticationInfo authenticate();
+//
+//    Map<String, Object> getUserInfo();
+//
+//    void validateAuthentication();
+//
+//    AccessToken getAccessToken();
+//
+//    JWT getIDToken();
+//
+//    RefreshToken getRefreshToken();
 
 }

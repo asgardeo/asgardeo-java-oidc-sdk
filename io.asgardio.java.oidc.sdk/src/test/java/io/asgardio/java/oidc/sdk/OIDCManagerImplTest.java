@@ -16,33 +16,32 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.bean;
+package io.asgardio.java.oidc.sdk;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.testng.Assert.*;
 
-import static org.testng.Assert.assertEquals;
+public class OIDCManagerImplTest {
 
-/**
- * Unit tests for User model.
- */
-public class UserTest {
+    @BeforeMethod
+    public void setUp() {
 
-    Map<String, Object> attributes = new HashMap<>();
-    String subject = "subject";
-    User user = new User(subject, attributes);
-
-    @Test
-    public void testGetSubject() {
-
-        assertEquals(user.getSubject(), subject);
     }
 
     @Test
-    public void testGetAttributes() {
+    public void testSendForLogin() {
 
-        assertEquals(user.getAttributes(), attributes);
+    }
+
+    @Test
+    public void testHandleOIDCCallback() {
+
+    }
+
+    @Test
+    public void testLogout() {
+
     }
 }

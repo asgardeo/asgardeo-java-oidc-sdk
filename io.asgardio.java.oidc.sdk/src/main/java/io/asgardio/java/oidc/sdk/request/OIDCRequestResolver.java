@@ -99,5 +99,4 @@ public class OIDCRequestResolver {
         JSONObject responseObject = errorResponse.getErrorObject().toJSONObject();
         logger.log(Level.INFO, "Error response object: ", responseObject);
     }
-
 }
