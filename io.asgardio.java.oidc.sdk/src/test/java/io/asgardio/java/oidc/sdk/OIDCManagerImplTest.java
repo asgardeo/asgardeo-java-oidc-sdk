@@ -38,11 +38,8 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
-import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestResolver;
-import org.apache.http.HttpRequest;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockserver.integration.ClientAndServer;
@@ -51,7 +48,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -63,8 +59,6 @@ import javax.servlet.http.HttpServletResponse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
@@ -195,6 +189,7 @@ public class OIDCManagerImplTest {
 
     @AfterMethod
     public void tearDown() {
+
         mockServer.stop();
     }
 }
