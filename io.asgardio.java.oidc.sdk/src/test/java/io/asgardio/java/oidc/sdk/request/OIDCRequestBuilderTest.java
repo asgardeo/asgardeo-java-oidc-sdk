@@ -66,7 +66,6 @@ public class OIDCRequestBuilderTest {
         when(oidcAgentConfig.getAuthorizeEndpoint()).thenReturn(authorizationEndpoint);
         when(oidcAgentConfig.getLogoutEndpoint()).thenReturn(logoutEP);
         when(oidcAgentConfig.getPostLogoutRedirectURI()).thenReturn(redirectionURI);
-
         when(authenticationInfo.getIdToken()).thenReturn(idToken);
     }
 

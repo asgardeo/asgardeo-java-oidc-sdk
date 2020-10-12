@@ -25,7 +25,9 @@ import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import io.asgardio.java.oidc.sdk.SSOAgentConstants;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -40,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -71,8 +74,8 @@ public class OIDCRequestResolverTest {
     @Test
     public void testIsAuthorizationCodeResponse() throws IOException, ParseException {
 
-        mockStatic(AuthorizationResponse.class);
-        mockStatic(ServletUtils.class);
+        MockedStatic<AuthorizationResponse> mockedAuthorizationResponse = mockStatic(AuthorizationResponse.class);
+        MockedStatic<ServletUtils> mockedServletUtils = mockStatic(ServletUtils.class);
         HTTPRequest httpRequest = mock(HTTPRequest.class);
         AuthorizationResponse authorizationResponse = mock(AuthorizationResponse.class);
 
@@ -82,6 +85,8 @@ public class OIDCRequestResolverTest {
 
         OIDCRequestResolver resolver = new OIDCRequestResolver(request, oidcAgentConfig);
         assertTrue(resolver.isAuthorizationCodeResponse());
+        mockedAuthorizationResponse.close();
+        mockedServletUtils.close();
     }
 
     @Test
@@ -139,5 +144,10 @@ public class OIDCRequestResolverTest {
 
         OIDCRequestResolver resolver = new OIDCRequestResolver(request, config);
         assertEquals(resolver.getIndexPage(), expected);
+    }
+
+    @AfterMethod
+    public void tearDown() {
+
     }
 }
