@@ -63,6 +63,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * OIDC manager implementation.
+ *
+ * @version 0.1.1
+ * @since 0.1.1
+ */
 public class OIDCManagerImpl implements OIDCManager {
 
     private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
@@ -75,12 +81,15 @@ public class OIDCManagerImpl implements OIDCManager {
         this.oidcAgentConfig = oidcAgentConfig;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState)
+    public void sendForLogin(HttpServletRequest request, HttpServletResponse response, String state)
             throws SSOAgentException {
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        String authorizationRequest = requestBuilder.buildAuthorizationRequest(sessionState);
+        String authorizationRequest = requestBuilder.buildAuthorizationRequest(state);
         try {
             response.sendRedirect(authorizationRequest);
         } catch (IOException e) {
@@ -88,34 +97,44 @@ public class OIDCManagerImpl implements OIDCManager {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AuthenticationInfo handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
-            throws SSOAgentServerException {
+            throws SSOAgentException {
 
         OIDCRequestResolver requestResolver = new OIDCRequestResolver(request, oidcAgentConfig);
         AuthenticationInfo authenticationInfo = new AuthenticationInfo();
 
-        if (!requestResolver.isError() && requestResolver.isAuthorizationCodeResponse()) {
-            logger.log(Level.INFO, "Handling the OIDC Authorization response.");
-            boolean isAuthenticated = handleAuthentication(request, authenticationInfo);
-            if (isAuthenticated) {
-                logger.log(Level.INFO, "Authentication successful. Redirecting to the target page.");
-                return authenticationInfo;
+        try {
+            if (!requestResolver.isError() && requestResolver.isAuthorizationCodeResponse()) {
+                logger.log(Level.INFO, "Handling the OIDC Authorization response.");
+                boolean isAuthenticated = handleAuthentication(request, authenticationInfo);
+                if (isAuthenticated) {
+                    logger.log(Level.INFO, "Authentication successful. Redirecting to the target page.");
+                    return authenticationInfo;
+                } else {
+                    logger.log(Level.ERROR, "Authentication failed. Invalidating the session.");
+                    throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
+                            SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
+                }
+
             } else {
-                logger.log(Level.ERROR, "Authentication failed. Invalidating the session.");
+                logger.log(Level.INFO, "Clearing the active session and redirecting.");
                 throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
                         SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
             }
-
-        } else {
-            logger.log(Level.INFO, "Clearing the active session and redirecting.");
-            throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
-                    SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
+        } catch (SSOAgentServerException e) {
+            throw new SSOAgentException(e.getMessage(), e.getErrorCode());
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void logout(AuthenticationInfo context, HttpServletResponse response, String state)
+    public void logout(AuthenticationInfo authenticationInfo, HttpServletResponse response, String state)
             throws SSOAgentException {
 
         if (oidcAgentConfig.getPostLogoutRedirectURI() == null) {
@@ -124,7 +143,7 @@ public class OIDCManagerImpl implements OIDCManager {
             oidcAgentConfig.setPostLogoutRedirectURI(callbackURI);
         }
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        String logoutRequest = requestBuilder.buildLogoutRequest(context, state);
+        String logoutRequest = requestBuilder.buildLogoutRequest(authenticationInfo, state);
         try {
             response.sendRedirect(logoutRequest);
         } catch (IOException e) {

@@ -24,6 +24,9 @@ import java.util.Set;
 
 /**
  * This class holds the constants used in the module, io.asgardio.java.oidc.sdk.
+ *
+ * @version 0.1.1
+ * @since 0.1.1
  */
 public class SSOAgentConstants {
 

@@ -19,21 +19,54 @@
 package io.asgardio.java.oidc.sdk;
 
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
+import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
-import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * OIDC manager service interface.
+ *
+ * @version 0.1.1
+ * @since 0.1.1
+ */
 public interface OIDCManager {
 
-    void sendForLogin(HttpServletRequest request, HttpServletResponse response, String sessionState)
+    /**
+     * Builds an authentication request and redirects.
+     *
+     * @param request  Incoming {@link HttpServletRequest}.
+     * @param response Outgoing {@link HttpServletResponse}
+     * @param state    State parameter for the session.
+     * @throws SSOAgentException
+     */
+    void sendForLogin(HttpServletRequest request, HttpServletResponse response, String state)
             throws SSOAgentException;
 
+    /**
+     * Processes the OIDC callback response and extract the authorization code, builds a token request, sends the
+     * token request and parse the token response where the authenticated user info and tokens would be added to the
+     * {@link AuthenticationInfo} object and returned.
+     *
+     * @param request  Incoming {@link HttpServletRequest}.
+     * @param response Outgoing {@link HttpServletResponse}
+     * @return {@link AuthenticationInfo} Object containing the authenticated {@link User}, AccessToken, RefreshToken
+     * and IDToken.
+     * @throws SSOAgentException Upon failed authentication.
+     */
     AuthenticationInfo handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
-            throws SSOAgentServerException;
+            throws SSOAgentException;
 
-    void logout(AuthenticationInfo context, HttpServletResponse response, String state)
+    /**
+     * Builds a logout request and redirects.
+     *
+     * @param authenticationInfo {@link AuthenticationInfo} of the logged in session.
+     * @param response           Outgoing {@link HttpServletResponse}
+     * @param state              State parameter for the session.
+     * @throws SSOAgentException
+     */
+    void logout(AuthenticationInfo authenticationInfo, HttpServletResponse response, String state)
             throws SSOAgentException;
 
 //    void init();

@@ -25,6 +25,7 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
+import io.asgardio.java.oidc.sdk.OIDCManager;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +34,21 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
 
+/**
+ * OIDCRequestBuilder is the class responsible for building requests
+ * for the {@link OIDCManager} based on the {@link OIDCAgentConfig}.
+ * <p>
+ * OIDCRequestBuilder can build:
+ * <ul>
+ * <li>Authorization requests
+ * <li>Logout requests
+ * </ul>
+ * <p>
+ * and return the String values of the generated requests.
+ *
+ * @version 0.1.1
+ * @since 0.1.1
+ */
 public class OIDCRequestBuilder {
 
     private static final Logger logger = LogManager.getLogger(OIDCRequestResolver.class);
@@ -44,6 +60,18 @@ public class OIDCRequestBuilder {
         this.oidcAgentConfig = oidcAgentConfig;
     }
 
+    /**
+     * Returns {@link String} Authorization request. To build the authorization request,
+     * {@link OIDCAgentConfig} should contain:
+     * <ul>
+     * <li>The scope
+     * <li>The callback URI
+     * <li>The authorization endpoint URI
+     * </ul>
+     *
+     * @param state State parameter.
+     * @return Authorization request.
+     */
     public String buildAuthorizationRequest(String state) {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
@@ -65,6 +93,19 @@ public class OIDCRequestBuilder {
         return authorizationRequest.toURI().toString();
     }
 
+    /**
+     * Returns {@link String} Logout request. To build the logout request,
+     * {@link OIDCAgentConfig} should contain:
+     * <ul>
+     * <li>The logout endpoint URI
+     * <li>The post logout redirection URI
+     * </ul>
+     *
+     * @param authenticationInfo {@link AuthenticationInfo} object with information of the current LoggedIn session.
+     *                           It must include a valid ID token.
+     * @param state              State parameter.
+     * @return Logout request.
+     */
     public String buildLogoutRequest(AuthenticationInfo authenticationInfo, String state) {
 
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();

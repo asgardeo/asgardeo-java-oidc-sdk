@@ -33,6 +33,24 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * OIDCRequestResolver is the class responsible for resolving requests
+ * based on the {@link OIDCAgentConfig} and the request parameters.
+ * <p>
+ * OIDCRequestResolver verifies if:
+ * <ul>
+ * <li>The request is a URL to skip
+ * <li>The request is a Logout request
+ * <li>The request is an error
+ * <li>The request contains an authorization code response
+ * <li>The request is a callback response
+ * </ul>
+ * <p>
+ * and returns boolean values.
+ *
+ * @version 0.1.1
+ * @since 0.1.1
+ */
 public class OIDCRequestResolver {
 
     private static final Logger logger = LogManager.getLogger(OIDCRequestResolver.class);
@@ -46,12 +64,22 @@ public class OIDCRequestResolver {
         this.oidcAgentConfig = oidcAgentConfig;
     }
 
+    /**
+     * Checks if the request contains a parameter, "error".
+     *
+     * @return True if the request contains an "error" parameter, false otherwise.
+     */
     public boolean isError() {
 
         String error = request.getParameter(SSOAgentConstants.ERROR);
         return StringUtils.isNotBlank(error);
     }
 
+    /**
+     * Checks if the request is an Authorization Code response.
+     *
+     * @return True if the request is parsed as a valid Authorization response, false otherwise.
+     */
     public boolean isAuthorizationCodeResponse() {
 
         AuthorizationResponse authorizationResponse;
@@ -68,22 +96,43 @@ public class OIDCRequestResolver {
         return true;
     }
 
+    /**
+     * Checks if the request is a logout request.
+     *
+     * @return True if the request ends with the logout URL configured in the {@link OIDCAgentConfig}, false otherwise.
+     */
     public boolean isLogoutURL() {
 
         return request.getRequestURI().endsWith(oidcAgentConfig.getLogoutURL());
     }
 
+    /**
+     * Checks if the request is a URI to skip.
+     *
+     * @return True if the request is a URL configured in the {@link OIDCAgentConfig} as skipURIs, false otherwise.
+     */
     public boolean isSkipURI() {
 
         return oidcAgentConfig.getSkipURIs().contains(request.getRequestURI());
     }
 
+    /**
+     * Checks if the request is a callback response.
+     *
+     * @return True if the request contains the path of the callback URL configured in the {@link OIDCAgentConfig},
+     * false otherwise.
+     */
     public boolean isCallbackResponse() {
 
         String callbackContext = oidcAgentConfig.getCallbackUrl().getPath();
         return request.getRequestURI().contains(callbackContext);
     }
 
+    /**
+     * Returns the index page configured in the {@link OIDCAgentConfig}.
+     *
+     * @return {@link String} IndexPage configured in the {@link OIDCAgentConfig}.
+     */
     public String getIndexPage() {
 
         String indexPage = oidcAgentConfig.getIndexPage();

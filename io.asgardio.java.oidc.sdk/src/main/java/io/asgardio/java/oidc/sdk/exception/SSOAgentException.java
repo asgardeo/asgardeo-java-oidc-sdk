@@ -18,10 +18,18 @@
 
 package io.asgardio.java.oidc.sdk.exception;
 
+import io.asgardio.java.oidc.sdk.SSOAgentConstants;
+
 import javax.servlet.ServletException;
 
 /**
- * This class is used to denote the exceptions thrown from the OIDC SSO agent module.
+ * The {@code SSOAgentException} class is a generic
+ * OIDC SDK exception class that provides type safety for all the
+ * SDK-related exception classes that extend from it.
+ * It is an implementation of the base class, {@link ServletException}.
+ *
+ * @version 0.1.1
+ * @since 0.1.1
  */
 public class SSOAgentException extends ServletException {
 
@@ -33,33 +41,83 @@ public class SSOAgentException extends ServletException {
         super();
     }
 
+    /**
+     * Constructs a SSOAgentException with the specified detail
+     * message. A detail message is a String that describes this
+     * particular exception.
+     *
+     * @param message The detail message.
+     */
     public SSOAgentException(String message) {
 
         super(message);
     }
 
+    /**
+     * Creates a {@code SSOAgentException} with the specified
+     * detail message and cause.
+     *
+     * @param message   the detail message (which is saved for later retrieval
+     *                  by the {@link #getMessage()} method).
+     * @param errorCode The error code (which is saved for later retrieval by the
+     *                  {@link #getErrorCode()} method).
+     */
     public SSOAgentException(String message, String errorCode) {
 
         super(message);
         this.errorCode = errorCode;
     }
 
+    /**
+     * Creates a {@code SSOAgentException} with the specified cause
+     * and a detail message of {@code (cause==null ? null : cause.toString())}
+     * (which typically contains the class and detail message of
+     * {@code cause}).
+     *
+     * @param cause The cause (which is saved for later retrieval by the
+     *        {@link #getCause()} method).
+     */
     public SSOAgentException(Throwable cause) {
 
         super(cause);
     }
 
+    /**
+     * Creates a {@code SSOAgentException} with the specified
+     * detail message and cause.
+     *
+     * @param message the detail message (which is saved for later retrieval
+     *                by the {@link #getMessage()} method).
+     * @param cause   the cause (which is saved for later retrieval by the
+     *                {@link #getCause()} method).
+     */
     public SSOAgentException(String message, Throwable cause) {
 
         super(message, cause);
     }
 
+    /**
+     * Creates a {@code SSOAgentException} with the specified
+     * detail message and cause.
+     *
+     * @param message   the detail message (which is saved for later retrieval
+     *                  by the {@link #getMessage()} method).
+     * @param errorCode The error code (which is saved for later retrieval by the
+     *                  {@link #getErrorCode()} method).
+     * @param cause     the cause (which is saved for later retrieval by the
+     *                  {@link #getCause()} method).
+     */
     public SSOAgentException(String message, String errorCode, Throwable cause) {
 
         super(message, cause);
         this.errorCode = errorCode;
     }
 
+    /**
+     * Returns a {@code errorCode} for the exception as defined
+     * in {@link SSOAgentConstants.ErrorMessages}.
+     *
+     */
     public String getErrorCode() {
 
         return errorCode;

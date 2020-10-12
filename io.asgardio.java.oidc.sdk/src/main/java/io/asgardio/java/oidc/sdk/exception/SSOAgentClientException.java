@@ -19,27 +19,67 @@
 package io.asgardio.java.oidc.sdk.exception;
 
 /**
- * This class is used to denote the client exceptions thrown from the OIDC SSO agent module.
+ * Client exception class for the Java OIDC SDK.
+ *
+ * @version 0.1.1
+ * @since 0.1.1
  */
 public class SSOAgentClientException extends SSOAgentException {
 
     private static final long serialVersionUID = 7038967084217855809L;
 
+    /**
+     * Constructs a SSOAgentClientException with the specified detail
+     * message. A detail message is a String that describes this
+     * particular exception.
+     *
+     * @param message The detail message.
+     */
     public SSOAgentClientException(String message) {
 
         super(message);
     }
 
+    /**
+     * Creates a {@code SSOAgentClientException} with the specified
+     * detail message and cause.
+
+     * @param message the detail message (which is saved for later retrieval
+     *        by the {@link #getMessage()} method).
+     * @param errorCode The error code (which is saved for later retrieval by the
+     *        {@link #getErrorCode()} method).
+     * @param cause the cause (which is saved for later retrieval by the
+     *        {@link #getCause()} method).
+     */
     public SSOAgentClientException(String message, String errorCode, Throwable cause) {
 
         super(message, errorCode, cause);
     }
 
+    /**
+     * Creates a {@code SSOAgentClientException} with the specified
+     * detail message and cause.
+     *
+     * @param message The detail message (which is saved for later retrieval
+     *        by the {@link #getMessage()} method).
+     *
+     * @param cause The cause (which is saved for later retrieval by the
+     *        {@link #getCause()} method).
+     */
     public SSOAgentClientException(String message, Throwable cause) {
 
         super(message, cause);
     }
 
+    /**
+     * Creates a {@code SSOAgentClientException} with the specified
+     * detail message and cause.
+     *
+     * @param message The detail message (which is saved for later retrieval
+     *        by the {@link #getMessage()} method).
+     * @param errorCode The error code (which is saved for later retrieval by the
+     *        {@link #getErrorCode()} method).
+     */
     public SSOAgentClientException(String message, String errorCode) {
 
         super(message, errorCode);
