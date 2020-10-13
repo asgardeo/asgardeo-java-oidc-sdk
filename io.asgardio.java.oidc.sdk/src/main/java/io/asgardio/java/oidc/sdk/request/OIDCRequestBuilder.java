@@ -24,7 +24,9 @@ import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import io.asgardio.java.oidc.sdk.OIDCManager;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
@@ -72,7 +74,7 @@ public class OIDCRequestBuilder {
      * @param state State parameter.
      * @return Authorization request.
      */
-    public String buildAuthorizationRequest(String state) {
+    public String buildAuthenticationRequest(String state, Nonce nonce) {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
@@ -84,13 +86,23 @@ public class OIDCRequestBuilder {
             stateParameter = new State(state);
         }
 
-        AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
-                .scope(authScope)
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest.Builder(responseType, authScope,
+                clientID, callBackURI)
                 .state(stateParameter)
-                .redirectionURI(callBackURI)
                 .endpointURI(authorizationEndpoint)
+                .nonce(nonce)
                 .build();
-        return authorizationRequest.toURI().toString();
+
+        return authenticationRequest.toURI().toString();
+
+
+//        AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
+//                .scope(authScope)
+//                .state(stateParameter)
+//                .redirectionURI(callBackURI)
+//                .endpointURI(authorizationEndpoint)
+//                .build();
+//        return authorizationRequest.toURI().toString();
     }
 
     /**

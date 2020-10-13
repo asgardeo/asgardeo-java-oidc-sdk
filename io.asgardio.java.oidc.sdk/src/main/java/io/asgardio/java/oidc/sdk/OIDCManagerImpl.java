@@ -18,6 +18,7 @@
 
 package io.asgardio.java.oidc.sdk;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
@@ -38,8 +39,10 @@ import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
@@ -89,7 +92,8 @@ public class OIDCManagerImpl implements OIDCManager {
             throws SSOAgentException {
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        String authorizationRequest = requestBuilder.buildAuthorizationRequest(state);
+        Nonce nonce = new Nonce();
+        String authorizationRequest = requestBuilder.buildAuthenticationRequest(state, nonce);
         try {
             response.sendRedirect(authorizationRequest);
         } catch (IOException e) {
@@ -203,14 +207,14 @@ public class OIDCManagerImpl implements OIDCManager {
 
         //TODO validate IdToken (Signature, ref. spec)
 
-//        Issuer issuer = oidcAgentConfig.getIssuer();
-//        URL jwkSetURL = oidcAgentConfig.getJwksEndpoint().toURL();
-//        JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
-//        ClientID clientID = oidcAgentConfig.getConsumerKey();
-//
-//        IDTokenValidator validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURL);
+        Issuer issuer = oidcAgentConfig.getIssuer();
+        URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
+        JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
+        ClientID clientID = oidcAgentConfig.getConsumerKey();
+
 
         try {
+//            IDTokenValidator validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURI.toURL());
 //            JWT idTokenJWT = JWTParser.parse(idToken);
 //            IDTokenClaimsSet claims;
 //
