@@ -39,6 +39,7 @@ public class OIDCAgentConfig {
     private URI logoutEndpoint;
     private URI tokenEndpoint;
     private Issuer issuer;
+    private Set<String> trustedAudience;
     private URI jwksEndpoint;
     private URI postLogoutRedirectURI;
     private Set<String> skipURIs = new HashSet<String>();
@@ -141,6 +142,16 @@ public class OIDCAgentConfig {
     public void setIssuer(Issuer issuer) {
 
         this.issuer = issuer;
+    }
+
+    public Set<String> getTrustedAudience() {
+
+        return trustedAudience;
+    }
+
+    public void setTrustedAudience(Set<String> trustedAudience) {
+
+        this.trustedAudience = trustedAudience;
     }
 
     public URI getJwksEndpoint() {

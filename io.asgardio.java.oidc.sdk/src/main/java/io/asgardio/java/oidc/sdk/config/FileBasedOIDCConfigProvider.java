@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -98,14 +99,17 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
             Scope scope = new Scope(scopeArray);
             oidcAgentConfig.setScope(scope);
         }
-
         Set<String> skipURIs = new HashSet<String>();
         String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
         if (StringUtils.isNotBlank(skipURIsString)) {
             String[] skipURIArray = skipURIsString.split(",");
-            for (String skipURI : skipURIArray) {
-                skipURIs.add(skipURI);
-            }
+            Collections.addAll(skipURIs, skipURIArray);
+        }
+        Set<String> trustedAudience = new HashSet<String>();
+        String trustedAudienceString = properties.getProperty(SSOAgentConstants.TRUSTED_AUDIENCE);
+        if (StringUtils.isNotBlank(trustedAudienceString)) {
+            String[] trustedAudienceArray = trustedAudienceString.split(",");
+            Collections.addAll(trustedAudience, trustedAudienceArray);
         }
         oidcAgentConfig.setConsumerKey(consumerKey);
         oidcAgentConfig.setConsumerSecret(consumerSecret);
@@ -113,6 +117,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         oidcAgentConfig.setLogoutURL(logoutURL);
         oidcAgentConfig.setIssuer(issuer);
         oidcAgentConfig.setSkipURIs(skipURIs);
+        oidcAgentConfig.setTrustedAudience(trustedAudience);
     }
 
     public OIDCAgentConfig getOidcAgentConfig() {
