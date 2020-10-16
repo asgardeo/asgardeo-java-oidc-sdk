@@ -18,7 +18,10 @@
 
 package io.asgardio.java.oidc.sdk;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
@@ -43,6 +46,8 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
@@ -58,9 +63,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -92,7 +99,7 @@ public class OIDCManagerImpl implements OIDCManager {
             throws SSOAgentException {
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        Nonce nonce = new Nonce();
+        Nonce nonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
         String authorizationRequest = requestBuilder.buildAuthenticationRequest(state, nonce);
         try {
             response.sendRedirect(authorizationRequest);
@@ -120,7 +127,8 @@ public class OIDCManagerImpl implements OIDCManager {
                     return authenticationInfo;
                 } else {
                     logger.log(Level.ERROR, "Authentication failed. Invalidating the session.");
-                    throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
+                    throw new SSOAgentServerException(
+                            SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
                             SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
                 }
 
@@ -207,21 +215,11 @@ public class OIDCManagerImpl implements OIDCManager {
 
         //TODO validate IdToken (Signature, ref. spec)
 
-        Issuer issuer = oidcAgentConfig.getIssuer();
-        URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
-        JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
-        ClientID clientID = oidcAgentConfig.getConsumerKey();
-
-
         try {
-//            IDTokenValidator validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURI.toURL());
-//            JWT idTokenJWT = JWTParser.parse(idToken);
-//            IDTokenClaimsSet claims;
-//
-//            Nonce expectedNonce = new Nonce(null);
-//            claims = validator.validate(idTokenJWT, expectedNonce);
-
             JWTClaimsSet claimsSet = SignedJWT.parse(idToken).getJWTClaimsSet();
+            JWT idTokenJWT = JWTParser.parse(idToken);
+
+            validateIDToken(oidcAgentConfig, idTokenJWT);
             User user = new User(claimsSet.getSubject(), getUserAttributes(idToken));
 
             authenticationInfo.setIdToken(JWTParser.parse(idToken));
@@ -231,6 +229,29 @@ public class OIDCManagerImpl implements OIDCManager {
         } catch (ParseException e) {
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getMessage(),
                     SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getCode(), e);
+        }
+    }
+
+    private void validateIDToken(OIDCAgentConfig oidcAgentConfig, JWT idToken) throws SSOAgentServerException {
+
+        Issuer issuer = oidcAgentConfig.getIssuer();
+        URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
+        JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
+        ClientID clientID = oidcAgentConfig.getConsumerKey();
+        IDTokenClaimsSet claims;
+        JWTClaimsSet claimsSet;
+
+        try {
+            claimsSet = idToken.getJWTClaimsSet();
+            IDTokenValidator validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURI.toURL());
+            Nonce expectedNonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
+            List<String> audience = claimsSet.getAudience();
+            if (audience.size() > 1 && claimsSet.getClaim(SSOAgentConstants.AZP) == null) {
+                throw new SSOAgentServerException("ID token validation failed. AZP claim not found.");
+            }
+            claims = validator.validate(idToken, expectedNonce);
+        } catch (JOSEException | MalformedURLException | BadJOSEException | ParseException e) {
+            throw new SSOAgentServerException(e.getMessage(), e.getCause());
         }
     }
 

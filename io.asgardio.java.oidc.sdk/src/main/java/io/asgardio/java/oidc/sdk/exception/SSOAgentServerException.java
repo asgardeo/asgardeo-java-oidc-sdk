@@ -29,6 +29,18 @@ public class SSOAgentServerException extends SSOAgentException {
     private static final long serialVersionUID = 4776260071061676883L;
 
     /**
+     * Constructs a SSOAgentServerException with the specified detail
+     * message. A detail message is a String that describes this
+     * particular exception.
+     *
+     * @param message The detail message.
+     */
+    public SSOAgentServerException(String message) {
+
+        super(message);
+    }
+
+    /**
      * Creates a {@code SSOAgentServerException} with the specified
      * detail message and cause.
 
