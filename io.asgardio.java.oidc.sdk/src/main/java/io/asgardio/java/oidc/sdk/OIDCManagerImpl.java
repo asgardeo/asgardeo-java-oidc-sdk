@@ -41,6 +41,7 @@ import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
+import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
@@ -69,6 +70,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -236,22 +238,33 @@ public class OIDCManagerImpl implements OIDCManager {
 
         Issuer issuer = oidcAgentConfig.getIssuer();
         URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
-        JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
+        JWSAlgorithm jwsAlgorithm = (JWSAlgorithm) idToken.getHeader().getAlgorithm();
         ClientID clientID = oidcAgentConfig.getConsumerKey();
-        IDTokenClaimsSet claims;
-        JWTClaimsSet claimsSet;
 
         try {
-            claimsSet = idToken.getJWTClaimsSet();
             IDTokenValidator validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURI.toURL());
             Nonce expectedNonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
-            List<String> audience = claimsSet.getAudience();
-            if (audience.size() > 1 && claimsSet.getClaim(SSOAgentConstants.AZP) == null) {
-                throw new SSOAgentServerException("ID token validation failed. AZP claim not found.");
-            }
-            claims = validator.validate(idToken, expectedNonce);
-        } catch (JOSEException | MalformedURLException | BadJOSEException | ParseException e) {
+            IDTokenClaimsSet claims = validator.validate(idToken, expectedNonce);
+            validateAudience(oidcAgentConfig, claims);
+        } catch (JOSEException | MalformedURLException | BadJOSEException e) {
             throw new SSOAgentServerException(e.getMessage(), e.getCause());
+        }
+    }
+
+    private void validateAudience(OIDCAgentConfig oidcAgentConfig, IDTokenClaimsSet claimsSet)
+            throws SSOAgentServerException {
+
+        List<Audience> audience = claimsSet.getAudience();
+        if (audience.size() > 1 && claimsSet.getClaim(SSOAgentConstants.AZP) == null) {
+            throw new SSOAgentServerException("ID token validation failed. AZP claim not found.");
+        }
+        if (!oidcAgentConfig.getTrustedAudience().isEmpty()) {
+            Set<String> trustedAudience = oidcAgentConfig.getTrustedAudience();
+            for (Audience aud : audience) {
+                if (!trustedAudience.contains(aud.getValue())) {
+                    throw new SSOAgentServerException("ID token validation failed. Unexpected JWT audience.");
+                }
+            }
         }
     }
 
