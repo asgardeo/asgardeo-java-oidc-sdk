@@ -25,7 +25,6 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.oauth2.sdk.AbstractRequest;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -49,7 +48,6 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
-import com.nimbusds.openid.connect.sdk.validators.IDTokenClaimsVerifier;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.bean.User;
@@ -70,7 +68,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -239,19 +236,41 @@ public class OIDCManagerImpl implements OIDCManager {
 
     private void validateIDToken(OIDCAgentConfig oidcAgentConfig, JWT idToken) throws SSOAgentServerException {
 
-        Issuer issuer = oidcAgentConfig.getIssuer();
-        URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
         JWSAlgorithm jwsAlgorithm = validateJWSAlgorithm(oidcAgentConfig, idToken);
-        ClientID clientID = oidcAgentConfig.getConsumerKey();
-
+        IDTokenValidator validator = getIDTokenValidator(oidcAgentConfig, jwsAlgorithm);
         try {
-            IDTokenValidator validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURI.toURL());
             Nonce expectedNonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
             IDTokenClaimsSet claims = validator.validate(idToken, expectedNonce);
             validateAudience(oidcAgentConfig, claims);
-        } catch (JOSEException | MalformedURLException | BadJOSEException e) {
+        } catch (JOSEException | BadJOSEException e) {
             throw new SSOAgentServerException(e.getMessage(), e.getCause());
         }
+    }
+
+    private IDTokenValidator getIDTokenValidator(OIDCAgentConfig oidcAgentConfig, JWSAlgorithm jwsAlgorithm)
+            throws SSOAgentServerException {
+
+        Issuer issuer = oidcAgentConfig.getIssuer();
+        URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
+        ClientID clientID = oidcAgentConfig.getConsumerKey();
+        Secret clientSecret = oidcAgentConfig.getConsumerSecret();
+        IDTokenValidator validator;
+
+        // Creates a new validator for RSA, EC or ED protected ID tokens.
+        if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm) || JWSAlgorithm.Family.EC.contains(jwsAlgorithm) ||
+                JWSAlgorithm.Family.ED.contains(jwsAlgorithm)) {
+            try {
+                validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, jwkSetURI.toURL());
+            } catch (MalformedURLException e) {
+                throw new SSOAgentServerException(e.getMessage(), e.getCause());
+            }
+            // Creates a new validator for HMAC protected ID tokens.
+        } else if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
+            validator = new IDTokenValidator(issuer, clientID, jwsAlgorithm, clientSecret);
+        } else {
+            throw new SSOAgentServerException(String.format("Unsupported algorithm: %s.", jwsAlgorithm.getName()));
+        }
+        return validator;
     }
 
     private JWSAlgorithm validateJWSAlgorithm(OIDCAgentConfig oidcAgentConfig, JWT idToken)
