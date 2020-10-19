@@ -18,6 +18,7 @@
 
 package io.asgardio.java.oidc.sdk.config;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -64,6 +65,9 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                 new Secret(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET)) : null;
         String indexPage = properties.getProperty(SSOAgentConstants.INDEX_PAGE);
         String logoutURL = properties.getProperty(SSOAgentConstants.LOGOUT_URL);
+        JWSAlgorithm jwsAlgorithm =
+                StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) ?
+                        new JWSAlgorithm(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) : null;
         try {
             URI callbackUrl = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) ?
                     new URI(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) : null;
@@ -106,6 +110,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
             Collections.addAll(skipURIs, skipURIArray);
         }
         Set<String> trustedAudience = new HashSet<String>();
+        trustedAudience.add(consumerKey.getValue());
         String trustedAudienceString = properties.getProperty(SSOAgentConstants.TRUSTED_AUDIENCE);
         if (StringUtils.isNotBlank(trustedAudienceString)) {
             String[] trustedAudienceArray = trustedAudienceString.split(",");
@@ -118,6 +123,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         oidcAgentConfig.setIssuer(issuer);
         oidcAgentConfig.setSkipURIs(skipURIs);
         oidcAgentConfig.setTrustedAudience(trustedAudience);
+        oidcAgentConfig.setSignatureAlgorithm(jwsAlgorithm);
     }
 
     public OIDCAgentConfig getOidcAgentConfig() {

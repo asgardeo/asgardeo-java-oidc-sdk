@@ -18,6 +18,7 @@
 
 package io.asgardio.java.oidc.sdk.config.model;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -42,6 +43,7 @@ public class OIDCAgentConfig {
     private Set<String> trustedAudience;
     private URI jwksEndpoint;
     private URI postLogoutRedirectURI;
+    private JWSAlgorithm signatureAlgorithm;
     private Set<String> skipURIs = new HashSet<String>();
 
     public ClientID getConsumerKey() {
@@ -172,6 +174,16 @@ public class OIDCAgentConfig {
     public void setPostLogoutRedirectURI(URI postLogoutRedirectURI) {
 
         this.postLogoutRedirectURI = postLogoutRedirectURI;
+    }
+
+    public JWSAlgorithm getSignatureAlgorithm() {
+
+        return signatureAlgorithm;
+    }
+
+    public void setSignatureAlgorithm(JWSAlgorithm signatureAlgorithm) {
+
+        this.signatureAlgorithm = signatureAlgorithm;
     }
 
     public Set<String> getSkipURIs() {

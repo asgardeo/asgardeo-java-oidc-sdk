@@ -64,6 +64,7 @@ public class SSOAgentConstants {
     public static final String OIDC_OPENID = "openid";
     public static final String AZP = "azp";
     public static final String TRUSTED_AUDIENCE = "trustedAudience";
+    public static final String ID_TOKEN_SIGN_ALG = "signatureAlgorithm";
 
     // request headers
     public static final String REFERER = "referer";

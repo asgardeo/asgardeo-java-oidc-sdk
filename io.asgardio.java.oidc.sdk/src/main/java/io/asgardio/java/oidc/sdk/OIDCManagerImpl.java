@@ -25,6 +25,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.oauth2.sdk.AbstractRequest;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -48,6 +49,7 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import com.nimbusds.openid.connect.sdk.validators.IDTokenClaimsVerifier;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.bean.User;
@@ -68,6 +70,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -238,7 +241,7 @@ public class OIDCManagerImpl implements OIDCManager {
 
         Issuer issuer = oidcAgentConfig.getIssuer();
         URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
-        JWSAlgorithm jwsAlgorithm = (JWSAlgorithm) idToken.getHeader().getAlgorithm();
+        JWSAlgorithm jwsAlgorithm = validateJWSAlgorithm(oidcAgentConfig, idToken);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
 
         try {
@@ -251,18 +254,39 @@ public class OIDCManagerImpl implements OIDCManager {
         }
     }
 
+    private JWSAlgorithm validateJWSAlgorithm(OIDCAgentConfig oidcAgentConfig, JWT idToken)
+            throws SSOAgentServerException {
+
+        JWSAlgorithm jwsAlgorithm = (JWSAlgorithm) idToken.getHeader().getAlgorithm();
+        JWSAlgorithm expectedJWSAlgorithm = oidcAgentConfig.getSignatureAlgorithm();
+
+        if (expectedJWSAlgorithm == null) {
+            if (JWSAlgorithm.RS256.equals(jwsAlgorithm)) {
+                return jwsAlgorithm;
+            } else {
+                throw new SSOAgentServerException(String.format("Signed JWT rejected. Provided signature algorithm: " +
+                        "%s is not the default of RS256.", jwsAlgorithm.getName()));
+            }
+        } else if (!expectedJWSAlgorithm.equals(jwsAlgorithm)) {
+            throw new SSOAgentServerException(String.format("Signed JWT rejected: Another algorithm expected. " +
+                    "Provided signature algorithm: %s.", jwsAlgorithm.getName()));
+        }
+        return jwsAlgorithm;
+    }
+
     private void validateAudience(OIDCAgentConfig oidcAgentConfig, IDTokenClaimsSet claimsSet)
             throws SSOAgentServerException {
 
         List<Audience> audience = claimsSet.getAudience();
-        if (audience.size() > 1 && claimsSet.getClaim(SSOAgentConstants.AZP) == null) {
-            throw new SSOAgentServerException("ID token validation failed. AZP claim not found.");
-        }
-        if (!oidcAgentConfig.getTrustedAudience().isEmpty()) {
+        if (audience.size() > 1) {
+            if (claimsSet.getClaim(SSOAgentConstants.AZP) == null) {
+                throw new SSOAgentServerException("ID token validation failed. AZP claim cannot be null for multiple " +
+                        "audiences.");
+            }
             Set<String> trustedAudience = oidcAgentConfig.getTrustedAudience();
             for (Audience aud : audience) {
                 if (!trustedAudience.contains(aud.getValue())) {
-                    throw new SSOAgentServerException("ID token validation failed. Unexpected JWT audience.");
+                    throw new SSOAgentServerException("ID token validation failed. Untrusted JWT audience.");
                 }
             }
         }
