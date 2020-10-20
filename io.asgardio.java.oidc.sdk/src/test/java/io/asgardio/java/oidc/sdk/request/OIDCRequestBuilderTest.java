@@ -26,7 +26,11 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.testng.PowerMockTestCase;
+import org.testng.IObjectFactory;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 
 import java.net.URI;
@@ -37,7 +41,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-public class OIDCRequestBuilderTest {
+@PrepareForTest({OIDCAgentConfig.class, AuthenticationInfo.class})
+public class OIDCRequestBuilderTest extends PowerMockTestCase {
 
     @Mock
     OIDCAgentConfig oidcAgentConfig;
@@ -89,5 +94,10 @@ public class OIDCRequestBuilderTest {
         assertEquals(logoutRequest, "http://test/sampleLogoutEP?state=state&post_logout_redirect_uri=http%3A%2F%2" +
                 "Ftest%2FsampleRedirectionURL&id_token_hint=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3O" +
                 "DkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+    }
+
+    @ObjectFactory
+    public IObjectFactory getObjectFactory() {
+        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }

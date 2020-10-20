@@ -27,9 +27,12 @@ import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.testng.PowerMockTestCase;
+import org.testng.IObjectFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -47,7 +50,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 @PrepareForTest({AuthorizationResponse.class})
-public class OIDCRequestResolverTest {
+public class OIDCRequestResolverTest extends PowerMockTestCase {
 
     @Mock
     OIDCAgentConfig oidcAgentConfig;
@@ -148,5 +151,10 @@ public class OIDCRequestResolverTest {
     @AfterMethod
     public void tearDown() {
 
+    }
+
+    @ObjectFactory
+    public IObjectFactory getObjectFactory() {
+        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }
