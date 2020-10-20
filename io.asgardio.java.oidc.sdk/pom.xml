@@ -96,7 +96,14 @@
             <artifactId>powermock-api-mockito2</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>net.jadler</groupId>
+            <artifactId>jadler-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.jadler</groupId>
+            <artifactId>jadler-jetty</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

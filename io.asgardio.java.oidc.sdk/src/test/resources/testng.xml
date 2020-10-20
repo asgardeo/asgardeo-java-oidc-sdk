@@ -25,6 +25,12 @@
         <classes>
             <class name="io.asgardio.java.oidc.sdk.bean.AuthenticationInfoTest"/>
             <class name="io.asgardio.java.oidc.sdk.bean.UserTest"/>
+            <class name="io.asgardio.java.oidc.sdk.config.FileBasedOIDCConfigProviderTest"/>
+            <class name="io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfigTest"/>
+            <class name="io.asgardio.java.oidc.sdk.request.OIDCRequestResolverTest"/>
+            <class name="io.asgardio.java.oidc.sdk.request.OIDCRequestBuilderTest"/>
+            <class name="io.asgardio.java.oidc.sdk.OIDCManagerImplTest"/>
+            <class name="io.asgardio.java.oidc.sdk.validators.IDTokenValidatorTest"/>
         </classes>
     </test>
 </suite>

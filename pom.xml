@@ -192,7 +192,16 @@
                 <version>${mockito.api.version}</version>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>net.jadler</groupId>
+                <artifactId>jadler-core</artifactId>
+                <version>${jadler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jadler</groupId>
+                <artifactId>jadler-jetty</artifactId>
+                <version>${jadler.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -279,6 +288,7 @@
         <mockito.version>3.5.13</mockito.version>
         <mockito.api.version>2.0.7</mockito.api.version>
         <mockserver.version>3.10.8</mockserver.version>
+        <jadler.version>1.3.0</jadler.version>
     </properties>
 
     <modules>
