@@ -64,18 +64,20 @@ public class IDTokenValidator {
         this.idToken = idToken;
     }
 
-    public void validate() throws SSOAgentServerException {
+    public IDTokenClaimsSet validate() throws SSOAgentServerException {
 
         JWSAlgorithm jwsAlgorithm = validateJWSAlgorithm(oidcAgentConfig, idToken);
-        com.nimbusds.openid.connect.sdk.validators.IDTokenValidator
-                validator = getIDTokenValidator(oidcAgentConfig, jwsAlgorithm);
+        com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator =
+                getIDTokenValidator(oidcAgentConfig, jwsAlgorithm);
+        IDTokenClaimsSet claims;
         try {
             Nonce expectedNonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
-            IDTokenClaimsSet claims = validator.validate(idToken, expectedNonce);
+            claims = validator.validate(idToken, expectedNonce);
             validateAudience(oidcAgentConfig, claims);
         } catch (JOSEException | BadJOSEException e) {
             throw new SSOAgentServerException(e.getMessage(), e.getCause());
         }
+        return claims;
     }
 
     private com.nimbusds.openid.connect.sdk.validators.IDTokenValidator getIDTokenValidator(
