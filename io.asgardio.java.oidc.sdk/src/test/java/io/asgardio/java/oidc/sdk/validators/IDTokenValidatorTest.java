@@ -22,13 +22,17 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.Nonce;
@@ -45,9 +49,13 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.ECParameterSpec;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +65,7 @@ import static net.jadler.Jadler.closeJadler;
 import static net.jadler.Jadler.initJadler;
 import static net.jadler.Jadler.port;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class IDTokenValidatorTest {
 
@@ -67,12 +76,7 @@ public class IDTokenValidatorTest {
     public void setUp() throws Exception {
 
         initJadler();
-//        key = (RSAKey) getJWK();
-//        try {
-//            jwkSet = new JWKSet(Collections.singletonList(getJWK()));
-//        } catch (JOSEException e) {
-//            //ignored.
-//        }
+
         config = new OIDCAgentConfig();
         JWKSet jwkSet = generateJWKS();
         key = (RSAKey) jwkSet.getKeys().get(0);
@@ -118,20 +122,18 @@ public class IDTokenValidatorTest {
         return jwkSet;
     }
 
-//    private JWK getJWK() throws JOSEException {
-//
-//        String pemEncodedCert = null;
-//        try {
-//            pemEncodedCert = IOUtils
-//                    .readFileToString(new File("src/test/resources/certs/test.crt"), Charset.forName("UTF-8"));
-//        } catch (IOException e) {
-//            // Ignored.
-//        }
-//        X509Certificate cert = X509CertUtils.parse(pemEncodedCert);
-//        JWK jwk = JWK.parse(cert);
-//
-//        return jwk;
-//    }
+    private com.nimbusds.jose.jwk.ECKey generateECJWK(final Curve curve) throws Exception {
+
+        ECParameterSpec ecParameterSpec = curve.toECParameterSpec();
+
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
+        generator.initialize(ecParameterSpec);
+        KeyPair keyPair = generator.generateKeyPair();
+
+        return new com.nimbusds.jose.jwk.ECKey.Builder(curve, (ECPublicKey) keyPair.getPublic()).
+                privateKey((ECPrivateKey) keyPair.getPrivate()).
+                build();
+    }
 
     @DataProvider(name = "IssuerData")
     public Object[][] issuerData() {
@@ -217,7 +219,69 @@ public class IDTokenValidatorTest {
 
         IDTokenValidator validator = new IDTokenValidator(config, idToken);
         IDTokenClaimsSet claimsSet = validator.validate(nonce);
-        assertEquals(claimsSet.getAudience().size(), audience.size());
+        List<Audience> audiences = claimsSet.getAudience();
+        audiences.forEach(aud -> assertTrue(trustedAudience.contains(aud.getValue())));
+    }
+
+    @DataProvider(name = "AlgorithmData")
+    public Object[][] algorithmData() throws Exception {
+
+        KeyPairGenerator pairGenRSA = KeyPairGenerator.getInstance("RSA");
+        pairGenRSA.initialize(2048);
+        KeyPair keyPairRSA = pairGenRSA.generateKeyPair();
+
+        RSAKey rsaJWK = new RSAKey.Builder((RSAPublicKey) keyPairRSA.getPublic())
+                .privateKey((RSAPrivateKey) keyPairRSA.getPrivate())
+                .keyID("1")
+                .build();
+
+        ECKey ecJWK = generateECJWK(Curve.P_256);
+
+        return new Object[][]{
+                // algorithm
+                // key
+                {"RS256", (JWK) rsaJWK},
+                {"ES256", (JWK) ecJWK}
+        };
+    }
+
+    @Test(dataProvider = "AlgorithmData")
+    public void testJWSAlgorithm(String signatureAlgorithm, JWK key) throws JOSEException, SSOAgentServerException {
+
+        JWKSet jwkSet = new JWKSet(Collections.singletonList(key));
+
+        Jadler.onRequest()
+                .havingMethodEqualTo("GET")
+                .havingPathEqualTo("/jwksEP")
+                .respond()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody(jwkSet.toJSONObject(true).toJSONString());
+
+        Nonce nonce = new Nonce();
+        JWSAlgorithm jwsAlgorithm = new JWSAlgorithm(signatureAlgorithm);
+        config.setSignatureAlgorithm(jwsAlgorithm);
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .issuer(config.getIssuer().getValue())
+                .subject("alice")
+                .audience(config.getConsumerKey().getValue())
+                .expirationTime(new Date())
+                .issueTime(new Date())
+                .claim("nonce", nonce.getValue())
+                .build();
+
+        SignedJWT idToken = new SignedJWT(new JWSHeader(jwsAlgorithm), claims);
+        JWSSigner signer;
+        if (key instanceof RSAKey) {
+            signer = new RSASSASigner((RSAKey) key);
+        } else {
+            signer = new ECDSASigner((ECKey) key);
+        }
+        idToken.sign(signer);
+
+        IDTokenValidator validator = new IDTokenValidator(config, idToken);
+        IDTokenClaimsSet claimsSet = validator.validate(nonce);
+        assertEquals(claimsSet.getNonce(), nonce);
     }
 
     @AfterMethod
