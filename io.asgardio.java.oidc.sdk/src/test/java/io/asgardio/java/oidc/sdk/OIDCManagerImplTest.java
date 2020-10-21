@@ -68,6 +68,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -125,7 +126,6 @@ public class OIDCManagerImplTest extends PowerMockTestCase{
         oidcAgentConfig.setIssuer(issuer);
         oidcAgentConfig.setJwksEndpoint(jwksURI);
         when(authenticationInfo.getIdToken()).thenReturn(idToken);
-
         IDTokenClaimsSet claimsSet = mock(IDTokenClaimsSet.class);
         IDTokenValidator idTokenValidator = mock(IDTokenValidator.class);
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator = mock(
@@ -133,7 +133,7 @@ public class OIDCManagerImplTest extends PowerMockTestCase{
         PowerMockito.whenNew(IDTokenValidator.class).withAnyArguments().thenReturn(idTokenValidator);
         PowerMockito.whenNew(com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class).withAnyArguments().thenReturn(validator);
         when(validator.validate(any(JWT.class), any(Nonce.class))).thenReturn(claimsSet);
-        Mockito.when(idTokenValidator.validate()).thenReturn(claimsSet);
+        Mockito.when(idTokenValidator.validate(any(Nonce.class))).thenReturn(claimsSet);
         Mockito.when(claimsSet.getSubject()).thenReturn(new Subject("alex@carbon.super"));
     }
 
@@ -186,6 +186,9 @@ public class OIDCManagerImplTest extends PowerMockTestCase{
         when(tokenResponse.toSuccessResponse()).thenReturn(accessTokenResponse);
         when(accessTokenResponse.getTokens()).thenReturn(tokens);
         when(accessTokenResponse.getCustomParameters()).thenReturn(customParameters);
+        HttpSession session = mock(HttpSession.class);
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute(SSOAgentConstants.NONCE)).thenReturn(new Nonce());
 
         OIDCManager oidcManager = new OIDCManagerImpl(oidcAgentConfig);
         AuthenticationInfo authenticationInfo = oidcManager.handleOIDCCallback(request, response);

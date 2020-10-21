@@ -66,6 +66,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * OIDC manager implementation.
@@ -93,7 +94,10 @@ public class OIDCManagerImpl implements OIDCManager {
             throws SSOAgentException {
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        Nonce nonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
+//        Nonce nonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
+        Nonce nonce = new Nonce();
+        //TODO handle with session management.
+        request.getSession().setAttribute(SSOAgentConstants.NONCE, nonce);
         String authorizationRequest = requestBuilder.buildAuthenticationRequest(state, nonce);
         try {
             response.sendRedirect(authorizationRequest);
@@ -183,7 +187,11 @@ public class OIDCManagerImpl implements OIDCManager {
                 handleErrorTokenResponse(tokenRequest, tokenResponse);
                 return false;
             } else {
-                handleSuccessTokenResponse(tokenResponse, authenticationInfo);
+                HttpSession session = request.getSession(false);
+                if (session == null) {
+                    return false;
+                }
+                handleSuccessTokenResponse(tokenResponse, authenticationInfo, session);
                 return true;
             }
         } catch (com.nimbusds.oauth2.sdk.ParseException | SSOAgentServerException | IOException e) {
@@ -192,8 +200,8 @@ public class OIDCManagerImpl implements OIDCManager {
         }
     }
 
-    private void handleSuccessTokenResponse(TokenResponse tokenResponse, AuthenticationInfo authenticationInfo)
-            throws SSOAgentServerException {
+    private void handleSuccessTokenResponse(TokenResponse tokenResponse, AuthenticationInfo authenticationInfo,
+                                            HttpSession session) throws SSOAgentServerException {
 
         AccessTokenResponse successResponse = tokenResponse.toSuccessResponse();
         AccessToken accessToken = successResponse.getTokens().getAccessToken();
@@ -206,10 +214,14 @@ public class OIDCManagerImpl implements OIDCManager {
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getMessage(),
                     SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getCode(), e);
         }
+        Nonce nonce = null;
+        if (session.getAttribute(SSOAgentConstants.NONCE) != null) {
+            nonce = (Nonce) session.getAttribute(SSOAgentConstants.NONCE);
+        }
         try {
             JWT idTokenJWT = JWTParser.parse(idToken);
             IDTokenValidator idTokenValidator = new IDTokenValidator(oidcAgentConfig, idTokenJWT);
-            IDTokenClaimsSet claimsSet = idTokenValidator.validate();
+            IDTokenClaimsSet claimsSet = idTokenValidator.validate(nonce);
             User user = new User(claimsSet.getSubject().getValue(), getUserAttributes(idToken));
             authenticationInfo.setIdToken(idTokenJWT);
             authenticationInfo.setUser(user);
