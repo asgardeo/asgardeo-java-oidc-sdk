@@ -49,6 +49,9 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static net.jadler.Jadler.closeJadler;
 import static net.jadler.Jadler.initJadler;
@@ -165,6 +168,56 @@ public class IDTokenValidatorTest {
         IDTokenValidator validator = new IDTokenValidator(config, idToken);
         IDTokenClaimsSet claimsSet = validator.validate(nonce);
         assertEquals(claimsSet.getIssuer().getValue(), expectedIssuer);
+    }
+
+    @DataProvider(name = "AudienceData")
+    public Object[][] audienceData() {
+
+        String clientID1 = "clientID1";
+        List<String> tokenAudience1 = Arrays.asList(clientID1);
+        Set<String> trustedAudience1 = new HashSet<>(tokenAudience1);
+        trustedAudience1.add(clientID1);
+        String azp1 = null;
+
+        String clientID2 = "clientID2";
+        List<String> tokenAudience2 = Arrays.asList("aud1", "aud2", "aud3", clientID2);
+        Set<String> trustedAudience2 = new HashSet<>(tokenAudience2);
+        String azp2 = clientID2;
+
+        return new Object[][]{
+                // token audience
+                // trusted audience
+                // client ID
+                // AZP value
+                {tokenAudience1, trustedAudience1, clientID1, azp1},
+                {tokenAudience2, trustedAudience2, clientID2, azp2}
+        };
+    }
+
+    @Test(dataProvider = "AudienceData")
+    public void testAudience(List<String> audience, Set<String> trustedAudience, String clientID, String azpValue)
+            throws SSOAgentServerException, JOSEException {
+
+        Nonce nonce = new Nonce();
+        config.setTrustedAudience(trustedAudience);
+        config.setConsumerKey(new ClientID(clientID));
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .issuer(config.getIssuer().getValue())
+                .subject("alice")
+                .audience(audience)
+                .expirationTime(new Date())
+                .issueTime(new Date())
+                .claim("nonce", nonce.getValue())
+                .claim("azp", azpValue)
+                .build();
+
+        SignedJWT idToken = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
+        JWSSigner signer = new RSASSASigner(key);
+        idToken.sign(signer);
+
+        IDTokenValidator validator = new IDTokenValidator(config, idToken);
+        IDTokenClaimsSet claimsSet = validator.validate(nonce);
+        assertEquals(claimsSet.getAudience().size(), audience.size());
     }
 
     @AfterMethod
