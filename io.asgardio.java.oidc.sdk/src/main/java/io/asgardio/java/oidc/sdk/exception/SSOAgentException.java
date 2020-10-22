@@ -75,7 +75,7 @@ public class SSOAgentException extends ServletException {
      * {@code cause}).
      *
      * @param cause The cause (which is saved for later retrieval by the
-     *        {@link #getCause()} method).
+     *              {@link #getCause()} method).
      */
     public SSOAgentException(Throwable cause) {
 
@@ -116,7 +116,6 @@ public class SSOAgentException extends ServletException {
     /**
      * Returns a {@code errorCode} for the exception as defined
      * in {@link SSOAgentConstants.ErrorMessages}.
-     *
      */
     public String getErrorCode() {
 

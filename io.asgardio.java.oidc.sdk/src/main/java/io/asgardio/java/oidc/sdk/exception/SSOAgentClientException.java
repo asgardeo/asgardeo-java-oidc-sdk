@@ -43,13 +43,13 @@ public class SSOAgentClientException extends SSOAgentException {
     /**
      * Creates a {@code SSOAgentClientException} with the specified
      * detail message and cause.
-
-     * @param message the detail message (which is saved for later retrieval
-     *        by the {@link #getMessage()} method).
+     *
+     * @param message   the detail message (which is saved for later retrieval
+     *                  by the {@link #getMessage()} method).
      * @param errorCode The error code (which is saved for later retrieval by the
-     *        {@link #getErrorCode()} method).
-     * @param cause the cause (which is saved for later retrieval by the
-     *        {@link #getCause()} method).
+     *                  {@link #getErrorCode()} method).
+     * @param cause     the cause (which is saved for later retrieval by the
+     *                  {@link #getCause()} method).
      */
     public SSOAgentClientException(String message, String errorCode, Throwable cause) {
 
@@ -61,10 +61,9 @@ public class SSOAgentClientException extends SSOAgentException {
      * detail message and cause.
      *
      * @param message The detail message (which is saved for later retrieval
-     *        by the {@link #getMessage()} method).
-     *
-     * @param cause The cause (which is saved for later retrieval by the
-     *        {@link #getCause()} method).
+     *                by the {@link #getMessage()} method).
+     * @param cause   The cause (which is saved for later retrieval by the
+     *                {@link #getCause()} method).
      */
     public SSOAgentClientException(String message, Throwable cause) {
 
@@ -75,10 +74,10 @@ public class SSOAgentClientException extends SSOAgentException {
      * Creates a {@code SSOAgentClientException} with the specified
      * detail message and cause.
      *
-     * @param message The detail message (which is saved for later retrieval
-     *        by the {@link #getMessage()} method).
+     * @param message   The detail message (which is saved for later retrieval
+     *                  by the {@link #getMessage()} method).
      * @param errorCode The error code (which is saved for later retrieval by the
-     *        {@link #getErrorCode()} method).
+     *                  {@link #getErrorCode()} method).
      */
     public SSOAgentClientException(String message, String errorCode) {
 

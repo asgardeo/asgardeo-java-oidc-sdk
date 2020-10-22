@@ -19,7 +19,6 @@
 package io.asgardio.java.oidc.sdk.request;
 
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -94,7 +93,6 @@ public class OIDCRequestBuilder {
                 .build();
 
         return authenticationRequest.toURI().toString();
-
 
 //        AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
 //                .scope(authScope)

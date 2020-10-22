@@ -18,7 +18,6 @@
 
 package io.asgardio.java.oidc.sdk;
 
-import com.nimbusds.openid.connect.sdk.Nonce;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;

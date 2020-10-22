@@ -18,14 +18,12 @@
 
 package io.asgardio.java.oidc.sdk;
 
-import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.Secret;
@@ -46,7 +44,6 @@ import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestResolver;
 import io.asgardio.java.oidc.sdk.validators.IDTokenValidator;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -60,7 +57,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -74,11 +70,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.powermock.configuration.ConfigurationType.PowerMock;
 import static org.testng.Assert.assertEquals;
+
 @PrepareForTest({IDTokenValidator.class, IDTokenClaimsSet.class,
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class})
-public class OIDCManagerImplTest extends PowerMockTestCase{
+public class OIDCManagerImplTest extends PowerMockTestCase {
 
     @Mock
     HttpServletRequest request;
@@ -131,7 +127,8 @@ public class OIDCManagerImplTest extends PowerMockTestCase{
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator = mock(
                 com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class);
         PowerMockito.whenNew(IDTokenValidator.class).withAnyArguments().thenReturn(idTokenValidator);
-        PowerMockito.whenNew(com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class).withAnyArguments().thenReturn(validator);
+        PowerMockito.whenNew(com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class).withAnyArguments()
+                .thenReturn(validator);
         when(validator.validate(any(JWT.class), any(Nonce.class))).thenReturn(claimsSet);
         Mockito.when(idTokenValidator.validate(any(Nonce.class))).thenReturn(claimsSet);
         Mockito.when(claimsSet.getSubject()).thenReturn(new Subject("alex@carbon.super"));
@@ -227,6 +224,7 @@ public class OIDCManagerImplTest extends PowerMockTestCase{
 
     @ObjectFactory
     public IObjectFactory getObjectFactory() {
+
         return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }
