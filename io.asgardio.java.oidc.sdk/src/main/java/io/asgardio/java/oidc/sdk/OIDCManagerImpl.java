@@ -18,6 +18,7 @@
 
 package io.asgardio.java.oidc.sdk;
 
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
@@ -40,6 +41,8 @@ import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
@@ -48,6 +51,7 @@ import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestBuilder;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestResolver;
+import io.asgardio.java.oidc.sdk.validators.IDTokenValidator;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -62,6 +66,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * OIDC manager implementation.
@@ -86,7 +91,11 @@ public class OIDCManagerImpl implements OIDCManager {
             throws SSOAgentException {
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        String authorizationRequest = requestBuilder.buildAuthorizationRequest(state);
+//        Nonce nonce = new Nonce("KE4OYeY_gfYwzQbJa9tGhj1hZJMa");
+        Nonce nonce = new Nonce();
+        //TODO handle with session management.
+        request.getSession().setAttribute(SSOAgentConstants.NONCE, nonce);
+        String authorizationRequest = requestBuilder.buildAuthenticationRequest(state, nonce);
         try {
             response.sendRedirect(authorizationRequest);
         } catch (IOException e) {
@@ -189,11 +198,16 @@ public class OIDCManagerImpl implements OIDCManager {
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getMessage(),
                     SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getCode(), e);
         }
+        Nonce nonce = null;
+        if (session.getAttribute(SSOAgentConstants.NONCE) != null) {
+            nonce = (Nonce) session.getAttribute(SSOAgentConstants.NONCE);
+        }
         try {
-            JWTClaimsSet claimsSet = SignedJWT.parse(idToken).getJWTClaimsSet();
-            User user = new User(claimsSet.getSubject(), getUserAttributes(idToken));
-
-            authenticationInfo.setIdToken(JWTParser.parse(idToken));
+            JWT idTokenJWT = JWTParser.parse(idToken);
+            IDTokenValidator idTokenValidator = new IDTokenValidator(oidcAgentConfig, idTokenJWT);
+            IDTokenClaimsSet claimsSet = idTokenValidator.validate(nonce);
+            User user = new User(claimsSet.getSubject().getValue(), getUserAttributes(idToken));
+            authenticationInfo.setIdToken(idTokenJWT);
             authenticationInfo.setUser(user);
             authenticationInfo.setAccessToken(accessToken);
             authenticationInfo.setRefreshToken(refreshToken);

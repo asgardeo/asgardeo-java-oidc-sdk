@@ -186,6 +186,22 @@
                 <artifactId>mockserver-client-java</artifactId>
                 <version>${mockserver.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito2</artifactId>
+                <version>${mockito.api.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.jadler</groupId>
+                <artifactId>jadler-core</artifactId>
+                <version>${jadler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jadler</groupId>
+                <artifactId>jadler-jetty</artifactId>
+                <version>${jadler.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -270,8 +286,9 @@
         <testng.version>7.3.0</testng.version>
         <org.powermock.version>2.0.7</org.powermock.version>
         <mockito.version>3.5.13</mockito.version>
-        <mockito.api.version>1.7.4</mockito.api.version>
+        <mockito.api.version>2.0.7</mockito.api.version>
         <mockserver.version>3.10.8</mockserver.version>
+        <jadler.version>1.3.0</jadler.version>
     </properties>
 
     <modules>

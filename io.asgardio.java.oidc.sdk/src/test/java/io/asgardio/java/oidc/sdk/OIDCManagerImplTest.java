@@ -24,7 +24,6 @@ import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.Secret;
@@ -32,22 +31,32 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
+import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestResolver;
+import io.asgardio.java.oidc.sdk.validators.IDTokenValidator;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockserver.integration.ClientAndServer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.testng.PowerMockTestCase;
+import org.testng.IObjectFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -55,6 +64,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -62,7 +72,9 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-public class OIDCManagerImplTest {
+@PrepareForTest({IDTokenValidator.class, IDTokenClaimsSet.class,
+        com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class})
+public class OIDCManagerImplTest extends PowerMockTestCase {
 
     @Mock
     HttpServletRequest request;
@@ -81,13 +93,15 @@ public class OIDCManagerImplTest {
     private ClientAndServer mockServer;
 
     @BeforeMethod
-    public void setUp() throws URISyntaxException, java.text.ParseException {
+    public void setUp() throws Exception {
 
-        mockServer = ClientAndServer.startClientAndServer(9443);
+        mockServer = ClientAndServer.startClientAndServer(9441);
+        Issuer issuer = new Issuer("issuer");
         ClientID clientID = new ClientID("sampleClientId");
-        Secret clientSecret = new Secret("sampleClientSceret");
-        URI callbackURI = new URI("http://localhost:9443/sampleCallbackURL");
-        URI tokenEPURI = new URI("http://localhost:9443/sampleTokenEP");
+        Secret clientSecret = new Secret("sampleClientSecret");
+        URI callbackURI = new URI("http://localhost:9441/sampleCallbackURL");
+        URI tokenEPURI = new URI("http://localhost:9441/sampleTokenEP");
+        URI jwksURI = new URI("http://localhost:9441/jwksEP");
         URI logoutEP = new URI("http://test/sampleLogoutEP");
         Scope scope = new Scope("sampleScope1", "openid");
         JWT idToken = JWTParser
@@ -105,11 +119,23 @@ public class OIDCManagerImplTest {
         oidcAgentConfig.setTokenEndpoint(tokenEPURI);
         oidcAgentConfig.setLogoutEndpoint(logoutEP);
         oidcAgentConfig.setScope(scope);
+        oidcAgentConfig.setIssuer(issuer);
+        oidcAgentConfig.setJwksEndpoint(jwksURI);
         when(authenticationInfo.getIdToken()).thenReturn(idToken);
+        IDTokenClaimsSet claimsSet = mock(IDTokenClaimsSet.class);
+        IDTokenValidator idTokenValidator = mock(IDTokenValidator.class);
+        com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator = mock(
+                com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class);
+        PowerMockito.whenNew(IDTokenValidator.class).withAnyArguments().thenReturn(idTokenValidator);
+        PowerMockito.whenNew(com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class).withAnyArguments()
+                .thenReturn(validator);
+        when(validator.validate(any(JWT.class), any(Nonce.class))).thenReturn(claimsSet);
+        Mockito.when(idTokenValidator.validate(any(Nonce.class))).thenReturn(claimsSet);
+        Mockito.when(claimsSet.getSubject()).thenReturn(new Subject("alex@carbon.super"));
     }
 
     @Test
-    public void testHandleOIDCCallback() throws SSOAgentException, IOException, ParseException {
+    public void testHandleOIDCCallback() throws Exception {
 
         AccessToken accessToken = new AccessToken(AccessTokenType.BEARER, "sampleAccessToken") {
             @Override
@@ -132,6 +158,7 @@ public class OIDCManagerImplTest {
                 "hAd3NvMi5jb20ifQ.pHwsQqn64tif2J6iYcRShK_85WO3aBuL7Pz8urcHErXjyh6zvroOqSWD9KbSxJPocyoIshdqWdAEhdURKL" +
                 "tXiw-l73HlvnX4qJKYT71VKXMTC26Z8dlk4TgytXiskmj8OpAcem3czuEWTrTLVbYzIw71p9kx-5Xxb9WNvzBg1YpwGC8MK3dkW" +
                 "TfmUsu6oncIvHyv-gbX3kJebgMserp";
+        JWT idToken = JWTParser.parse(parsedIdToken);
         customParameters.put(SSOAgentConstants.ID_TOKEN, parsedIdToken);
 
         when(requestResolver.isError()).thenReturn(false);
@@ -156,6 +183,9 @@ public class OIDCManagerImplTest {
         when(tokenResponse.toSuccessResponse()).thenReturn(accessTokenResponse);
         when(accessTokenResponse.getTokens()).thenReturn(tokens);
         when(accessTokenResponse.getCustomParameters()).thenReturn(customParameters);
+        HttpSession session = mock(HttpSession.class);
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute(SSOAgentConstants.NONCE)).thenReturn(new Nonce());
 
         OIDCManager oidcManager = new OIDCManagerImpl(oidcAgentConfig);
         AuthenticationInfo authenticationInfo = oidcManager.handleOIDCCallback(request, response);
@@ -164,7 +194,6 @@ public class OIDCManagerImplTest {
         assertEquals(authenticationInfo.getRefreshToken(), refreshToken);
         assertEquals(authenticationInfo.getIdToken().getParsedString(), parsedIdToken);
         assertEquals(authenticationInfo.getUser().getSubject(), "alex@carbon.super");
-
         mockedAuthorizationResponse.close();
         mockedServletUtils.close();
         mockedTokenResponse.close();
@@ -191,5 +220,11 @@ public class OIDCManagerImplTest {
     public void tearDown() {
 
         mockServer.stop();
+    }
+
+    @ObjectFactory
+    public IObjectFactory getObjectFactory() {
+
+        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }

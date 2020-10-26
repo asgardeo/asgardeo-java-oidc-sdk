@@ -22,10 +22,15 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.testng.PowerMockTestCase;
+import org.testng.IObjectFactory;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 
 import java.net.URI;
@@ -36,7 +41,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-public class OIDCRequestBuilderTest {
+@PrepareForTest({OIDCAgentConfig.class, AuthenticationInfo.class})
+public class OIDCRequestBuilderTest extends PowerMockTestCase {
 
     @Mock
     OIDCAgentConfig oidcAgentConfig;
@@ -48,7 +54,7 @@ public class OIDCRequestBuilderTest {
     public void setUp() throws URISyntaxException, ParseException {
 
         ClientID clientID = new ClientID("sampleClientId");
-        Scope scope = new Scope("sampleScope1", "sampleScope2");
+        Scope scope = new Scope("sampleScope1", "openid");
         URI callbackURI = new URI("http://test/sampleCallbackURL");
         URI authorizationEndpoint = new URI("http://test/sampleAuthzEP");
         URI logoutEP = new URI("http://test/sampleLogoutEP");
@@ -72,9 +78,12 @@ public class OIDCRequestBuilderTest {
     @Test
     public void testBuildAuthorizationRequest() {
 
-        String authorizationRequest = new OIDCRequestBuilder(oidcAgentConfig).buildAuthorizationRequest("state");
-        assertEquals(authorizationRequest, "http://test/sampleAuthzEP?response_type=code&redirect_uri=http%3A%2F" +
-                "%2Ftest%2FsampleCallbackURL&state=state&client_id=sampleClientId&scope=sampleScope1+sampleScope2");
+        Nonce nonce = new Nonce("sampleNonce");
+        String authorizationRequest =
+                new OIDCRequestBuilder(oidcAgentConfig).buildAuthenticationRequest("state", nonce);
+        assertEquals(authorizationRequest,
+                "http://test/sampleAuthzEP?scope=sampleScope1+openid&response_type=code&redirect_uri=http" +
+                        "%3A%2F%2Ftest%2FsampleCallbackURL&state=state&nonce=sampleNonce&client_id=sampleClientId");
     }
 
     @Test
@@ -85,5 +94,11 @@ public class OIDCRequestBuilderTest {
         assertEquals(logoutRequest, "http://test/sampleLogoutEP?state=state&post_logout_redirect_uri=http%3A%2F%2" +
                 "Ftest%2FsampleRedirectionURL&id_token_hint=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3O" +
                 "DkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+    }
+
+    @ObjectFactory
+    public IObjectFactory getObjectFactory() {
+
+        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }

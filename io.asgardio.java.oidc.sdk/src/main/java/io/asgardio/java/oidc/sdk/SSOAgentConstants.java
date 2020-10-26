@@ -59,6 +59,10 @@ public class SSOAgentConstants {
     public static final String AUTHENTICATED = "authenticated";
     public static final String AUTHENTICATION_INFO = "authenticationInfo";
     public static final String OIDC_OPENID = "openid";
+    public static final String AZP = "azp";
+    public static final String TRUSTED_AUDIENCE = "trustedAudience";
+    public static final String ID_TOKEN_SIGN_ALG = "signatureAlgorithm";
+    public static final String NONCE = "nonce";
 
     // Request headers.
     public static final String REFERER = "referer";

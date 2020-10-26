@@ -18,6 +18,7 @@
 
 package io.asgardio.java.oidc.sdk.config;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -67,6 +69,9 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                 new Secret(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET)) : null;
         String indexPage = properties.getProperty(SSOAgentConstants.INDEX_PAGE);
         String logoutURL = properties.getProperty(SSOAgentConstants.LOGOUT_URL);
+        JWSAlgorithm jwsAlgorithm =
+                StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) ?
+                        new JWSAlgorithm(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) : null;
         try {
             URI callbackUrl = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) ?
                     new URI(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) : null;
@@ -102,14 +107,18 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
             Scope scope = new Scope(scopeArray);
             oidcAgentConfig.setScope(scope);
         }
-
         Set<String> skipURIs = new HashSet<String>();
         String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
         if (StringUtils.isNotBlank(skipURIsString)) {
             String[] skipURIArray = skipURIsString.split(",");
-            for (String skipURI : skipURIArray) {
-                skipURIs.add(skipURI);
-            }
+            Collections.addAll(skipURIs, skipURIArray);
+        }
+        Set<String> trustedAudience = new HashSet<String>();
+        trustedAudience.add(consumerKey.getValue());
+        String trustedAudienceString = properties.getProperty(SSOAgentConstants.TRUSTED_AUDIENCE);
+        if (StringUtils.isNotBlank(trustedAudienceString)) {
+            String[] trustedAudienceArray = trustedAudienceString.split(",");
+            Collections.addAll(trustedAudience, trustedAudienceArray);
         }
         oidcAgentConfig.setConsumerKey(consumerKey);
         oidcAgentConfig.setConsumerSecret(consumerSecret);
@@ -117,6 +126,8 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         oidcAgentConfig.setLogoutURL(logoutURL);
         oidcAgentConfig.setIssuer(issuer);
         oidcAgentConfig.setSkipURIs(skipURIs);
+        oidcAgentConfig.setTrustedAudience(trustedAudience);
+        oidcAgentConfig.setSignatureAlgorithm(jwsAlgorithm);
     }
 
     /**
