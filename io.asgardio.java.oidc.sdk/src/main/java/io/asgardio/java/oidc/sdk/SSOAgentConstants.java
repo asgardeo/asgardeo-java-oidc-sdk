@@ -35,6 +35,8 @@ public class SSOAgentConstants {
     public static final String ID_TOKEN = "id_token";
     public static final String SESSION_STATE = "session_state";
     public static final String USER = "user";
+    public static final String REQUEST_CONTEXT = "request_context";
+    public static final String SESSION_CONTEXT = "session_context";
 
     // Keystore file properties.
     public static final String KEYSTORE_NAME = "keystorename";
@@ -57,7 +59,6 @@ public class SSOAgentConstants {
     public static final String OIDC_JWKS_ENDPOINT = "jwksEndpoint";
     public static final String POST_LOGOUT_REDIRECTION_URI = "postLogoutRedirectURI";
     public static final String AUTHENTICATED = "authenticated";
-    public static final String AUTHENTICATION_INFO = "authenticationInfo";
     public static final String OIDC_OPENID = "openid";
     public static final String AZP = "azp";
     public static final String TRUSTED_AUDIENCE = "trustedAudience";

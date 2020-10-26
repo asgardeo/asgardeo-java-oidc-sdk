@@ -27,13 +27,14 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import io.asgardio.java.oidc.sdk.OIDCManager;
-import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
+import io.asgardio.java.oidc.sdk.bean.RequestContext;
+import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
+import java.util.UUID;
 
 /**
  * OIDCRequestBuilder is the class responsible for building requests
@@ -59,45 +60,40 @@ public class OIDCRequestBuilder {
     }
 
     /**
-     * Returns {@link String} Authorization request. To build the authorization request,
+     * Returns {@link AuthenticationRequest} Authentication request. To build the authentication request,
      * {@link OIDCAgentConfig} should contain:
      * <ul>
+     * <li>The client ID
      * <li>The scope
      * <li>The callback URI
      * <li>The authorization endpoint URI
      * </ul>
      *
-     * @param state State parameter.
-     * @return Authorization request.
+     * @return Authentication request.
      */
-    public String buildAuthenticationRequest(String state, Nonce nonce) {
+    public io.asgardio.java.oidc.sdk.bean.AuthenticationRequest buildAuthenticationRequest() {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
         Scope authScope = oidcAgentConfig.getScope();
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
-        State stateParameter = null;
-        if (StringUtils.isNotBlank(state)) {
-            stateParameter = new State(state);
-        }
+        State state = generateStateParameter();
+        Nonce nonce = new Nonce();
+        RequestContext requestContext = new RequestContext(state, nonce);
 
         AuthenticationRequest authenticationRequest = new AuthenticationRequest.Builder(responseType, authScope,
                 clientID, callBackURI)
-                .state(stateParameter)
+                .state(state)
                 .endpointURI(authorizationEndpoint)
                 .nonce(nonce)
                 .build();
 
-        return authenticationRequest.toURI().toString();
+        io.asgardio.java.oidc.sdk.bean.AuthenticationRequest authRequest =
+                new io.asgardio.java.oidc.sdk.bean.AuthenticationRequest(authenticationRequest.toURI(),
+                        requestContext);
 
-//        AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
-//                .scope(authScope)
-//                .state(stateParameter)
-//                .redirectionURI(callBackURI)
-//                .endpointURI(authorizationEndpoint)
-//                .build();
-//        return authorizationRequest.toURI().toString();
+        return authRequest;
     }
 
     /**
@@ -108,20 +104,23 @@ public class OIDCRequestBuilder {
      * <li>The post logout redirection URI
      * </ul>
      *
-     * @param authenticationInfo {@link AuthenticationInfo} object with information of the current LoggedIn session.
+     * @param authenticationInfo {@link SessionContext} object with information of the current LoggedIn session.
      *                           It must include a valid ID token.
-     * @param state              State parameter.
      * @return Logout request.
      */
-    public String buildLogoutRequest(AuthenticationInfo authenticationInfo, String state) {
+    public String buildLogoutRequest(SessionContext authenticationInfo) {
 
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
         JWT jwtIdToken = authenticationInfo.getIdToken();
-        State stateParam = null;
-        if (StringUtils.isNotBlank(state)) {
-            stateParam = new State(state);
-        }
-        return new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, stateParam).toURI().toString();
+        State state = generateStateParameter();
+
+        return new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state).toURI().toString();
+    }
+
+    private State generateStateParameter() {
+
+        UUID uuid = UUID.randomUUID();
+        return new State(uuid.toString());
     }
 }

@@ -25,9 +25,9 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import java.io.Serializable;
 
 /**
- * A data model class to define the Authentication Info element.
+ * A data model class to define the Session Context element.
  */
-public class AuthenticationInfo implements Serializable {
+public class SessionContext implements Serializable {
 
     private static final long serialVersionUID = 976008884476935474L;
 

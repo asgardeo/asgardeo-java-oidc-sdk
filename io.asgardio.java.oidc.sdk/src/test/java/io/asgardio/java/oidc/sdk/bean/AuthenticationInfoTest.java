@@ -36,7 +36,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class AuthenticationInfoTest {
 
-    AuthenticationInfo authenticationInfo = new AuthenticationInfo();
+    SessionContext authenticationInfo = new SessionContext();
 
     @Test
     public void testGetUser() {

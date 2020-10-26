@@ -22,8 +22,9 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.Nonce;
-import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
+import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -41,14 +42,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-@PrepareForTest({OIDCAgentConfig.class, AuthenticationInfo.class})
+@PrepareForTest({OIDCAgentConfig.class, SessionContext.class})
 public class OIDCRequestBuilderTest extends PowerMockTestCase {
 
     @Mock
     OIDCAgentConfig oidcAgentConfig;
 
     @Mock
-    AuthenticationInfo authenticationInfo;
+    SessionContext authenticationInfo;
 
     @BeforeMethod
     public void setUp() throws URISyntaxException, ParseException {
@@ -64,7 +65,7 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
                         "WF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
         oidcAgentConfig = mock(OIDCAgentConfig.class);
-        authenticationInfo = mock(AuthenticationInfo.class);
+        authenticationInfo = mock(SessionContext.class);
 
         when(oidcAgentConfig.getConsumerKey()).thenReturn(clientID);
         when(oidcAgentConfig.getScope()).thenReturn(scope);
@@ -89,8 +90,7 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
     @Test
     public void testBuildLogoutRequest() {
 
-        String logoutRequest = new OIDCRequestBuilder(oidcAgentConfig).buildLogoutRequest(authenticationInfo,
-                "state");
+        String logoutRequest = new OIDCRequestBuilder(oidcAgentConfig).buildLogoutRequest(authenticationInfo);
         assertEquals(logoutRequest, "http://test/sampleLogoutEP?state=state&post_logout_redirect_uri=http%3A%2F%2" +
                 "Ftest%2FsampleRedirectionURL&id_token_hint=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3O" +
                 "DkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
