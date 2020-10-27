@@ -67,6 +67,9 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                 new Secret(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET)) : null;
         String indexPage = properties.getProperty(SSOAgentConstants.INDEX_PAGE);
         String logoutURL = properties.getProperty(SSOAgentConstants.LOGOUT_URL);
+        Issuer issuer = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.OIDC_ISSUER)) ?
+                new Issuer(properties.getProperty(SSOAgentConstants.OIDC_ISSUER)) : null;
+
         try {
             URI callbackUrl = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) ?
                     new URI(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) : null;
@@ -84,6 +87,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                     StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) ?
                             new URI(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) :
                             callbackUrl;
+
             oidcAgentConfig.setCallbackUrl(callbackUrl);
             oidcAgentConfig.setAuthorizeEndpoint(authorizeEndpoint);
             oidcAgentConfig.setLogoutEndpoint(logoutEndpoint);
@@ -94,8 +98,6 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
             throw new SSOAgentClientException("URL not formatted properly.", e);
         }
 
-        Issuer issuer = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.OIDC_ISSUER)) ?
-                new Issuer(properties.getProperty(SSOAgentConstants.OIDC_ISSUER)) : null;
         String scopeString = properties.getProperty(SSOAgentConstants.SCOPE);
         if (StringUtils.isNotBlank(scopeString)) {
             String[] scopeArray = scopeString.split(",");
@@ -111,6 +113,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                 skipURIs.add(skipURI);
             }
         }
+
         oidcAgentConfig.setConsumerKey(consumerKey);
         oidcAgentConfig.setConsumerSecret(consumerSecret);
         oidcAgentConfig.setIndexPage(indexPage);

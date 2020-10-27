@@ -77,6 +77,7 @@ public class OIDCRequestBuilder {
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
         State stateParameter = null;
+
         if (StringUtils.isNotBlank(state)) {
             stateParameter = new State(state);
         }
@@ -109,6 +110,7 @@ public class OIDCRequestBuilder {
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
         JWT jwtIdToken = authenticationInfo.getIdToken();
         State stateParam = null;
+
         if (StringUtils.isNotBlank(state)) {
             stateParam = new State(state);
         }
