@@ -60,8 +60,8 @@ public class OIDCRequestBuilder {
     }
 
     /**
-     * Returns {@link AuthenticationRequest} Authentication request. To build the authentication request,
-     * {@link OIDCAgentConfig} should contain:
+     * Returns {@link io.asgardio.java.oidc.sdk.bean.AuthenticationRequest} Authentication request.
+     * To build the authentication request, {@link OIDCAgentConfig} should contain:
      * <ul>
      * <li>The client ID
      * <li>The scope
@@ -97,25 +97,29 @@ public class OIDCRequestBuilder {
     }
 
     /**
-     * Returns {@link String} Logout request. To build the logout request,
+     * Returns {@link io.asgardio.java.oidc.sdk.bean.LogoutRequest} Logout request. To build the logout request,
      * {@link OIDCAgentConfig} should contain:
      * <ul>
      * <li>The logout endpoint URI
      * <li>The post logout redirection URI
      * </ul>
      *
-     * @param authenticationInfo {@link SessionContext} object with information of the current LoggedIn session.
-     *                           It must include a valid ID token.
+     * @param sessionContext {@link SessionContext} object with information of the current LoggedIn session.
+     *                       It must include a valid ID token.
      * @return Logout request.
      */
-    public String buildLogoutRequest(SessionContext authenticationInfo) {
+    public io.asgardio.java.oidc.sdk.bean.LogoutRequest buildLogoutRequest(SessionContext sessionContext) {
 
+        io.asgardio.java.oidc.sdk.bean.LogoutRequest logoutRequest = new io.asgardio.java.oidc.sdk.bean.LogoutRequest();
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
-        JWT jwtIdToken = authenticationInfo.getIdToken();
+        JWT jwtIdToken = sessionContext.getIdToken();
         State state = generateStateParameter();
 
-        return new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state).toURI().toString();
+        URI logoutRequestURI = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state).toURI();
+        logoutRequest.setLogoutRequestURI(logoutRequestURI);
+        logoutRequest.setState(state);
+        return logoutRequest;
     }
 
     private State generateStateParameter() {

@@ -49,15 +49,15 @@ public interface OIDCManager {
      * token request and parse the token response where the authenticated user info and tokens would be added to the
      * {@link SessionContext} object and returned.
      *
-     * @param request  Incoming {@link HttpServletRequest}.
-     * @param response Outgoing {@link HttpServletResponse}
+     * @param request        Incoming {@link HttpServletRequest}.
+     * @param response       Outgoing {@link HttpServletResponse}.
+     * @param requestContext {@link RequestContext} object containing the authentication request related information.
      * @return {@link SessionContext} Object containing the authenticated {@link User}, AccessToken, RefreshToken
      * and IDToken.
      * @throws SSOAgentException Upon failed authentication.
      */
     SessionContext handleOIDCCallback(HttpServletRequest request, HttpServletResponse response,
-                                      RequestContext authenticationContext)
-            throws SSOAgentException;
+                                      RequestContext requestContext) throws SSOAgentException;
 
     /**
      * Builds a logout request and redirects.

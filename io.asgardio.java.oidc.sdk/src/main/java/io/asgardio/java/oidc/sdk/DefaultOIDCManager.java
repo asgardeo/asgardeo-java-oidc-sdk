@@ -43,6 +43,7 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import io.asgardio.java.oidc.sdk.bean.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.bean.AuthenticationRequest;
@@ -141,9 +142,9 @@ public class DefaultOIDCManager implements OIDCManager {
             oidcAgentConfig.setPostLogoutRedirectURI(callbackURI);
         }
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        String logoutRequest = requestBuilder.buildLogoutRequest(sessionContext);
+        LogoutRequest logoutRequest = requestBuilder.buildLogoutRequest(sessionContext);
         try {
-            response.sendRedirect(logoutRequest);
+            response.sendRedirect(logoutRequest.getLogoutRequestURI().toString());
         } catch (IOException e) {
             throw new SSOAgentException(SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getMessage(),
                     SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getCode(), e);
