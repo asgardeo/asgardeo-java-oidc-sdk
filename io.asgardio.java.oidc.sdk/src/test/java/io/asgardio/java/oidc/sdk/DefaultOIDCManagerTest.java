@@ -32,6 +32,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
@@ -39,6 +40,7 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
@@ -74,7 +76,7 @@ import static org.testng.Assert.assertEquals;
 
 @PrepareForTest({IDTokenValidator.class, IDTokenClaimsSet.class,
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator.class})
-public class OIDCManagerImplTest extends PowerMockTestCase {
+public class DefaultOIDCManagerTest extends PowerMockTestCase {
 
     @Mock
     HttpServletRequest request;
@@ -86,7 +88,7 @@ public class OIDCManagerImplTest extends PowerMockTestCase {
     OIDCRequestResolver requestResolver;
 
     @Mock
-    SessionContext authenticationInfo;
+    SessionContext sessionContext;
 
     OIDCAgentConfig oidcAgentConfig = new OIDCAgentConfig();
 
@@ -111,7 +113,7 @@ public class OIDCManagerImplTest extends PowerMockTestCase {
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         requestResolver = mock(OIDCRequestResolver.class);
-        authenticationInfo = mock(SessionContext.class);
+        sessionContext = mock(SessionContext.class);
 
         oidcAgentConfig.setConsumerKey(clientID);
         oidcAgentConfig.setConsumerSecret(clientSecret);
@@ -121,7 +123,7 @@ public class OIDCManagerImplTest extends PowerMockTestCase {
         oidcAgentConfig.setScope(scope);
         oidcAgentConfig.setIssuer(issuer);
         oidcAgentConfig.setJwksEndpoint(jwksURI);
-        when(authenticationInfo.getIdToken()).thenReturn(idToken);
+        when(sessionContext.getIdToken()).thenReturn(idToken);
         IDTokenClaimsSet claimsSet = mock(IDTokenClaimsSet.class);
         IDTokenValidator idTokenValidator = mock(IDTokenValidator.class);
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator = mock(
@@ -186,9 +188,10 @@ public class OIDCManagerImplTest extends PowerMockTestCase {
         HttpSession session = mock(HttpSession.class);
         when(request.getSession(false)).thenReturn(session);
         when(session.getAttribute(SSOAgentConstants.NONCE)).thenReturn(new Nonce());
+        RequestContext requestContext = new RequestContext(new State("state"), new Nonce());
 
         OIDCManager oidcManager = new DefaultOIDCManager(oidcAgentConfig);
-        SessionContext authenticationInfo = oidcManager.handleOIDCCallback(request, response, null);
+        SessionContext authenticationInfo = oidcManager.handleOIDCCallback(request, response, requestContext);
 
         assertEquals(authenticationInfo.getAccessToken(), accessToken);
         assertEquals(authenticationInfo.getRefreshToken(), refreshToken);
@@ -204,7 +207,7 @@ public class OIDCManagerImplTest extends PowerMockTestCase {
 
         oidcAgentConfig.setPostLogoutRedirectURI(null);
         OIDCManager oidcManager = new DefaultOIDCManager(oidcAgentConfig);
-        oidcManager.logout(authenticationInfo, response, "state");
+        oidcManager.logout(sessionContext, response);
     }
 
     @Test
@@ -213,7 +216,7 @@ public class OIDCManagerImplTest extends PowerMockTestCase {
         URI redirectionURI = new URI("http://test/sampleRedirectionURL");
         oidcAgentConfig.setPostLogoutRedirectURI(redirectionURI);
         OIDCManager oidcManager = new DefaultOIDCManager(oidcAgentConfig);
-        oidcManager.logout(authenticationInfo, response, "state");
+        oidcManager.logout(sessionContext, response);
     }
 
     @AfterMethod

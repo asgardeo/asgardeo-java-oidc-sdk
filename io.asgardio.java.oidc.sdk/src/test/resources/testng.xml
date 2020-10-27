@@ -29,7 +29,7 @@
             <class name="io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfigTest"/>
             <class name="io.asgardio.java.oidc.sdk.request.OIDCRequestResolverTest"/>
             <class name="io.asgardio.java.oidc.sdk.request.OIDCRequestBuilderTest"/>
-            <class name="io.asgardio.java.oidc.sdk.OIDCManagerImplTest"/>
+            <class name="io.asgardio.java.oidc.sdk.DefaultOIDCManagerTest"/>
             <class name="io.asgardio.java.oidc.sdk.validators.IDTokenValidatorTest"/>
         </classes>
     </test>

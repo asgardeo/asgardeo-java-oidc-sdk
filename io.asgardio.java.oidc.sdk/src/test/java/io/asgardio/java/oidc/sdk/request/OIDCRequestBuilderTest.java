@@ -22,8 +22,9 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.openid.connect.sdk.Nonce;
+import io.asgardio.java.oidc.sdk.bean.AuthenticationRequest;
+import io.asgardio.java.oidc.sdk.bean.LogoutRequest;
+import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import org.mockito.Mock;
@@ -49,7 +50,7 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
     OIDCAgentConfig oidcAgentConfig;
 
     @Mock
-    SessionContext authenticationInfo;
+    SessionContext sessionContext;
 
     @BeforeMethod
     public void setUp() throws URISyntaxException, ParseException {
@@ -65,7 +66,7 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
                         "WF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
         oidcAgentConfig = mock(OIDCAgentConfig.class);
-        authenticationInfo = mock(SessionContext.class);
+        sessionContext = mock(SessionContext.class);
 
         when(oidcAgentConfig.getConsumerKey()).thenReturn(clientID);
         when(oidcAgentConfig.getScope()).thenReturn(scope);
@@ -73,27 +74,33 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
         when(oidcAgentConfig.getAuthorizeEndpoint()).thenReturn(authorizationEndpoint);
         when(oidcAgentConfig.getLogoutEndpoint()).thenReturn(logoutEP);
         when(oidcAgentConfig.getPostLogoutRedirectURI()).thenReturn(redirectionURI);
-        when(authenticationInfo.getIdToken()).thenReturn(idToken);
+        when(sessionContext.getIdToken()).thenReturn(idToken);
     }
 
     @Test
     public void testBuildAuthorizationRequest() {
 
-        Nonce nonce = new Nonce("sampleNonce");
-        String authorizationRequest =
-                new OIDCRequestBuilder(oidcAgentConfig).buildAuthenticationRequest("state", nonce);
-        assertEquals(authorizationRequest,
+        AuthenticationRequest authenticationRequest =
+                new OIDCRequestBuilder(oidcAgentConfig).buildAuthenticationRequest();
+        RequestContext requestContext = authenticationRequest.getRequestContext();
+        String nonce = requestContext.getNonce().getValue();
+        String state = requestContext.getState().getValue();
+
+        assertEquals(authenticationRequest.getAuthenticationRequestURI().toString(),
                 "http://test/sampleAuthzEP?scope=sampleScope1+openid&response_type=code&redirect_uri=http" +
-                        "%3A%2F%2Ftest%2FsampleCallbackURL&state=state&nonce=sampleNonce&client_id=sampleClientId");
+                        "%3A%2F%2Ftest%2FsampleCallbackURL&state=" + state + "&nonce=" + nonce + "&client_id" +
+                        "=sampleClientId");
     }
 
     @Test
     public void testBuildLogoutRequest() {
 
-        String logoutRequest = new OIDCRequestBuilder(oidcAgentConfig).buildLogoutRequest(authenticationInfo);
-        assertEquals(logoutRequest, "http://test/sampleLogoutEP?state=state&post_logout_redirect_uri=http%3A%2F%2" +
-                "Ftest%2FsampleRedirectionURL&id_token_hint=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3O" +
-                "DkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+        LogoutRequest logoutRequest = new OIDCRequestBuilder(oidcAgentConfig).buildLogoutRequest(sessionContext);
+        String state = logoutRequest.getState().getValue();
+        assertEquals(logoutRequest.getLogoutRequestURI().toString(), "http://test/sampleLogoutEP?state=" + state +
+                "&post_logout_redirect_uri=http%3A%2F%2Ftest%2FsampleRedirectionURL&id_token_hint=eyJhbGciOiJIUzI1NiI" +
+                "sInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwR" +
+                "JSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
     }
 
     @ObjectFactory
