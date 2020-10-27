@@ -18,7 +18,7 @@
 
 package io.asgardio.java.oidc.sdk;
 
-import io.asgardio.java.oidc.sdk.bean.AuthenticationRequest;
+import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
 import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.bean.User;

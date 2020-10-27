@@ -16,13 +16,16 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.bean;
+package io.asgardio.java.oidc.sdk.request.model;
 
 import com.nimbusds.oauth2.sdk.id.State;
 
 import java.io.Serializable;
 import java.net.URI;
 
+/**
+ * A data model class to define the Logout Request element.
+ */
 public class LogoutRequest implements Serializable {
 
     private static final long serialVersionUID = 6184960293632714833L;

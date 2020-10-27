@@ -27,8 +27,14 @@ import java.util.Map;
 
 /**
  * A data model class to define the Request Context element. The Request Context object
- * should be used to hold the attributes regarding the authentication flow. The Request
- * Context and its attributes would be used from the initiation of the authentication
+ * should be used to hold the attributes regarding the authentication flow. These include the attributes:
+ * <ul>
+ * <li>The state parameter
+ * <li>The nonce value
+ * <li>Additional custom parameters
+ * </ul>
+ * <p>
+ * The Request Context and its attributes would be used from the initiation of the authentication
  * request until the authentication completion of the user.
  */
 public class RequestContext implements Serializable {

@@ -60,7 +60,7 @@ public class OIDCRequestBuilder {
     }
 
     /**
-     * Returns {@link io.asgardio.java.oidc.sdk.bean.AuthenticationRequest} Authentication request.
+     * Returns {@link io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest} Authentication request.
      * To build the authentication request, {@link OIDCAgentConfig} should contain:
      * <ul>
      * <li>The client ID
@@ -71,7 +71,7 @@ public class OIDCRequestBuilder {
      *
      * @return Authentication request.
      */
-    public io.asgardio.java.oidc.sdk.bean.AuthenticationRequest buildAuthenticationRequest() {
+    public io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest buildAuthenticationRequest() {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
@@ -89,15 +89,15 @@ public class OIDCRequestBuilder {
                 .nonce(nonce)
                 .build();
 
-        io.asgardio.java.oidc.sdk.bean.AuthenticationRequest authRequest =
-                new io.asgardio.java.oidc.sdk.bean.AuthenticationRequest(authenticationRequest.toURI(),
+        io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest authRequest =
+                new io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest(authenticationRequest.toURI(),
                         requestContext);
 
         return authRequest;
     }
 
     /**
-     * Returns {@link io.asgardio.java.oidc.sdk.bean.LogoutRequest} Logout request. To build the logout request,
+     * Returns {@link io.asgardio.java.oidc.sdk.request.model.LogoutRequest} Logout request. To build the logout request,
      * {@link OIDCAgentConfig} should contain:
      * <ul>
      * <li>The logout endpoint URI
@@ -108,9 +108,10 @@ public class OIDCRequestBuilder {
      *                       It must include a valid ID token.
      * @return Logout request.
      */
-    public io.asgardio.java.oidc.sdk.bean.LogoutRequest buildLogoutRequest(SessionContext sessionContext) {
+    public io.asgardio.java.oidc.sdk.request.model.LogoutRequest buildLogoutRequest(SessionContext sessionContext) {
 
-        io.asgardio.java.oidc.sdk.bean.LogoutRequest logoutRequest = new io.asgardio.java.oidc.sdk.bean.LogoutRequest();
+        io.asgardio.java.oidc.sdk.request.model.LogoutRequest
+                logoutRequest = new io.asgardio.java.oidc.sdk.request.model.LogoutRequest();
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
         JWT jwtIdToken = sessionContext.getIdToken();

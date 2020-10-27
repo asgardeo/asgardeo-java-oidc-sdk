@@ -16,7 +16,9 @@
  * under the License.
  */
 
-package io.asgardio.java.oidc.sdk.bean;
+package io.asgardio.java.oidc.sdk.request.model;
+
+import io.asgardio.java.oidc.sdk.bean.RequestContext;
 
 import java.io.Serializable;
 import java.net.URI;

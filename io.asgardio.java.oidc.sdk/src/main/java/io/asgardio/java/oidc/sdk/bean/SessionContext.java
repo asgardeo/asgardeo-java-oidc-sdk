@@ -25,7 +25,15 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import java.io.Serializable;
 
 /**
- * A data model class to define the Session Context element.
+ * A data model class to define the Session Context element. The Session Context object should be used to hold the
+ * attributes of the logged in user session. These include the attributes:
+ * <ul>
+ * <li>The Authenticated User
+ * <li>Access Token
+ * <li>Refresh Token
+ * <li>ID Token
+ * </ul>
+ * <p>
  */
 public class SessionContext implements Serializable {
 
