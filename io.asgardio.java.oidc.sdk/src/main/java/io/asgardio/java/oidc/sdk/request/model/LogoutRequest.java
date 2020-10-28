@@ -18,7 +18,7 @@
 
 package io.asgardio.java.oidc.sdk.request.model;
 
-import com.nimbusds.oauth2.sdk.id.State;
+import io.asgardio.java.oidc.sdk.bean.RequestContext;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -31,7 +31,13 @@ public class LogoutRequest implements Serializable {
     private static final long serialVersionUID = 6184960293632714833L;
 
     private URI logoutRequestURI;
-    private State state;
+    private RequestContext requestContext;
+
+    public LogoutRequest(URI logoutRequestURI, RequestContext requestContext) {
+
+        this.logoutRequestURI = logoutRequestURI;
+        this.requestContext = requestContext;
+    }
 
     public URI getLogoutRequestURI() {
 
@@ -43,13 +49,13 @@ public class LogoutRequest implements Serializable {
         this.logoutRequestURI = logoutRequestURI;
     }
 
-    public State getState() {
+    public RequestContext getRequestContext() {
 
-        return state;
+        return requestContext;
     }
 
-    public void setState(State state) {
+    public void setRequestContext(RequestContext requestContext) {
 
-        this.state = state;
+        this.requestContext = requestContext;
     }
 }

@@ -249,7 +249,6 @@ public class OIDCAgentConfig {
         this.issuer = issuer;
     }
 
-
     public Set<String> getTrustedAudience() {
 
         return trustedAudience;

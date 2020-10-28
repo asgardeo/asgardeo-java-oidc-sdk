@@ -43,10 +43,8 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
-import io.asgardio.java.oidc.sdk.request.model.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
-import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
@@ -54,6 +52,8 @@ import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestBuilder;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestResolver;
+import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
+import io.asgardio.java.oidc.sdk.request.model.LogoutRequest;
 import io.asgardio.java.oidc.sdk.validators.IDTokenValidator;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -134,7 +134,7 @@ public class DefaultOIDCManager implements OIDCManager {
      * {@inheritDoc}
      */
     @Override
-    public void logout(SessionContext sessionContext, HttpServletResponse response) throws SSOAgentException {
+    public RequestContext logout(SessionContext sessionContext, HttpServletResponse response) throws SSOAgentException {
 
         if (oidcAgentConfig.getPostLogoutRedirectURI() == null) {
             logger.info("postLogoutRedirectURI is not configured. Using the callbackURL instead.");
@@ -149,6 +149,7 @@ public class DefaultOIDCManager implements OIDCManager {
             throw new SSOAgentException(SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getMessage(),
                     SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getCode(), e);
         }
+        return logoutRequest.getRequestContext();
     }
 
     private boolean handleAuthentication(final HttpServletRequest request, SessionContext authenticationInfo,

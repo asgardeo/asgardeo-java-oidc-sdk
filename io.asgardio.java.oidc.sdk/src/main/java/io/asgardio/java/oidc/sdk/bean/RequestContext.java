@@ -51,31 +51,67 @@ public class RequestContext implements Serializable {
         this.nonce = nonce;
     }
 
+    public RequestContext() {
+
+    }
+
+    /**
+     * Returns the state.
+     *
+     * @return {@link State} object for the request.
+     */
     public State getState() {
 
         return state;
     }
 
+    /**
+     * Sets the state.
+     *
+     * @param state The state object.
+     */
     public void setState(State state) {
 
         this.state = state;
     }
 
+    /**
+     * Returns the nonce.
+     *
+     * @return {@link Nonce} object for the request.
+     */
     public Nonce getNonce() {
 
         return nonce;
     }
 
+    /**
+     * Sets the nonce.
+     *
+     * @param nonce The nonce object.
+     */
     public void setNonce(Nonce nonce) {
 
         this.nonce = nonce;
     }
 
+    /**
+     * Returns the object for the particular key.
+     *
+     * @param key The String value of the key.
+     * @return The additional parameter object in the request for the particular key.
+     */
     public Object getParameter(String key) {
 
         return additionalParams.get(key);
     }
 
+    /**
+     * Sets additional parameter to the Request Context.
+     *
+     * @param key   The key of the parameter.
+     * @param value The value of the parameter.
+     */
     public void setParameter(String key, Object value) {
 
         additionalParams.put(key, value);

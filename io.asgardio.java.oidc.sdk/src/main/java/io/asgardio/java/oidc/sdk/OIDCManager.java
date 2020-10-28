@@ -18,11 +18,11 @@
 
 package io.asgardio.java.oidc.sdk;
 
-import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
 import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
+import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,7 +64,9 @@ public interface OIDCManager {
      *
      * @param sessionContext {@link SessionContext} of the logged in session.
      * @param response       Outgoing {@link HttpServletResponse}
+     * @return {@link RequestContext} Object containing details regarding the state ID and other parameters of the
+     * {@link io.asgardio.java.oidc.sdk.request.model.LogoutRequest}.
      * @throws SSOAgentException
      */
-    void logout(SessionContext sessionContext, HttpServletResponse response) throws SSOAgentException;
+    RequestContext logout(SessionContext sessionContext, HttpServletResponse response) throws SSOAgentException;
 }

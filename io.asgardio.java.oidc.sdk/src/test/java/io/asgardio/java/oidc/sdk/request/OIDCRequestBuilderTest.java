@@ -22,11 +22,11 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
-import io.asgardio.java.oidc.sdk.request.model.LogoutRequest;
 import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
+import io.asgardio.java.oidc.sdk.request.model.LogoutRequest;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
@@ -96,7 +96,8 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
     public void testBuildLogoutRequest() {
 
         LogoutRequest logoutRequest = new OIDCRequestBuilder(oidcAgentConfig).buildLogoutRequest(sessionContext);
-        String state = logoutRequest.getState().getValue();
+        RequestContext requestContext = logoutRequest.getRequestContext();
+        String state = requestContext.getState().getValue();
         assertEquals(logoutRequest.getLogoutRequestURI().toString(), "http://test/sampleLogoutEP?state=" + state +
                 "&post_logout_redirect_uri=http%3A%2F%2Ftest%2FsampleRedirectionURL&id_token_hint=eyJhbGciOiJIUzI1NiI" +
                 "sInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwR" +

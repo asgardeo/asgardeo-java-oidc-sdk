@@ -110,17 +110,16 @@ public class OIDCRequestBuilder {
      */
     public io.asgardio.java.oidc.sdk.request.model.LogoutRequest buildLogoutRequest(SessionContext sessionContext) {
 
-        io.asgardio.java.oidc.sdk.request.model.LogoutRequest
-                logoutRequest = new io.asgardio.java.oidc.sdk.request.model.LogoutRequest();
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
         JWT jwtIdToken = sessionContext.getIdToken();
         State state = generateStateParameter();
+        RequestContext requestContext = new RequestContext();
 
+        requestContext.setState(state);
         URI logoutRequestURI = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state).toURI();
-        logoutRequest.setLogoutRequestURI(logoutRequestURI);
-        logoutRequest.setState(state);
-        return logoutRequest;
+
+        return new io.asgardio.java.oidc.sdk.request.model.LogoutRequest(logoutRequestURI, requestContext);
     }
 
     private State generateStateParameter() {
