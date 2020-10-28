@@ -103,8 +103,8 @@ public class HTTPSessionBasedOIDCProcessor {
 
         SessionContext sessionContext = getSessionContext(request);
         clearSession(request);
-        RequestContext requestContext = defaultOIDCManager.logout(sessionContext, response);
         HttpSession session = request.getSession();
+        RequestContext requestContext = defaultOIDCManager.logout(sessionContext, response);
         session.setAttribute(SSOAgentConstants.REQUEST_CONTEXT, requestContext);
     }
 
