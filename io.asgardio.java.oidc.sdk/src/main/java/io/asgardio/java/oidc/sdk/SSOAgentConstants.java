@@ -65,6 +65,7 @@ public class SSOAgentConstants {
     public static final String TRUSTED_AUDIENCE = "trustedAudience";
     public static final String ID_TOKEN_SIGN_ALG = "signatureAlgorithm";
     public static final String NONCE = "nonce";
+    public static final String AGENT_EXCEPTION = "AgentException";
 
     // Request headers.
     public static final String REFERER = "referer";
@@ -91,7 +92,8 @@ public class SSOAgentConstants {
         AGENT_CONFIG_CLIENT_ID("18006",
                 "Consumer Key/Client ID must not be null. This refers to the client identifier assigned to the " +
                         "Relying Party during its registration with the OpenID Provider."),
-        AGENT_CONFIG_CALLBACK_URL("18007",
+        AGENT_CONFIG_CLIENT_SECRET("18007", "Consumer secret/Client secret must not be null."),
+        AGENT_CONFIG_CALLBACK_URL("18008",
                 "Callback URL/Redirection URL must not be null. This refers to the Relying Party's redirection URIs " +
                         "registered with the OpenID Provider."),
         SERVLET_CONNECTION("18008", "Error found with connection.");
