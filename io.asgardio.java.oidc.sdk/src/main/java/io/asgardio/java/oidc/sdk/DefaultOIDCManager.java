@@ -94,6 +94,7 @@ public class DefaultOIDCManager implements OIDCManager {
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
         AuthenticationRequest authenticationRequest = requestBuilder.buildAuthenticationRequest();
+
         try {
             response.sendRedirect(authenticationRequest.getAuthenticationRequestURI().toString());
         } catch (IOException e) {
@@ -122,6 +123,7 @@ public class DefaultOIDCManager implements OIDCManager {
                     return sessionContext;
                 }
             }
+
             logger.log(Level.ERROR, "Authentication unsuccessful. Clearing the active session and redirecting.");
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
                     SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
@@ -141,8 +143,10 @@ public class DefaultOIDCManager implements OIDCManager {
             URI callbackURI = oidcAgentConfig.getCallbackUrl();
             oidcAgentConfig.setPostLogoutRedirectURI(callbackURI);
         }
+
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
         LogoutRequest logoutRequest = requestBuilder.buildLogoutRequest(sessionContext);
+
         try {
             response.sendRedirect(logoutRequest.getLogoutRequestURI().toString());
         } catch (IOException e) {
@@ -168,6 +172,7 @@ public class DefaultOIDCManager implements OIDCManager {
                 handleErrorAuthorizationResponse(authorizationResponse);
                 return false;
             }
+
             successResponse = authorizationResponse.toSuccessResponse();
             authorizationCode = successResponse.getAuthorizationCode();
             tokenRequest = getTokenRequest(authorizationCode);
@@ -177,6 +182,7 @@ public class DefaultOIDCManager implements OIDCManager {
                 handleErrorTokenResponse(tokenRequest, tokenResponse);
                 return false;
             }
+
             handleSuccessTokenResponse(tokenResponse, authenticationInfo, nonce);
             return true;
         } catch (com.nimbusds.oauth2.sdk.ParseException | SSOAgentServerException | IOException e) {
@@ -193,6 +199,7 @@ public class DefaultOIDCManager implements OIDCManager {
         AccessToken accessToken = successResponse.getTokens().getAccessToken();
         RefreshToken refreshToken = successResponse.getTokens().getRefreshToken();
         String idToken;
+
         try {
             idToken = successResponse.getCustomParameters().get(SSOAgentConstants.ID_TOKEN).toString();
         } catch (NullPointerException e) {
@@ -200,6 +207,7 @@ public class DefaultOIDCManager implements OIDCManager {
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getMessage(),
                     SSOAgentConstants.ErrorMessages.ID_TOKEN_NULL.getCode(), e);
         }
+
         try {
             JWT idTokenJWT = JWTParser.parse(idToken);
             IDTokenValidator idTokenValidator = new IDTokenValidator(oidcAgentConfig, idTokenJWT);
@@ -220,6 +228,7 @@ public class DefaultOIDCManager implements OIDCManager {
         TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
         JSONObject requestObject = requestToJson(tokenRequest);
         JSONObject responseObject = errorResponse.toJSONObject();
+
         logger.log(Level.INFO, "Request object for the error response: ", requestObject);
         logger.log(Level.INFO, "Error response object: ", responseObject);
     }
@@ -228,12 +237,14 @@ public class DefaultOIDCManager implements OIDCManager {
 
         AuthorizationErrorResponse errorResponse = authzResponse.toErrorResponse();
         JSONObject responseObject = errorResponse.getErrorObject().toJSONObject();
+
         logger.log(Level.INFO, "Error response object: ", responseObject);
     }
 
     private TokenResponse getTokenResponse(TokenRequest tokenRequest) {
 
         TokenResponse tokenResponse = null;
+
         try {
             tokenResponse = TokenResponse.parse(tokenRequest.toHTTPRequest().send());
         } catch (com.nimbusds.oauth2.sdk.ParseException | IOException e) {
@@ -257,6 +268,7 @@ public class DefaultOIDCManager implements OIDCManager {
     private JSONObject requestToJson(AbstractRequest request) {
 
         JSONObject obj = new JSONObject();
+
         obj.appendField("tokenEndpoint", request.toHTTPRequest().getURI().toString());
         obj.appendField("request body", request.toHTTPRequest().getQueryParameters());
         return obj;
@@ -265,6 +277,7 @@ public class DefaultOIDCManager implements OIDCManager {
     private Map<String, Object> getUserAttributes(String idToken) throws SSOAgentServerException {
 
         Map<String, Object> userClaimValueMap = new HashMap<>();
+
         try {
             JWTClaimsSet claimsSet = SignedJWT.parse(idToken).getJWTClaimsSet();
             Map<String, Object> customClaimValueMap = claimsSet.getClaims();
@@ -289,6 +302,7 @@ public class DefaultOIDCManager implements OIDCManager {
     private void validateForCode(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
 
         Scope scope = oidcAgentConfig.getScope();
+
         if (scope.isEmpty() || !scope.contains(SSOAgentConstants.OIDC_OPENID)) {
             throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_SCOPE.getMessage(),
                     SSOAgentConstants.ErrorMessages.AGENT_CONFIG_SCOPE.getCode());

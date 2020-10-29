@@ -73,6 +73,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         JWSAlgorithm jwsAlgorithm =
                 StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) ?
                         new JWSAlgorithm(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) : null;
+
         try {
             URI callbackUrl = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) ?
                     new URI(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) : null;
@@ -90,6 +91,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                     StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) ?
                             new URI(properties.getProperty(SSOAgentConstants.POST_LOGOUT_REDIRECTION_URI)) :
                             callbackUrl;
+
             oidcAgentConfig.setCallbackUrl(callbackUrl);
             oidcAgentConfig.setAuthorizeEndpoint(authorizeEndpoint);
             oidcAgentConfig.setLogoutEndpoint(logoutEndpoint);
@@ -108,6 +110,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
             Scope scope = new Scope(scopeArray);
             oidcAgentConfig.setScope(scope);
         }
+
         Set<String> skipURIs = new HashSet<String>();
         String skipURIsString = properties.getProperty(SSOAgentConstants.SKIP_URIS);
         if (StringUtils.isNotBlank(skipURIsString)) {
@@ -127,6 +130,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
             String[] trustedAudienceArray = trustedAudienceString.split(",");
             Collections.addAll(trustedAudience, trustedAudienceArray);
         }
+
         oidcAgentConfig.setConsumerKey(consumerKey);
         oidcAgentConfig.setConsumerSecret(consumerSecret);
         oidcAgentConfig.setIndexPage(indexPage);

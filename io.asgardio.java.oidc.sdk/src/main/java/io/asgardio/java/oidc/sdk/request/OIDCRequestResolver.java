@@ -80,6 +80,7 @@ public class OIDCRequestResolver {
     public boolean isAuthorizationCodeResponse() {
 
         AuthorizationResponse authorizationResponse;
+
         try {
             authorizationResponse = AuthorizationResponse.parse(ServletUtils.createHTTPRequest(request));
         } catch (com.nimbusds.oauth2.sdk.ParseException | IOException e) {
@@ -122,6 +123,7 @@ public class OIDCRequestResolver {
     public boolean isCallbackResponse() {
 
         String callbackContext = oidcAgentConfig.getCallbackUrl().getPath();
+
         return request.getRequestURI().contains(callbackContext);
     }
 
@@ -133,6 +135,7 @@ public class OIDCRequestResolver {
     public String getIndexPage() {
 
         String indexPage = oidcAgentConfig.getIndexPage();
+
         if (StringUtils.isNotBlank(indexPage)) {
             return indexPage;
         }
@@ -143,6 +146,7 @@ public class OIDCRequestResolver {
 
         AuthorizationErrorResponse errorResponse = authzResponse.toErrorResponse();
         JSONObject responseObject = errorResponse.getErrorObject().toJSONObject();
+
         logger.log(Level.INFO, "Error response object: ", responseObject);
     }
 }
