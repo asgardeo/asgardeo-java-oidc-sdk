@@ -25,6 +25,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
 import io.asgardio.java.oidc.sdk.request.model.LogoutRequest;
 import org.mockito.Mock;
@@ -74,7 +75,7 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
         when(oidcAgentConfig.getAuthorizeEndpoint()).thenReturn(authorizationEndpoint);
         when(oidcAgentConfig.getLogoutEndpoint()).thenReturn(logoutEP);
         when(oidcAgentConfig.getPostLogoutRedirectURI()).thenReturn(redirectionURI);
-        when(sessionContext.getIdToken()).thenReturn(idToken);
+        when(sessionContext.getIdToken()).thenReturn(idToken.getParsedString());
     }
 
     @Test
@@ -93,7 +94,7 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
     }
 
     @Test
-    public void testBuildLogoutRequest() {
+    public void testBuildLogoutRequest() throws SSOAgentServerException {
 
         LogoutRequest logoutRequest = new OIDCRequestBuilder(oidcAgentConfig).buildLogoutRequest(sessionContext);
         RequestContext requestContext = logoutRequest.getRequestContext();

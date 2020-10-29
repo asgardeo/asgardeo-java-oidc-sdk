@@ -19,6 +19,7 @@
 package io.asgardio.java.oidc.sdk.request;
 
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -30,10 +31,12 @@ import io.asgardio.java.oidc.sdk.OIDCManager;
 import io.asgardio.java.oidc.sdk.bean.RequestContext;
 import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
+import java.text.ParseException;
 import java.util.UUID;
 
 /**
@@ -108,11 +111,17 @@ public class OIDCRequestBuilder {
      *                       It must include a valid ID token.
      * @return Logout request.
      */
-    public io.asgardio.java.oidc.sdk.request.model.LogoutRequest buildLogoutRequest(SessionContext sessionContext) {
+    public io.asgardio.java.oidc.sdk.request.model.LogoutRequest buildLogoutRequest(SessionContext sessionContext)
+            throws SSOAgentServerException {
 
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
-        JWT jwtIdToken = sessionContext.getIdToken();
+        JWT jwtIdToken = null;
+        try {
+            jwtIdToken = JWTParser.parse(sessionContext.getIdToken());
+        } catch (ParseException e) {
+            throw new SSOAgentServerException(e.getMessage(), e);
+        }
         State state = generateStateParameter();
         RequestContext requestContext = new RequestContext();
 

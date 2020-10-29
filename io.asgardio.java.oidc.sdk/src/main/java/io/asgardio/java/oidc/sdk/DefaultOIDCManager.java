@@ -191,8 +191,7 @@ public class DefaultOIDCManager implements OIDCManager {
         }
     }
 
-    private void handleSuccessTokenResponse(TokenResponse tokenResponse, SessionContext authenticationInfo,
-                                            Nonce nonce)
+    private void handleSuccessTokenResponse(TokenResponse tokenResponse, SessionContext sessionContext, Nonce nonce)
             throws SSOAgentServerException {
 
         AccessTokenResponse successResponse = tokenResponse.toSuccessResponse();
@@ -213,10 +212,10 @@ public class DefaultOIDCManager implements OIDCManager {
             IDTokenValidator idTokenValidator = new IDTokenValidator(oidcAgentConfig, idTokenJWT);
             IDTokenClaimsSet claimsSet = idTokenValidator.validate(nonce);
             User user = new User(claimsSet.getSubject().getValue(), getUserAttributes(idToken));
-            authenticationInfo.setIdToken(idTokenJWT);
-            authenticationInfo.setUser(user);
-            authenticationInfo.setAccessToken(accessToken);
-            authenticationInfo.setRefreshToken(refreshToken);
+            sessionContext.setIdToken(idTokenJWT.getParsedString());
+            sessionContext.setUser(user);
+            sessionContext.setAccessToken(accessToken.toJSONString());
+            sessionContext.setRefreshToken(refreshToken.getValue());
         } catch (ParseException e) {
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getMessage(),
                     SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getCode(), e);

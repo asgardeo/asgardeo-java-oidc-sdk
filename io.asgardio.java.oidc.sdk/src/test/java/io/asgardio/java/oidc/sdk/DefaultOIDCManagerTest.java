@@ -123,7 +123,7 @@ public class DefaultOIDCManagerTest extends PowerMockTestCase {
         oidcAgentConfig.setScope(scope);
         oidcAgentConfig.setIssuer(issuer);
         oidcAgentConfig.setJwksEndpoint(jwksURI);
-        when(sessionContext.getIdToken()).thenReturn(idToken);
+        when(sessionContext.getIdToken()).thenReturn(idToken.getParsedString());
         IDTokenClaimsSet claimsSet = mock(IDTokenClaimsSet.class);
         IDTokenValidator idTokenValidator = mock(IDTokenValidator.class);
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator = mock(
@@ -191,12 +191,12 @@ public class DefaultOIDCManagerTest extends PowerMockTestCase {
         RequestContext requestContext = new RequestContext(new State("state"), new Nonce());
 
         OIDCManager oidcManager = new DefaultOIDCManager(oidcAgentConfig);
-        SessionContext authenticationInfo = oidcManager.handleOIDCCallback(request, response, requestContext);
+        SessionContext sessionContext = oidcManager.handleOIDCCallback(request, response, requestContext);
 
-        assertEquals(authenticationInfo.getAccessToken(), accessToken);
-        assertEquals(authenticationInfo.getRefreshToken(), refreshToken);
-        assertEquals(authenticationInfo.getIdToken().getParsedString(), parsedIdToken);
-        assertEquals(authenticationInfo.getUser().getSubject(), "alex@carbon.super");
+        assertEquals(sessionContext.getAccessToken(), accessToken.toJSONString());
+        assertEquals(sessionContext.getRefreshToken(), refreshToken.getValue());
+        assertEquals(sessionContext.getIdToken(), parsedIdToken);
+        assertEquals(sessionContext.getUser().getSubject(), "alex@carbon.super");
         mockedAuthorizationResponse.close();
         mockedServletUtils.close();
         mockedTokenResponse.close();
