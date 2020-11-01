@@ -126,7 +126,13 @@ public class OIDCRequestBuilder {
         RequestContext requestContext = new RequestContext();
 
         requestContext.setState(state);
-        URI logoutRequestURI = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state).toURI();
+        URI logoutRequestURI;
+
+        try {
+            logoutRequestURI = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state).toURI();
+        } catch (Exception e) {
+            throw new SSOAgentServerException(e.getMessage(), e);
+        }
 
         return new io.asgardio.java.oidc.sdk.request.model.LogoutRequest(logoutRequestURI, requestContext);
     }

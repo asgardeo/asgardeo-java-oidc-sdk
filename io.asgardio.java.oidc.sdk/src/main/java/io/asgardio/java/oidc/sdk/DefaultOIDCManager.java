@@ -157,7 +157,7 @@ public class DefaultOIDCManager implements OIDCManager {
     }
 
     private boolean handleAuthentication(final HttpServletRequest request, SessionContext authenticationInfo,
-                                         Nonce nonce) {
+                                         Nonce nonce) throws SSOAgentServerException {
 
         AuthorizationResponse authorizationResponse;
         AuthorizationCode authorizationCode;
@@ -186,8 +186,7 @@ public class DefaultOIDCManager implements OIDCManager {
             handleSuccessTokenResponse(tokenResponse, authenticationInfo, nonce);
             return true;
         } catch (com.nimbusds.oauth2.sdk.ParseException | SSOAgentServerException | IOException e) {
-            logger.error(e.getMessage(), e);
-            return false;
+            throw new SSOAgentServerException(e.getMessage(), e);
         }
     }
 
@@ -308,6 +307,11 @@ public class DefaultOIDCManager implements OIDCManager {
         }
 
         if (oidcAgentConfig.getConsumerKey() == null) {
+            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getCode());
+        }
+
+        if (oidcAgentConfig.getConsumerSecret() == null) {
             throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getMessage(),
                     SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getCode());
         }

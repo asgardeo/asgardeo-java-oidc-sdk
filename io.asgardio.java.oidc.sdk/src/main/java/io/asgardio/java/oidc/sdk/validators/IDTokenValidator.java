@@ -95,7 +95,7 @@ public class IDTokenValidator {
                 validator =
                         new com.nimbusds.openid.connect.sdk.validators.IDTokenValidator(issuer, clientID, jwsAlgorithm,
                                 jwkSetURI.toURL());
-            } catch (MalformedURLException e) {
+            } catch (Exception e) {
                 throw new SSOAgentServerException(e.getMessage(), e.getCause());
             }
             // Creates a new validator for HMAC protected ID tokens.
