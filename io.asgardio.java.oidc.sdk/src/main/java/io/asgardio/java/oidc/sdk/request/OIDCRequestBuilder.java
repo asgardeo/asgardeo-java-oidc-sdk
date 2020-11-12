@@ -19,20 +19,25 @@
 package io.asgardio.java.oidc.sdk.request;
 
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import io.asgardio.java.oidc.sdk.OIDCManager;
-import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
+import io.asgardio.java.oidc.sdk.bean.RequestContext;
+import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
-import org.apache.commons.lang.StringUtils;
+import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
+import java.text.ParseException;
+import java.util.UUID;
 
 /**
  * OIDCRequestBuilder is the class responsible for building requests
@@ -58,62 +63,83 @@ public class OIDCRequestBuilder {
     }
 
     /**
-     * Returns {@link String} Authorization request. To build the authorization request,
-     * {@link OIDCAgentConfig} should contain:
+     * Returns {@link io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest} Authentication request.
+     * To build the authentication request, {@link OIDCAgentConfig} should contain:
      * <ul>
+     * <li>The client ID
      * <li>The scope
      * <li>The callback URI
      * <li>The authorization endpoint URI
      * </ul>
      *
-     * @param state State parameter.
-     * @return Authorization request.
+     * @return Authentication request.
      */
-    public String buildAuthorizationRequest(String state) {
+    public io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest buildAuthenticationRequest() {
 
         ResponseType responseType = new ResponseType(ResponseType.Value.CODE);
         ClientID clientID = oidcAgentConfig.getConsumerKey();
         Scope authScope = oidcAgentConfig.getScope();
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
-        State stateParameter = null;
+        State state = generateStateParameter();
+        Nonce nonce = new Nonce();
+        RequestContext requestContext = new RequestContext(state, nonce);
 
-        if (StringUtils.isNotBlank(state)) {
-            stateParameter = new State(state);
-        }
-
-        AuthorizationRequest authorizationRequest = new AuthorizationRequest.Builder(responseType, clientID)
-                .scope(authScope)
-                .state(stateParameter)
-                .redirectionURI(callBackURI)
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest.Builder(responseType, authScope,
+                clientID, callBackURI)
+                .state(state)
                 .endpointURI(authorizationEndpoint)
+                .nonce(nonce)
                 .build();
-        return authorizationRequest.toURI().toString();
+
+        io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest authRequest =
+                new io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest(authenticationRequest.toURI(),
+                        requestContext);
+
+        return authRequest;
     }
 
     /**
-     * Returns {@link String} Logout request. To build the logout request,
+     * Returns {@link io.asgardio.java.oidc.sdk.request.model.LogoutRequest} Logout request. To build the logout request,
      * {@link OIDCAgentConfig} should contain:
      * <ul>
      * <li>The logout endpoint URI
      * <li>The post logout redirection URI
      * </ul>
      *
-     * @param authenticationInfo {@link AuthenticationInfo} object with information of the current LoggedIn session.
-     *                           It must include a valid ID token.
-     * @param state              State parameter.
+     * @param sessionContext {@link SessionContext} object with information of the current LoggedIn session.
+     *                       It must include a valid ID token.
      * @return Logout request.
      */
-    public String buildLogoutRequest(AuthenticationInfo authenticationInfo, String state) {
+    public io.asgardio.java.oidc.sdk.request.model.LogoutRequest buildLogoutRequest(SessionContext sessionContext)
+            throws SSOAgentServerException {
 
         URI logoutEP = oidcAgentConfig.getLogoutEndpoint();
         URI redirectionURI = oidcAgentConfig.getPostLogoutRedirectURI();
-        JWT jwtIdToken = authenticationInfo.getIdToken();
-        State stateParam = null;
-
-        if (StringUtils.isNotBlank(state)) {
-            stateParam = new State(state);
+        JWT jwtIdToken = null;
+        try {
+            jwtIdToken = JWTParser.parse(sessionContext.getIdToken());
+        } catch (ParseException e) {
+            throw new SSOAgentServerException(e.getMessage(), e);
         }
-        return new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, stateParam).toURI().toString();
+        State state = generateStateParameter();
+        RequestContext requestContext = new RequestContext();
+
+        requestContext.setState(state);
+        URI logoutRequestURI;
+
+        try {
+            logoutRequestURI = new LogoutRequest(logoutEP, jwtIdToken, redirectionURI, state).toURI();
+        } catch (Exception e) {
+            throw new SSOAgentServerException(e.getMessage(), e);
+        }
+
+        return new io.asgardio.java.oidc.sdk.request.model.LogoutRequest(logoutRequestURI, requestContext);
+    }
+
+    private State generateStateParameter() {
+
+        UUID uuid = UUID.randomUUID();
+        return new State(uuid.toString());
     }
 }

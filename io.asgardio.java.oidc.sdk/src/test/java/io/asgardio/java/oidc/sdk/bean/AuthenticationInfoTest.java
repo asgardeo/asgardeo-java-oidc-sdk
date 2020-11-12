@@ -36,7 +36,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class AuthenticationInfoTest {
 
-    AuthenticationInfo authenticationInfo = new AuthenticationInfo();
+    SessionContext authenticationInfo = new SessionContext();
 
     @Test
     public void testGetUser() {
@@ -57,16 +57,16 @@ public class AuthenticationInfoTest {
                 return null;
             }
         };
-        authenticationInfo.setAccessToken(accessToken);
-        assertEquals(authenticationInfo.getAccessToken(), accessToken);
+        authenticationInfo.setAccessToken(accessToken.toJSONString());
+        assertEquals(authenticationInfo.getAccessToken(), accessToken.toJSONString());
     }
 
     @Test
     public void testGetRefreshToken() {
 
         RefreshToken refreshToken = new RefreshToken();
-        authenticationInfo.setRefreshToken(refreshToken);
-        assertEquals(authenticationInfo.getRefreshToken(), refreshToken);
+        authenticationInfo.setRefreshToken(refreshToken.getValue());
+        assertEquals(authenticationInfo.getRefreshToken(), refreshToken.getValue());
     }
 
     @Test
@@ -74,8 +74,8 @@ public class AuthenticationInfoTest {
 
         try {
             JWT idToken = JWTParser.parse("sample");
-            authenticationInfo.setIdToken(idToken);
-            assertEquals(authenticationInfo.getIdToken(), idToken);
+            authenticationInfo.setIdToken(idToken.getParsedString());
+            assertEquals(authenticationInfo.getIdToken(), idToken.getParsedString());
         } catch (ParseException e) {
             //Test behaviour. Hence ignored.
         }

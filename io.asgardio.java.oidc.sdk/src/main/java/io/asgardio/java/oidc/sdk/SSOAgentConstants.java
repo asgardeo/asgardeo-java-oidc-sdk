@@ -35,6 +35,8 @@ public class SSOAgentConstants {
     public static final String ID_TOKEN = "id_token";
     public static final String SESSION_STATE = "session_state";
     public static final String USER = "user";
+    public static final String REQUEST_CONTEXT = "request_context";
+    public static final String SESSION_CONTEXT = "session_context";
 
     // Keystore file properties.
     public static final String KEYSTORE_NAME = "keystorename";
@@ -46,6 +48,7 @@ public class SSOAgentConstants {
     public static final String CALL_BACK_URL = "callBackURL";
     public static final String SKIP_URIS = "skipURIs";
     public static final String INDEX_PAGE = "indexPage";
+    public static final String ERROR_PAGE = "errorPage";
     public static final String LOGOUT_URL = "logoutURL";
     public static final String SCOPE = "scope";
     public static final String OAUTH2_GRANT_TYPE = "grantType";
@@ -57,8 +60,12 @@ public class SSOAgentConstants {
     public static final String OIDC_JWKS_ENDPOINT = "jwksEndpoint";
     public static final String POST_LOGOUT_REDIRECTION_URI = "postLogoutRedirectURI";
     public static final String AUTHENTICATED = "authenticated";
-    public static final String AUTHENTICATION_INFO = "authenticationInfo";
     public static final String OIDC_OPENID = "openid";
+    public static final String AZP = "azp";
+    public static final String TRUSTED_AUDIENCE = "trustedAudience";
+    public static final String ID_TOKEN_SIGN_ALG = "signatureAlgorithm";
+    public static final String NONCE = "nonce";
+    public static final String AGENT_EXCEPTION = "AgentException";
 
     // Request headers.
     public static final String REFERER = "referer";
@@ -85,7 +92,8 @@ public class SSOAgentConstants {
         AGENT_CONFIG_CLIENT_ID("18006",
                 "Consumer Key/Client ID must not be null. This refers to the client identifier assigned to the " +
                         "Relying Party during its registration with the OpenID Provider."),
-        AGENT_CONFIG_CALLBACK_URL("18007",
+        AGENT_CONFIG_CLIENT_SECRET("18007", "Consumer secret/Client secret must not be null."),
+        AGENT_CONFIG_CALLBACK_URL("18008",
                 "Callback URL/Redirection URL must not be null. This refers to the Relying Party's redirection URIs " +
                         "registered with the OpenID Provider."),
         SERVLET_CONNECTION("18008", "Error found with connection.");

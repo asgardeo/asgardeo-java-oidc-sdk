@@ -18,6 +18,7 @@
 
 package io.asgardio.java.oidc.sdk;
 
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
@@ -40,7 +41,10 @@ import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import io.asgardio.java.oidc.sdk.bean.AuthenticationInfo;
+import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import io.asgardio.java.oidc.sdk.bean.RequestContext;
+import io.asgardio.java.oidc.sdk.bean.SessionContext;
 import io.asgardio.java.oidc.sdk.bean.User;
 import io.asgardio.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentClientException;
@@ -48,6 +52,9 @@ import io.asgardio.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardio.java.oidc.sdk.exception.SSOAgentServerException;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestBuilder;
 import io.asgardio.java.oidc.sdk.request.OIDCRequestResolver;
+import io.asgardio.java.oidc.sdk.request.model.AuthenticationRequest;
+import io.asgardio.java.oidc.sdk.request.model.LogoutRequest;
+import io.asgardio.java.oidc.sdk.validators.IDTokenValidator;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -66,13 +73,13 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * OIDC manager implementation.
  */
-public class OIDCManagerImpl implements OIDCManager {
+public class DefaultOIDCManager implements OIDCManager {
 
-    private static final Logger logger = LogManager.getLogger(OIDCManagerImpl.class);
+    private static final Logger logger = LogManager.getLogger(DefaultOIDCManager.class);
 
     private OIDCAgentConfig oidcAgentConfig;
 
-    public OIDCManagerImpl(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
+    public DefaultOIDCManager(OIDCAgentConfig oidcAgentConfig) throws SSOAgentClientException {
 
         validateConfig(oidcAgentConfig);
         this.oidcAgentConfig = oidcAgentConfig;
@@ -82,36 +89,38 @@ public class OIDCManagerImpl implements OIDCManager {
      * {@inheritDoc}
      */
     @Override
-    public void sendForLogin(HttpServletRequest request, HttpServletResponse response, String state)
+    public RequestContext sendForLogin(HttpServletRequest request, HttpServletResponse response)
             throws SSOAgentException {
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        String authorizationRequest = requestBuilder.buildAuthorizationRequest(state);
+        AuthenticationRequest authenticationRequest = requestBuilder.buildAuthenticationRequest();
 
         try {
-            response.sendRedirect(authorizationRequest);
+            response.sendRedirect(authenticationRequest.getAuthenticationRequestURI().toString());
         } catch (IOException e) {
             throw new SSOAgentException(e.getMessage(), e);
         }
+        return authenticationRequest.getRequestContext();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AuthenticationInfo handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)
-            throws SSOAgentException {
+    public SessionContext handleOIDCCallback(HttpServletRequest request, HttpServletResponse response,
+                                             RequestContext requestContext) throws SSOAgentException {
 
         OIDCRequestResolver requestResolver = new OIDCRequestResolver(request, oidcAgentConfig);
-        AuthenticationInfo authenticationInfo = new AuthenticationInfo();
+        SessionContext sessionContext = new SessionContext();
+        Nonce nonce = requestContext.getNonce();
 
         try {
             if (!requestResolver.isError() && requestResolver.isAuthorizationCodeResponse()) {
                 logger.log(Level.TRACE, "Handling the OIDC Authorization response.");
-                boolean isAuthenticated = handleAuthentication(request, authenticationInfo);
+                boolean isAuthenticated = handleAuthentication(request, sessionContext, nonce);
                 if (isAuthenticated) {
                     logger.log(Level.TRACE, "Authentication successful. Redirecting to the target page.");
-                    return authenticationInfo;
+                    return sessionContext;
                 }
             }
 
@@ -127,8 +136,7 @@ public class OIDCManagerImpl implements OIDCManager {
      * {@inheritDoc}
      */
     @Override
-    public void logout(AuthenticationInfo authenticationInfo, HttpServletResponse response, String state)
-            throws SSOAgentException {
+    public RequestContext logout(SessionContext sessionContext, HttpServletResponse response) throws SSOAgentException {
 
         if (oidcAgentConfig.getPostLogoutRedirectURI() == null) {
             logger.info("postLogoutRedirectURI is not configured. Using the callbackURL instead.");
@@ -137,17 +145,19 @@ public class OIDCManagerImpl implements OIDCManager {
         }
 
         OIDCRequestBuilder requestBuilder = new OIDCRequestBuilder(oidcAgentConfig);
-        String logoutRequest = requestBuilder.buildLogoutRequest(authenticationInfo, state);
+        LogoutRequest logoutRequest = requestBuilder.buildLogoutRequest(sessionContext);
 
         try {
-            response.sendRedirect(logoutRequest);
+            response.sendRedirect(logoutRequest.getLogoutRequestURI().toString());
         } catch (IOException e) {
             throw new SSOAgentException(SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getMessage(),
                     SSOAgentConstants.ErrorMessages.SERVLET_CONNECTION.getCode(), e);
         }
+        return logoutRequest.getRequestContext();
     }
 
-    private boolean handleAuthentication(final HttpServletRequest request, AuthenticationInfo authenticationInfo) {
+    private boolean handleAuthentication(final HttpServletRequest request, SessionContext authenticationInfo,
+                                         Nonce nonce) throws SSOAgentServerException {
 
         AuthorizationResponse authorizationResponse;
         AuthorizationCode authorizationCode;
@@ -173,15 +183,14 @@ public class OIDCManagerImpl implements OIDCManager {
                 return false;
             }
 
-            handleSuccessTokenResponse(tokenResponse, authenticationInfo);
+            handleSuccessTokenResponse(tokenResponse, authenticationInfo, nonce);
             return true;
         } catch (com.nimbusds.oauth2.sdk.ParseException | SSOAgentServerException | IOException e) {
-            logger.error(e.getMessage(), e);
-            return false;
+            throw new SSOAgentServerException(e.getMessage(), e);
         }
     }
 
-    private void handleSuccessTokenResponse(TokenResponse tokenResponse, AuthenticationInfo authenticationInfo)
+    private void handleSuccessTokenResponse(TokenResponse tokenResponse, SessionContext sessionContext, Nonce nonce)
             throws SSOAgentServerException {
 
         AccessTokenResponse successResponse = tokenResponse.toSuccessResponse();
@@ -198,13 +207,14 @@ public class OIDCManagerImpl implements OIDCManager {
         }
 
         try {
-            JWTClaimsSet claimsSet = SignedJWT.parse(idToken).getJWTClaimsSet();
-            User user = new User(claimsSet.getSubject(), getUserAttributes(idToken));
-
-            authenticationInfo.setIdToken(JWTParser.parse(idToken));
-            authenticationInfo.setUser(user);
-            authenticationInfo.setAccessToken(accessToken);
-            authenticationInfo.setRefreshToken(refreshToken);
+            JWT idTokenJWT = JWTParser.parse(idToken);
+            IDTokenValidator idTokenValidator = new IDTokenValidator(oidcAgentConfig, idTokenJWT);
+            IDTokenClaimsSet claimsSet = idTokenValidator.validate(nonce);
+            User user = new User(claimsSet.getSubject().getValue(), getUserAttributes(idToken));
+            sessionContext.setIdToken(idTokenJWT.getParsedString());
+            sessionContext.setUser(user);
+            sessionContext.setAccessToken(accessToken.toJSONString());
+            sessionContext.setRefreshToken(refreshToken.getValue());
         } catch (ParseException e) {
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getMessage(),
                     SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getCode(), e);
@@ -297,6 +307,11 @@ public class OIDCManagerImpl implements OIDCManager {
         }
 
         if (oidcAgentConfig.getConsumerKey() == null) {
+            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getCode());
+        }
+
+        if (oidcAgentConfig.getConsumerSecret() == null) {
             throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getMessage(),
                     SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getCode());
         }

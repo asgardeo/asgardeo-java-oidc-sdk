@@ -18,23 +18,27 @@
 
 package io.asgardio.java.oidc.sdk.bean;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
-
 import java.io.Serializable;
 
 /**
- * A data model class to define the Authentication Info element.
+ * A data model class to define the Session Context element. The Session Context object should be used to hold the
+ * attributes of the logged in user session. These include the attributes:
+ * <ul>
+ * <li>The Authenticated User
+ * <li>Access Token
+ * <li>Refresh Token
+ * <li>ID Token
+ * </ul>
+ * <p>
  */
-public class AuthenticationInfo implements Serializable {
+public class SessionContext implements Serializable {
 
     private static final long serialVersionUID = 976008884476935474L;
 
     private User user;
-    private AccessToken accessToken;
-    private RefreshToken refreshToken;
-    private JWT idToken;
+    private String accessToken;
+    private String refreshToken;
+    private String idToken;
 
     /**
      * Returns the authenticated user.
@@ -59,9 +63,9 @@ public class AuthenticationInfo implements Serializable {
     /**
      * Returns the access token.
      *
-     * @return The {@link AccessToken}.
+     * @return The access token string.
      */
-    public AccessToken getAccessToken() {
+    public String getAccessToken() {
 
         return accessToken;
     }
@@ -71,7 +75,7 @@ public class AuthenticationInfo implements Serializable {
      *
      * @param accessToken The access token.
      */
-    public void setAccessToken(AccessToken accessToken) {
+    public void setAccessToken(String accessToken) {
 
         this.accessToken = accessToken;
     }
@@ -79,9 +83,9 @@ public class AuthenticationInfo implements Serializable {
     /**
      * Returns the refresh token.
      *
-     * @return The {@link RefreshToken}.
+     * @return The refresh token string.
      */
-    public RefreshToken getRefreshToken() {
+    public String getRefreshToken() {
 
         return refreshToken;
     }
@@ -91,7 +95,7 @@ public class AuthenticationInfo implements Serializable {
      *
      * @param refreshToken The refresh token.
      */
-    public void setRefreshToken(RefreshToken refreshToken) {
+    public void setRefreshToken(String refreshToken) {
 
         this.refreshToken = refreshToken;
     }
@@ -99,9 +103,9 @@ public class AuthenticationInfo implements Serializable {
     /**
      * Returns the id token.
      *
-     * @return The {@link JWT} Id token.
+     * @return The Id token string.
      */
-    public JWT getIdToken() {
+    public String getIdToken() {
 
         return idToken;
     }
@@ -111,7 +115,7 @@ public class AuthenticationInfo implements Serializable {
      *
      * @param idToken The id token.
      */
-    public void setIdToken(JWT idToken) {
+    public void setIdToken(String idToken) {
 
         this.idToken = idToken;
     }

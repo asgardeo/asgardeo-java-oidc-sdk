@@ -18,6 +18,7 @@
 
 package io.asgardio.java.oidc.sdk.config.model;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -35,6 +36,7 @@ public class OIDCAgentConfig {
     private ClientID consumerKey;
     private Secret consumerSecret;
     private String indexPage;
+    private String errorPage;
     private String logoutURL;
     private URI callbackUrl;
     private Scope scope;
@@ -42,8 +44,10 @@ public class OIDCAgentConfig {
     private URI logoutEndpoint;
     private URI tokenEndpoint;
     private Issuer issuer;
+    private Set<String> trustedAudience;
     private URI jwksEndpoint;
     private URI postLogoutRedirectURI;
+    private JWSAlgorithm signatureAlgorithm;
     private Set<String> skipURIs = new HashSet<String>();
 
     /**
@@ -104,6 +108,26 @@ public class OIDCAgentConfig {
     public void setIndexPage(String indexPage) {
 
         this.indexPage = indexPage;
+    }
+
+    /**
+     * Returns the error page of the OIDC agent.
+     *
+     * @return Error page of the OIDC agent.
+     */
+    public String getErrorPage() {
+
+        return errorPage;
+    }
+
+    /**
+     * Sets the error page for the OIDC agent.
+     *
+     * @param errorPage The error page of the OIDC agent.
+     */
+    public void setErrorPage(String errorPage) {
+
+        this.errorPage = errorPage;
     }
 
     /**
@@ -246,6 +270,16 @@ public class OIDCAgentConfig {
         this.issuer = issuer;
     }
 
+    public Set<String> getTrustedAudience() {
+
+        return trustedAudience;
+    }
+
+    public void setTrustedAudience(Set<String> trustedAudience) {
+
+        this.trustedAudience = trustedAudience;
+    }
+
     /**
      * Returns the JWKS endpoint URI of the OIDC agent.
      *
@@ -284,6 +318,16 @@ public class OIDCAgentConfig {
     public void setPostLogoutRedirectURI(URI postLogoutRedirectURI) {
 
         this.postLogoutRedirectURI = postLogoutRedirectURI;
+    }
+
+    public JWSAlgorithm getSignatureAlgorithm() {
+
+        return signatureAlgorithm;
+    }
+
+    public void setSignatureAlgorithm(JWSAlgorithm signatureAlgorithm) {
+
+        this.signatureAlgorithm = signatureAlgorithm;
     }
 
     /**
