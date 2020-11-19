@@ -128,26 +128,6 @@ public class OIDCRequestResolverTest extends PowerMockTestCase {
         assertTrue(resolver.isCallbackResponse());
     }
 
-    @DataProvider
-    public Object[][] getIndexPageData() {
-
-        return new Object[][]{
-                {"index.html", "sampleContext", "index.html"},
-                {"", "sampleContext", "sampleContext"}
-        };
-    }
-
-    @Test(dataProvider = "getIndexPageData")
-    public void testGetIndexPage(String indexPageConfig, String contextPath, String expected) {
-
-        OIDCAgentConfig config = new OIDCAgentConfig();
-        config.setIndexPage(indexPageConfig);
-        when(request.getContextPath()).thenReturn(contextPath);
-
-        OIDCRequestResolver resolver = new OIDCRequestResolver(request, config);
-        assertEquals(resolver.getIndexPage(), expected);
-    }
-
     @AfterMethod
     public void tearDown() {
 
