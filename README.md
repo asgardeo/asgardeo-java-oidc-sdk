@@ -15,7 +15,7 @@ applications. The SDK is built on top of the NimbusDS OAuth 2.0 SDK with OpenID 
 ## Getting Started
 
 You can experience the end-to-end capabilities of Asgardio Java OIDC SDK by trying out the sample application
- featured in Asgardio OIDC tomcat agent getting started guide [TODO link].
+ featured in [Asgardio OIDC tomcat agent getting started guide](https://github.com/asgardio/asgardio-tomcat-oidc-agent#getting-started).
 
 In this section, we would be looking at how you can embed the Asgardio Java OIDC SDK to your existing Java web app.
 
@@ -43,9 +43,9 @@ You can add the Asgardio Java OIDC SDK to your java project by installing it as 
 </dependency>
 ```
 #### Adding the configuration properties
-You need to add the configuration properties which provides the set of required parameters specific to the OIDC flows as
- described by the OIDC Agent configuration catalog [link to configuration catalog]. For a sample configuration
-  properties file, please refer to the one provided with the sample application in Asgardio OIDC Tomcat Agent [link].
+You need to add the configuration properties which provide the set of required parameters specific to the OIDC flows as
+ described by the [OIDC Agent configuration catalog](https://github.com/asgardio/asgardio-tomcat-oidc-agent/blob/master/io.asgardio.tomcat.oidc.sample/src/main/resources/configuration-catalog.md). For a sample configuration
+  properties file, please refer to the one provided with the sample application in Asgardio OIDC Tomcat Agent [here](https://github.com/asgardio/asgardio-tomcat-oidc-agent/blob/master/io.asgardio.tomcat.oidc.sample/src/main/resources/oidc-sample-app.properties).
   
   You can use the default `FileBasedOIDCConfigProvider` for using file-based configurations. Or else, you have the
    freedom to implement your own custom configuration provider by implementing the interface, `OIDCConfigProvider`.
@@ -92,11 +92,11 @@ The OIDCManager interface provides a set of APIs which you can use to initiate a
     
 1. `sendForLogin(HttpServletRequest request, HttpServletResponse response)`
 
-2. `handleOIDCCallback(HttpServletRequest request, HttpServletResponse response)`
+2. `handleOIDCCallback(HttpServletRequest request, HttpServletResponse response, RequestContext requestContext)`
 
 3. `logout(HttpServletRequest request, HttpServletResponse response)`
   
-  In the following sections, we would look into these APIs in detail with the possible scenarios which these can be
+  In the following sections, we would look into these APIs in detail with the possible scenarios in which these can be
    used.
 
 ### Login
@@ -118,14 +118,16 @@ This method can be used to send the user for authentication. The API would build
 ### Handle Callback Response
 
  ```java
-    oidcManager.handleOIDCCallback(request, response);
+    oidcManager.handleOIDCCallback(request, response, requestContext);
  ```
   
 The following are the parameters to the API.
   
-_request_: Incoming `HttpServletRequest`.
+_request_ : Incoming `HttpServletRequest`.
 
 _response_ : Outgoing `HttpServletResponse`.
+
+_requestContext_ : `RequestContext` object containing the authentication request related information.
  
  This method should be used to process the OIDC callback response. It would obtain access tokens and refresh
   tokens, validate the ID token issued by the OpenID Provider, and redirect the user to secured pages.
@@ -171,6 +173,7 @@ _response_ : Outgoing `HttpServletResponse`.
   |isLogoutURL()|Checks if the request is a logout request. | boolean |
   |isSkipURI()|Checks if the request is a URI to skip. | boolean |
   |isAuthorizationCodeResponse()|Checks if the request is an Authorization Code response. | boolean |
+  |isError()|Checks if the request contains a parameter, "error". | boolean |
   
  
 ### Github
@@ -193,9 +196,9 @@ Please read [Contributing to the Code Base](http://wso2.github.io/) for details 
  process for submitting pull requests to us.
  
 ### Reporting Issues
-We encourage you to report issues, improvements, and feature requests creating [git Issues](https://github.com/wso2-extensions/identity-samples-dotnet/issues).
+We encourage you to report issues, improvements, and feature requests creating [Git Issues](https://github.com/asgardio/asgardio-java-oidc-sdk/issues).
 
-Important: And please be advised that security issues must be reported to security@wso2.com, not as GitHub issues, 
+Important: Please be advised that security issues must be reported to security@wso2.com, not as GitHub issues, 
 in order to reach the proper audience. We strongly advise following the WSO2 Security Vulnerability Reporting Guidelines
  when reporting the security issues.
 
