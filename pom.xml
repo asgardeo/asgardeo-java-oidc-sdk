@@ -23,21 +23,21 @@
         <version>1.2</version>
     </parent>
 
-    <groupId>io.asgardio.java.oidc.sdk</groupId>
+    <groupId>io.asgardeo.java.oidc.sdk</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>java-oidc-sdk</artifactId>
     <version>0.1.4-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Asgardio - Java OIDC SDK Parent Module</name>
+    <name>Asgardeo - Java OIDC SDK Parent Module</name>
     <description>
-        Asgardio JAVA SDK for OIDC
+        Asgardeo JAVA SDK for OIDC
     </description>
-    <url>http://asgardio.io</url>
+    <url>http://asgardeo.io</url>
 
     <scm>
-        <url>https://github.com/asgardio/asgardio-java-oidc-sdk.git</url>
-        <developerConnection>scm:git:https://github.com/asgardio/asgardio-java-oidc-sdk.git</developerConnection>
-        <connection>scm:git:https://github.com/asgardio/asgardio-java-oidc-sdk.git</connection>
+        <url>https://github.com/asgardeo/asgardeo-java-oidc-sdk.git</url>
+        <developerConnection>scm:git:https://github.com/asgardeo/asgardeo-java-oidc-sdk.git</developerConnection>
+        <connection>scm:git:https://github.com/asgardeo/asgardeo-java-oidc-sdk.git</connection>
         <tag>HEAD</tag>
     </scm>
 
@@ -290,6 +290,6 @@
     </properties>
 
     <modules>
-        <module>io.asgardio.java.oidc.sdk</module>
+        <module>io.asgardeo.java.oidc.sdk</module>
     </modules>
 </project>
