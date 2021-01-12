@@ -127,21 +127,6 @@ public class OIDCRequestResolver {
         return request.getRequestURI().contains(callbackContext);
     }
 
-    /**
-     * Returns the index page configured in the {@link OIDCAgentConfig}.
-     *
-     * @return {@link String} IndexPage configured in the {@link OIDCAgentConfig}.
-     */
-    public String getIndexPage() {
-
-        String indexPage = oidcAgentConfig.getIndexPage();
-
-        if (StringUtils.isNotBlank(indexPage)) {
-            return indexPage;
-        }
-        return request.getContextPath();
-    }
-
     private void logErrorAuthorizationResponse(AuthorizationResponse authzResponse) {
 
         AuthorizationErrorResponse errorResponse = authzResponse.toErrorResponse();
