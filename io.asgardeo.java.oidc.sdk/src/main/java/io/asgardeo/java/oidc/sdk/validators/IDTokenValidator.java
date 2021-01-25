@@ -21,6 +21,8 @@ package io.asgardeo.java.oidc.sdk.validators;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
+import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.Audience;
@@ -34,7 +36,6 @@ import io.asgardeo.java.oidc.sdk.exception.SSOAgentServerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
@@ -87,6 +88,9 @@ public class IDTokenValidator {
         ClientID clientID = oidcAgentConfig.getConsumerKey();
         Secret clientSecret = oidcAgentConfig.getConsumerSecret();
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator;
+        ResourceRetriever resourceRetriever =
+                new DefaultResourceRetriever(SSOAgentConstants.DEFAULT_HTTP_CONNECT_TIMEOUT,
+                        SSOAgentConstants.DEFAULT_HTTP_READ_TIMEOUT, SSOAgentConstants.DEFAULT_HTTP_SIZE_LIMIT);
 
         // Creates a new validator for RSA, EC or ED protected ID tokens.
         if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm) || JWSAlgorithm.Family.EC.contains(jwsAlgorithm) ||
@@ -94,7 +98,7 @@ public class IDTokenValidator {
             try {
                 validator =
                         new com.nimbusds.openid.connect.sdk.validators.IDTokenValidator(issuer, clientID, jwsAlgorithm,
-                                jwkSetURI.toURL());
+                                jwkSetURI.toURL(), resourceRetriever);
             } catch (Exception e) {
                 throw new SSOAgentServerException(e.getMessage(), e.getCause());
             }
