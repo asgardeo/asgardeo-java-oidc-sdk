@@ -214,7 +214,10 @@ public class DefaultOIDCManager implements OIDCManager {
             sessionContext.setIdToken(idTokenJWT.getParsedString());
             sessionContext.setUser(user);
             sessionContext.setAccessToken(accessToken.toJSONString());
-            sessionContext.setRefreshToken(refreshToken.getValue());
+            if (refreshToken != null) {
+                sessionContext.setRefreshToken(refreshToken.getValue());
+            }
+
         } catch (ParseException e) {
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getMessage(),
                     SSOAgentConstants.ErrorMessages.ID_TOKEN_PARSE.getCode(), e);
