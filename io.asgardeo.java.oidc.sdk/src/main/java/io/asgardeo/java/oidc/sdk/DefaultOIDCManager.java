@@ -242,14 +242,14 @@ public class DefaultOIDCManager implements OIDCManager {
         logger.log(Level.INFO, "Error response object: ", responseObject);
     }
 
-    private TokenResponse getTokenResponse(TokenRequest tokenRequest) {
+    private TokenResponse getTokenResponse(TokenRequest tokenRequest) throws SSOAgentServerException {
 
-        TokenResponse tokenResponse = null;
+        TokenResponse tokenResponse;
 
         try {
             tokenResponse = TokenResponse.parse(tokenRequest.toHTTPRequest().send());
         } catch (com.nimbusds.oauth2.sdk.ParseException | IOException e) {
-            logger.log(Level.ERROR, "Error while parsing token response.", e);
+            throw new SSOAgentServerException(e.getMessage(), e);
         }
         return tokenResponse;
     }
