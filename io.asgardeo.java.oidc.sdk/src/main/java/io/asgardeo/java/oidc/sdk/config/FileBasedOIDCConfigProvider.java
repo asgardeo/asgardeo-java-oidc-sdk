@@ -73,6 +73,24 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         JWSAlgorithm jwsAlgorithm =
                 StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) ?
                         new JWSAlgorithm(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) : null;
+        try {
+            int httpConnectTimeout =
+                    StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.HTTP_CONNECT_TIMEOUT)) ?
+                            Integer.parseInt(properties.getProperty(SSOAgentConstants.HTTP_CONNECT_TIMEOUT)) :
+                            SSOAgentConstants.DEFAULT_HTTP_CONNECT_TIMEOUT;
+            int httpReadTimeout = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.HTTP_READ_TIMEOUT)) ?
+                    Integer.parseInt(properties.getProperty(SSOAgentConstants.HTTP_READ_TIMEOUT)) :
+                    SSOAgentConstants.DEFAULT_HTTP_READ_TIMEOUT;
+            int httpSizeLimit = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.HTTP_SIZE_LIMIT)) ?
+                    Integer.parseInt(properties.getProperty(SSOAgentConstants.HTTP_SIZE_LIMIT)) :
+                    SSOAgentConstants.DEFAULT_HTTP_SIZE_LIMIT;
+
+            oidcAgentConfig.setHttpConnectTimeout(httpConnectTimeout);
+            oidcAgentConfig.setHttpReadTimeout(httpReadTimeout);
+            oidcAgentConfig.setHttpSizeLimit(httpSizeLimit);
+        } catch (NumberFormatException e) {
+            throw new SSOAgentClientException("Not a number.", e);
+        }
 
         try {
             URI callbackUrl = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) ?

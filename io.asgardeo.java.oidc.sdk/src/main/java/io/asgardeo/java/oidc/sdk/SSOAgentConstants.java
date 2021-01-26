@@ -66,6 +66,9 @@ public class SSOAgentConstants {
     public static final String ID_TOKEN_SIGN_ALG = "signatureAlgorithm";
     public static final String NONCE = "nonce";
     public static final String AGENT_EXCEPTION = "AgentException";
+    public static final String HTTP_CONNECT_TIMEOUT = "httpConnectTimeout";
+    public static final String HTTP_READ_TIMEOUT = "httpReadTimeout";
+    public static final String HTTP_SIZE_LIMIT = "httpSizeLimit";
 
     // Request headers.
     public static final String REFERER = "referer";

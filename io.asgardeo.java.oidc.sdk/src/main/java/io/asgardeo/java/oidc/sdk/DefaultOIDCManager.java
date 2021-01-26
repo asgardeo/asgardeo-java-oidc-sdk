@@ -249,8 +249,8 @@ public class DefaultOIDCManager implements OIDCManager {
 
         try {
             HTTPRequest tokenHTTPRequest = tokenRequest.toHTTPRequest();
-            tokenHTTPRequest.setConnectTimeout(SSOAgentConstants.DEFAULT_HTTP_CONNECT_TIMEOUT);
-            tokenHTTPRequest.setReadTimeout(SSOAgentConstants.DEFAULT_HTTP_READ_TIMEOUT);
+            tokenHTTPRequest.setConnectTimeout(oidcAgentConfig.getHttpConnectTimeout());
+            tokenHTTPRequest.setReadTimeout(oidcAgentConfig.getHttpReadTimeout());
 
             tokenResponse = TokenResponse.parse(tokenHTTPRequest.send());
         } catch (com.nimbusds.oauth2.sdk.ParseException | IOException e) {
