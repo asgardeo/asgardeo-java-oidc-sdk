@@ -80,20 +80,17 @@ public class SSOAgentConstants {
 
     // Resource Retriever params.
     /**
-     * The default HTTP connect timeout for JWK set retrieval, in
-     * milliseconds. Set to 2000 milliseconds.
+     * The default HTTP connect timeout in milliseconds. Set to 2000 milliseconds.
      */
     public static final int DEFAULT_HTTP_CONNECT_TIMEOUT = 2000;
 
     /**
-     * The default HTTP read timeout for JWK set retrieval, in
-     * milliseconds. Set to 2000 milliseconds.
+     * The default HTTP read timeout in milliseconds. Set to 2000 milliseconds.
      */
     public static final int DEFAULT_HTTP_READ_TIMEOUT = 2000;
 
     /**
-     * The default HTTP entity size limit for JWK set retrieval, in bytes.
-     * Set to 50 KBytes.
+     * The default HTTP entity size limit in bytes. Set to 50 KBytes.
      */
     public static final int DEFAULT_HTTP_SIZE_LIMIT = 50 * 1024;
 

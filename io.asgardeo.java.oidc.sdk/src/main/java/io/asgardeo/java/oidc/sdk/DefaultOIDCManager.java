@@ -37,6 +37,7 @@ import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
@@ -247,7 +248,11 @@ public class DefaultOIDCManager implements OIDCManager {
         TokenResponse tokenResponse;
 
         try {
-            tokenResponse = TokenResponse.parse(tokenRequest.toHTTPRequest().send());
+            HTTPRequest tokenHTTPRequest = tokenRequest.toHTTPRequest();
+            tokenHTTPRequest.setConnectTimeout(SSOAgentConstants.DEFAULT_HTTP_CONNECT_TIMEOUT);
+            tokenHTTPRequest.setReadTimeout(SSOAgentConstants.DEFAULT_HTTP_READ_TIMEOUT);
+
+            tokenResponse = TokenResponse.parse(tokenHTTPRequest.send());
         } catch (com.nimbusds.oauth2.sdk.ParseException | IOException e) {
             throw new SSOAgentServerException(e.getMessage(), e);
         }
