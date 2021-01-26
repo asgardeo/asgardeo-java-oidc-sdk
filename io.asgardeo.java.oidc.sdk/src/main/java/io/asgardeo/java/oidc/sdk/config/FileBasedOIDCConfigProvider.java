@@ -74,16 +74,12 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                 StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) ?
                         new JWSAlgorithm(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) : null;
         try {
-            int httpConnectTimeout =
-                    StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.HTTP_CONNECT_TIMEOUT)) ?
-                            Integer.parseInt(properties.getProperty(SSOAgentConstants.HTTP_CONNECT_TIMEOUT)) :
-                            SSOAgentConstants.DEFAULT_HTTP_CONNECT_TIMEOUT;
-            int httpReadTimeout = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.HTTP_READ_TIMEOUT)) ?
-                    Integer.parseInt(properties.getProperty(SSOAgentConstants.HTTP_READ_TIMEOUT)) :
-                    SSOAgentConstants.DEFAULT_HTTP_READ_TIMEOUT;
-            int httpSizeLimit = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.HTTP_SIZE_LIMIT)) ?
-                    Integer.parseInt(properties.getProperty(SSOAgentConstants.HTTP_SIZE_LIMIT)) :
-                    SSOAgentConstants.DEFAULT_HTTP_SIZE_LIMIT;
+            int httpConnectTimeout = resolveConnectionConfig(properties, SSOAgentConstants.HTTP_CONNECT_TIMEOUT,
+                    SSOAgentConstants.DEFAULT_HTTP_CONNECT_TIMEOUT);
+            int httpReadTimeout = resolveConnectionConfig(properties, SSOAgentConstants.HTTP_READ_TIMEOUT,
+                    SSOAgentConstants.DEFAULT_HTTP_READ_TIMEOUT);
+            int httpSizeLimit = resolveConnectionConfig(properties, SSOAgentConstants.HTTP_SIZE_LIMIT,
+                    SSOAgentConstants.DEFAULT_HTTP_SIZE_LIMIT);
 
             oidcAgentConfig.setHttpConnectTimeout(httpConnectTimeout);
             oidcAgentConfig.setHttpReadTimeout(httpReadTimeout);
@@ -158,6 +154,13 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         oidcAgentConfig.setSkipURIs(skipURIs);
         oidcAgentConfig.setTrustedAudience(trustedAudience);
         oidcAgentConfig.setSignatureAlgorithm(jwsAlgorithm);
+    }
+
+    private int resolveConnectionConfig(Properties properties, String fileConfig, int defaultConfig)
+            throws NumberFormatException {
+
+        return StringUtils.isNotBlank(properties.getProperty(fileConfig)) ?
+                Integer.parseInt(properties.getProperty(fileConfig)) : defaultConfig;
     }
 
     /**
