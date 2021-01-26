@@ -73,6 +73,20 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         JWSAlgorithm jwsAlgorithm =
                 StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) ?
                         new JWSAlgorithm(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) : null;
+        try {
+            int httpConnectTimeout = resolveConnectionConfig(properties, SSOAgentConstants.HTTP_CONNECT_TIMEOUT,
+                    SSOAgentConstants.DEFAULT_HTTP_CONNECT_TIMEOUT);
+            int httpReadTimeout = resolveConnectionConfig(properties, SSOAgentConstants.HTTP_READ_TIMEOUT,
+                    SSOAgentConstants.DEFAULT_HTTP_READ_TIMEOUT);
+            int httpSizeLimit = resolveConnectionConfig(properties, SSOAgentConstants.HTTP_SIZE_LIMIT,
+                    SSOAgentConstants.DEFAULT_HTTP_SIZE_LIMIT);
+
+            oidcAgentConfig.setHttpConnectTimeout(httpConnectTimeout);
+            oidcAgentConfig.setHttpReadTimeout(httpReadTimeout);
+            oidcAgentConfig.setHttpSizeLimit(httpSizeLimit);
+        } catch (NumberFormatException e) {
+            throw new SSOAgentClientException("Not a number.", e);
+        }
 
         try {
             URI callbackUrl = StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.CALL_BACK_URL)) ?
@@ -140,6 +154,13 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         oidcAgentConfig.setSkipURIs(skipURIs);
         oidcAgentConfig.setTrustedAudience(trustedAudience);
         oidcAgentConfig.setSignatureAlgorithm(jwsAlgorithm);
+    }
+
+    private int resolveConnectionConfig(Properties properties, String fileConfig, int defaultConfig)
+            throws NumberFormatException {
+
+        return StringUtils.isNotBlank(properties.getProperty(fileConfig)) ?
+                Integer.parseInt(properties.getProperty(fileConfig)) : defaultConfig;
     }
 
     /**

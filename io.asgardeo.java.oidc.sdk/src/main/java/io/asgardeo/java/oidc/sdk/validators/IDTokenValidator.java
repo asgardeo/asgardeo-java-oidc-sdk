@@ -21,6 +21,8 @@ package io.asgardeo.java.oidc.sdk.validators;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
+import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.Audience;
@@ -34,7 +36,6 @@ import io.asgardeo.java.oidc.sdk.exception.SSOAgentServerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
@@ -66,27 +67,31 @@ public class IDTokenValidator {
 
     public IDTokenClaimsSet validate(Nonce expectedNonce) throws SSOAgentServerException {
 
-        JWSAlgorithm jwsAlgorithm = validateJWSAlgorithm(oidcAgentConfig, idToken);
-        com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator =
-                getIDTokenValidator(oidcAgentConfig, jwsAlgorithm);
+        JWSAlgorithm jwsAlgorithm = validateJWSAlgorithm(idToken);
+        com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator = getIDTokenValidator(jwsAlgorithm);
         IDTokenClaimsSet claims;
         try {
             claims = validator.validate(idToken, expectedNonce);
-            validateAudience(oidcAgentConfig, claims);
+            validateAudience(claims);
         } catch (JOSEException | BadJOSEException e) {
             throw new SSOAgentServerException(e.getMessage(), e.getCause());
         }
         return claims;
     }
 
-    private com.nimbusds.openid.connect.sdk.validators.IDTokenValidator getIDTokenValidator(
-            OIDCAgentConfig oidcAgentConfig, JWSAlgorithm jwsAlgorithm) throws SSOAgentServerException {
+    private com.nimbusds.openid.connect.sdk.validators.IDTokenValidator getIDTokenValidator(JWSAlgorithm jwsAlgorithm)
+            throws SSOAgentServerException {
 
         Issuer issuer = oidcAgentConfig.getIssuer();
         URI jwkSetURI = oidcAgentConfig.getJwksEndpoint();
         ClientID clientID = oidcAgentConfig.getConsumerKey();
         Secret clientSecret = oidcAgentConfig.getConsumerSecret();
+        int httpConnectTimeout = oidcAgentConfig.getHttpConnectTimeout();
+        int httpReadTimeout = oidcAgentConfig.getHttpReadTimeout();
+        int httpSizeLimit = oidcAgentConfig.getHttpSizeLimit();
         com.nimbusds.openid.connect.sdk.validators.IDTokenValidator validator;
+        ResourceRetriever resourceRetriever =
+                new DefaultResourceRetriever(httpConnectTimeout, httpReadTimeout, httpSizeLimit);
 
         // Creates a new validator for RSA, EC or ED protected ID tokens.
         if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm) || JWSAlgorithm.Family.EC.contains(jwsAlgorithm) ||
@@ -94,7 +99,7 @@ public class IDTokenValidator {
             try {
                 validator =
                         new com.nimbusds.openid.connect.sdk.validators.IDTokenValidator(issuer, clientID, jwsAlgorithm,
-                                jwkSetURI.toURL());
+                                jwkSetURI.toURL(), resourceRetriever);
             } catch (Exception e) {
                 throw new SSOAgentServerException(e.getMessage(), e.getCause());
             }
@@ -108,8 +113,7 @@ public class IDTokenValidator {
         return validator;
     }
 
-    private JWSAlgorithm validateJWSAlgorithm(OIDCAgentConfig oidcAgentConfig, JWT idToken)
-            throws SSOAgentServerException {
+    private JWSAlgorithm validateJWSAlgorithm(JWT idToken) throws SSOAgentServerException {
 
         JWSAlgorithm jwsAlgorithm = (JWSAlgorithm) idToken.getHeader().getAlgorithm();
         JWSAlgorithm expectedJWSAlgorithm = oidcAgentConfig.getSignatureAlgorithm();
@@ -128,7 +132,7 @@ public class IDTokenValidator {
         return jwsAlgorithm;
     }
 
-    private void validateAudience(OIDCAgentConfig oidcAgentConfig, IDTokenClaimsSet claimsSet)
+    private void validateAudience(IDTokenClaimsSet claimsSet)
             throws SSOAgentServerException {
 
         List<Audience> audience = claimsSet.getAudience();

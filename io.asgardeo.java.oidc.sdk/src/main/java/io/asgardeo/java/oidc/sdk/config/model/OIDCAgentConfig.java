@@ -49,6 +49,9 @@ public class OIDCAgentConfig {
     private URI postLogoutRedirectURI;
     private JWSAlgorithm signatureAlgorithm;
     private Set<String> skipURIs = new HashSet<String>();
+    private int httpConnectTimeout;
+    private int httpReadTimeout;
+    private int httpSizeLimit;
 
     /**
      * Returns the consumer key (Client ID) of the OIDC agent.
@@ -348,5 +351,65 @@ public class OIDCAgentConfig {
     public void setSkipURIs(Set<String> skipURIs) {
 
         this.skipURIs = skipURIs;
+    }
+
+    /**
+     * Returns the HTTP connect timeout in milliseconds.
+     *
+     * @return HTTP connect timeout in milliseconds.
+     */
+    public int getHttpConnectTimeout() {
+
+        return httpConnectTimeout;
+    }
+
+    /**
+     * Sets the HTTP connect timeout in milliseconds.
+     *
+     * @param httpConnectTimeout HTTP connect timeout in milliseconds.
+     */
+    public void setHttpConnectTimeout(int httpConnectTimeout) {
+
+        this.httpConnectTimeout = httpConnectTimeout;
+    }
+
+    /**
+     * Returns the HTTP read timeout in milliseconds.
+     *
+     * @return HTTP read timeout in milliseconds.
+     */
+    public int getHttpReadTimeout() {
+
+        return httpReadTimeout;
+    }
+
+    /**
+     * Sets the HTTP read timeout in milliseconds.
+     *
+     * @param httpReadTimeout HTTP read timeout in milliseconds.
+     */
+    public void setHttpReadTimeout(int httpReadTimeout) {
+
+        this.httpReadTimeout = httpReadTimeout;
+    }
+
+    /**
+     * Returns the HTTP entity size limit in bytes.
+     *
+     * @return HTTP entity size limit in bytes.
+     */
+    public int getHttpSizeLimit() {
+
+        return httpSizeLimit;
+    }
+
+    /**
+     * Sets the HTTP entity size limit in bytes.
+     *
+     * @param httpSizeLimit HTTP entity size limit in bytes.
+     */
+    public void setHttpSizeLimit(int httpSizeLimit) {
+
+        this.httpSizeLimit = httpSizeLimit;
     }
 }

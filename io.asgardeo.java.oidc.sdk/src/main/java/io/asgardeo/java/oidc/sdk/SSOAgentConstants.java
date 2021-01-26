@@ -66,6 +66,9 @@ public class SSOAgentConstants {
     public static final String ID_TOKEN_SIGN_ALG = "signatureAlgorithm";
     public static final String NONCE = "nonce";
     public static final String AGENT_EXCEPTION = "AgentException";
+    public static final String HTTP_CONNECT_TIMEOUT = "httpConnectTimeout";
+    public static final String HTTP_READ_TIMEOUT = "httpReadTimeout";
+    public static final String HTTP_SIZE_LIMIT = "httpSizeLimit";
 
     // Request headers.
     public static final String REFERER = "referer";
@@ -77,6 +80,22 @@ public class SSOAgentConstants {
     // Response types.
     public static final String CODE = "code";
     public static final String TOKEN = "token";
+
+    // Resource Retriever params.
+    /**
+     * The default HTTP connect timeout in milliseconds. Set to 2000 milliseconds.
+     */
+    public static final int DEFAULT_HTTP_CONNECT_TIMEOUT = 2000;
+
+    /**
+     * The default HTTP read timeout in milliseconds. Set to 2000 milliseconds.
+     */
+    public static final int DEFAULT_HTTP_READ_TIMEOUT = 2000;
+
+    /**
+     * The default HTTP entity size limit in bytes. Set to 50 KBytes.
+     */
+    public static final int DEFAULT_HTTP_SIZE_LIMIT = 50 * 1024;
 
     public static final Set<String> OIDC_METADATA_CLAIMS = new HashSet<>(
             Arrays.asList("at_hash", "sub", "iss", "aud", "nbf", "c_hash", "azp", "amr", "sid", "exp", "iat"));
