@@ -37,6 +37,7 @@ public class SSOAgentConstants {
     public static final String USER = "user";
     public static final String REQUEST_CONTEXT = "request_context";
     public static final String SESSION_CONTEXT = "session_context";
+    public static final String DEFAULT_CONTEXT_ROOT = "/";
 
     // Keystore file properties.
     public static final String KEYSTORE_NAME = "keystorename";
