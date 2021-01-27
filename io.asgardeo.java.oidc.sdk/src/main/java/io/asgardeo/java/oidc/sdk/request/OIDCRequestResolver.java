@@ -20,6 +20,7 @@ package io.asgardeo.java.oidc.sdk.request;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
 import io.asgardeo.java.oidc.sdk.SSOAgentConstants;
 import io.asgardeo.java.oidc.sdk.config.model.OIDCAgentConfig;
@@ -80,6 +81,7 @@ public class OIDCRequestResolver {
     public boolean isAuthorizationCodeResponse() {
 
         AuthorizationResponse authorizationResponse;
+        AuthorizationSuccessResponse authorizationSuccessResponse;
 
         try {
             authorizationResponse = AuthorizationResponse.parse(ServletUtils.createHTTPRequest(request));
@@ -89,6 +91,10 @@ public class OIDCRequestResolver {
         }
         if (!authorizationResponse.indicatesSuccess()) {
             logErrorAuthorizationResponse(authorizationResponse);
+            return false;
+        }
+        authorizationSuccessResponse = authorizationResponse.toSuccessResponse();
+        if (authorizationSuccessResponse.getAuthorizationCode() == null) {
             return false;
         }
         return true;
