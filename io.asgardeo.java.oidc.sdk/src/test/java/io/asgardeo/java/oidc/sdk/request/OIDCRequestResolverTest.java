@@ -18,7 +18,9 @@
 
 package io.asgardeo.java.oidc.sdk.request;
 
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.ServletUtils;
@@ -31,7 +33,6 @@ import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.IObjectFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 
@@ -46,7 +47,6 @@ import javax.servlet.http.HttpServletRequest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 @PrepareForTest({AuthorizationResponse.class})
@@ -74,16 +74,20 @@ public class OIDCRequestResolverTest extends PowerMockTestCase {
     }
 
     @Test
-    public void testIsAuthorizationCodeResponse() throws IOException, ParseException {
+    public void testIsAuthorizationCodeResponse() throws IOException, ParseException, URISyntaxException {
 
         MockedStatic<AuthorizationResponse> mockedAuthorizationResponse = mockStatic(AuthorizationResponse.class);
         MockedStatic<ServletUtils> mockedServletUtils = mockStatic(ServletUtils.class);
         HTTPRequest httpRequest = mock(HTTPRequest.class);
         AuthorizationResponse authorizationResponse = mock(AuthorizationResponse.class);
+        AuthorizationSuccessResponse authorizationSuccessResponse = mock(AuthorizationSuccessResponse.class);
+        AuthorizationCode authzCode = new AuthorizationCode("auth-code");
 
         when(ServletUtils.createHTTPRequest(request)).thenReturn(httpRequest);
         when(AuthorizationResponse.parse(httpRequest)).thenReturn(authorizationResponse);
         when(authorizationResponse.indicatesSuccess()).thenReturn(true);
+        when(authorizationResponse.toSuccessResponse()).thenReturn(authorizationSuccessResponse);
+        when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authzCode);
 
         OIDCRequestResolver resolver = new OIDCRequestResolver(request, oidcAgentConfig);
         assertTrue(resolver.isAuthorizationCodeResponse());
