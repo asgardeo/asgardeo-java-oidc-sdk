@@ -70,6 +70,8 @@ public class SSOAgentConstants {
     public static final String HTTP_CONNECT_TIMEOUT = "httpConnectTimeout";
     public static final String HTTP_READ_TIMEOUT = "httpReadTimeout";
     public static final String HTTP_SIZE_LIMIT = "httpSizeLimit";
+    public static final String STATE_PARAM = "state";
+    public static final String ADDITIONAL_PARAMS_FOR_OAUTH2_AUTHZ_ENDPOINT = "additionalParamsForAuthorizeEndpoint";
 
     // Request headers.
     public static final String REFERER = "referer";

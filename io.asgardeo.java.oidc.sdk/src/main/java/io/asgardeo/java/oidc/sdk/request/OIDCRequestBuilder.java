@@ -32,11 +32,13 @@ import io.asgardeo.java.oidc.sdk.bean.RequestContext;
 import io.asgardeo.java.oidc.sdk.bean.SessionContext;
 import io.asgardeo.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardeo.java.oidc.sdk.exception.SSOAgentServerException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -81,16 +83,32 @@ public class OIDCRequestBuilder {
         Scope authScope = oidcAgentConfig.getScope();
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
-        State state = generateStateParameter();
+        String stateParam = oidcAgentConfig.getState();
+        State state;
+        if (StringUtils.isBlank(stateParam)) {
+            state = generateStateParameter();
+        } else {
+            state = new State(stateParam);
+        }
         Nonce nonce = new Nonce();
         RequestContext requestContext = new RequestContext(state, nonce);
 
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest.Builder(responseType, authScope,
-                clientID, callBackURI)
-                .state(state)
-                .endpointURI(authorizationEndpoint)
-                .nonce(nonce)
-                .build();
+        AuthenticationRequest.Builder authenticationRequestBuilder =
+                new AuthenticationRequest.Builder(responseType, authScope,
+                        clientID, callBackURI)
+                        .state(state)
+                        .endpointURI(authorizationEndpoint)
+                        .nonce(nonce);
+        // Add additional query params for authentication endpoint.
+        if (oidcAgentConfig.getAdditionalParamsForAuthorizeEndpoint() != null) {
+            for (Map.Entry<String, String> additionalQueryParam : oidcAgentConfig
+                    .getAdditionalParamsForAuthorizeEndpoint().entrySet()) {
+                authenticationRequestBuilder
+                        .customParameter(additionalQueryParam.getKey(), additionalQueryParam.getValue());
+            }
+        }
+        // Build authenticationRequest.
+        AuthenticationRequest authenticationRequest = authenticationRequestBuilder.build();
 
         io.asgardeo.java.oidc.sdk.request.model.AuthenticationRequest authRequest =
                 new io.asgardeo.java.oidc.sdk.request.model.AuthenticationRequest(authenticationRequest.toURI(),
