@@ -83,13 +83,7 @@ public class OIDCRequestBuilder {
         Scope authScope = oidcAgentConfig.getScope();
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
-        String stateParam = oidcAgentConfig.getState();
-        State state;
-        if (StringUtils.isBlank(stateParam)) {
-            state = generateStateParameter();
-        } else {
-            state = new State(stateParam);
-        }
+        State state = resolveState();
         Nonce nonce = new Nonce();
         RequestContext requestContext = new RequestContext(state, nonce);
 
@@ -99,14 +93,11 @@ public class OIDCRequestBuilder {
                         .state(state)
                         .endpointURI(authorizationEndpoint)
                         .nonce(nonce);
-        // Add additional query params for authentication endpoint.
-        if (oidcAgentConfig.getAdditionalParamsForAuthorizeEndpoint() != null) {
-            for (Map.Entry<String, String> additionalQueryParam : oidcAgentConfig
-                    .getAdditionalParamsForAuthorizeEndpoint().entrySet()) {
-                authenticationRequestBuilder
-                        .customParameter(additionalQueryParam.getKey(), additionalQueryParam.getValue());
-            }
-        }
+        // Add additional query params to authentication endpoint and request context.
+        oidcAgentConfig.getAdditionalParamsForAuthorizeEndpoint().forEach((key, value) -> {
+            authenticationRequestBuilder.customParameter(key, value);
+            requestContext.setParameter(key, value);
+        });
         // Build authenticationRequest.
         AuthenticationRequest authenticationRequest = authenticationRequestBuilder.build();
 
@@ -153,6 +144,18 @@ public class OIDCRequestBuilder {
         }
 
         return new io.asgardeo.java.oidc.sdk.request.model.LogoutRequest(logoutRequestURI, requestContext);
+    }
+
+    private State resolveState() {
+
+        String stateParam = oidcAgentConfig.getState();
+        State state;
+        if (StringUtils.isBlank(stateParam)) {
+            state = generateStateParameter();
+        } else {
+            state = new State(stateParam);
+        }
+        return state;
     }
 
     private State generateStateParameter() {
