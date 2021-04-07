@@ -83,6 +83,8 @@ public class OIDCRequestBuilder {
         Scope authScope = oidcAgentConfig.getScope();
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
+        Map<String, String> additionalParamsForAuthzEndpoint =
+                oidcAgentConfig.getAdditionalParamsForAuthorizeEndpoint();
         State state = resolveState();
         Nonce nonce = new Nonce();
         RequestContext requestContext = new RequestContext(state, nonce);
@@ -94,10 +96,13 @@ public class OIDCRequestBuilder {
                         .endpointURI(authorizationEndpoint)
                         .nonce(nonce);
         // Add additional query params to authentication endpoint and request context.
-        oidcAgentConfig.getAdditionalParamsForAuthorizeEndpoint().forEach((key, value) -> {
-            authenticationRequestBuilder.customParameter(key, value);
-            requestContext.setParameter(key, value);
-        });
+        if (additionalParamsForAuthzEndpoint != null) {
+            additionalParamsForAuthzEndpoint.forEach((key, value) -> {
+                authenticationRequestBuilder.customParameter(key, value);
+                requestContext.setParameter(key, value);
+            });
+        }
+
         // Build authenticationRequest.
         AuthenticationRequest authenticationRequest = authenticationRequestBuilder.build();
 
