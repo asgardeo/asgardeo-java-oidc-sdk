@@ -32,11 +32,13 @@ import io.asgardeo.java.oidc.sdk.bean.RequestContext;
 import io.asgardeo.java.oidc.sdk.bean.SessionContext;
 import io.asgardeo.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardeo.java.oidc.sdk.exception.SSOAgentServerException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -81,16 +83,28 @@ public class OIDCRequestBuilder {
         Scope authScope = oidcAgentConfig.getScope();
         URI callBackURI = oidcAgentConfig.getCallbackUrl();
         URI authorizationEndpoint = oidcAgentConfig.getAuthorizeEndpoint();
-        State state = generateStateParameter();
+        Map<String, String> additionalParamsForAuthzEndpoint =
+                oidcAgentConfig.getAdditionalParamsForAuthorizeEndpoint();
+        State state = resolveState();
         Nonce nonce = new Nonce();
         RequestContext requestContext = new RequestContext(state, nonce);
 
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest.Builder(responseType, authScope,
-                clientID, callBackURI)
-                .state(state)
-                .endpointURI(authorizationEndpoint)
-                .nonce(nonce)
-                .build();
+        AuthenticationRequest.Builder authenticationRequestBuilder =
+                new AuthenticationRequest.Builder(responseType, authScope,
+                        clientID, callBackURI)
+                        .state(state)
+                        .endpointURI(authorizationEndpoint)
+                        .nonce(nonce);
+        // Add additional query params to authentication endpoint and request context.
+        if (additionalParamsForAuthzEndpoint != null) {
+            additionalParamsForAuthzEndpoint.forEach((key, value) -> {
+                authenticationRequestBuilder.customParameter(key, value);
+                requestContext.setParameter(key, value);
+            });
+        }
+
+        // Build authenticationRequest.
+        AuthenticationRequest authenticationRequest = authenticationRequestBuilder.build();
 
         io.asgardeo.java.oidc.sdk.request.model.AuthenticationRequest authRequest =
                 new io.asgardeo.java.oidc.sdk.request.model.AuthenticationRequest(authenticationRequest.toURI(),
@@ -135,6 +149,15 @@ public class OIDCRequestBuilder {
         }
 
         return new io.asgardeo.java.oidc.sdk.request.model.LogoutRequest(logoutRequestURI, requestContext);
+    }
+
+    private State resolveState() {
+
+        String stateParam = oidcAgentConfig.getState();
+        if (StringUtils.isBlank(stateParam)) {
+            return generateStateParameter();
+        }
+        return new State(stateParam);
     }
 
     private State generateStateParameter() {

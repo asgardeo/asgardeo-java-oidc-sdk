@@ -26,6 +26,7 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,6 +53,8 @@ public class OIDCAgentConfig {
     private int httpConnectTimeout;
     private int httpReadTimeout;
     private int httpSizeLimit;
+    private String state;
+    private Map<String, String> additionalParamsForAuthorizeEndpoint;
 
     /**
      * Returns the consumer key (Client ID) of the OIDC agent.
@@ -411,5 +414,45 @@ public class OIDCAgentConfig {
     public void setHttpSizeLimit(int httpSizeLimit) {
 
         this.httpSizeLimit = httpSizeLimit;
+    }
+
+    /**
+     * Returns the state parameter of the OIDC agent.
+     *
+     * @return The state parameter of the OIDC agent.
+     */
+    public String getState() {
+
+        return state;
+    }
+
+    /**
+     * Sets the state parameter for the OIDC agent.
+     *
+     * @param state The state parameter for the OIDC agent.
+     */
+    public void setState(String state) {
+
+        this.state = state;
+    }
+
+    /**
+     * Returns the additional query parameters of the OIDC agent.
+     *
+     * @return The additional query params of the OIDC agent.
+     */
+    public Map<String, String> getAdditionalParamsForAuthorizeEndpoint() {
+
+        return additionalParamsForAuthorizeEndpoint;
+    }
+
+    /**
+     * Sets the additional query params for the OIDC agent.
+     *
+     * @param additionalParamsForAuthorizeEndpoint The additional query params of the OIDC agent.
+     */
+    public void setAdditionalParamsForAuthorizeEndpoint(Map<String, String> additionalParamsForAuthorizeEndpoint) {
+
+        this.additionalParamsForAuthorizeEndpoint = additionalParamsForAuthorizeEndpoint;
     }
 }
