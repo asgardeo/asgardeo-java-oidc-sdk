@@ -154,13 +154,10 @@ public class OIDCRequestBuilder {
     private State resolveState() {
 
         String stateParam = oidcAgentConfig.getState();
-        State state;
         if (StringUtils.isBlank(stateParam)) {
-            state = generateStateParameter();
-        } else {
-            state = new State(stateParam);
+            return generateStateParameter();
         }
-        return state;
+        return new State(stateParam);
     }
 
     private State generateStateParameter() {
