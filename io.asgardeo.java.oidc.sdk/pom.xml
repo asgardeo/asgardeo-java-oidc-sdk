@@ -21,7 +21,7 @@
     <parent>
         <artifactId>java-oidc-sdk</artifactId>
         <groupId>io.asgardeo.java.oidc.sdk</groupId>
-        <version>0.1.9</version>
+        <version>0.1.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
