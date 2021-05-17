@@ -315,13 +315,13 @@ public class DefaultOIDCManager implements OIDCManager {
         }
 
         if (oidcAgentConfig.getConsumerKey() == null) {
-            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getMessage(),
-                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getCode());
+            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getCode());
         }
 
         if (oidcAgentConfig.getConsumerSecret() == null) {
-            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getMessage(),
-                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_ID.getCode());
+            throw new SSOAgentClientException(SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getMessage(),
+                    SSOAgentConstants.ErrorMessages.AGENT_CONFIG_CLIENT_SECRET.getCode());
         }
 
         if (StringUtils.isEmpty(oidcAgentConfig.getCallbackUrl().toString())) {
