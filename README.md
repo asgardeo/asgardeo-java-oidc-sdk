@@ -39,7 +39,7 @@ You can add the Asgardeo Java OIDC SDK to your java project by installing it as 
 <dependency>
     <groupId>io.asgardeo.java.oidc.sdk</groupId>
     <artifactId>io.asgardeo.java.oidc.sdk</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.10</version>
 </dependency>
 ```
 #### Adding the configuration properties
