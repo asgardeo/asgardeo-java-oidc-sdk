@@ -19,6 +19,8 @@
 package io.asgardeo.java.oidc.sdk.bean;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A data model class to define the Session Context element. The Session Context object should be used to hold the
@@ -39,6 +41,7 @@ public class SessionContext implements Serializable {
     private String accessToken;
     private String refreshToken;
     private String idToken;
+    private Map<String, Object> additionalParams = new HashMap<>();
 
     /**
      * Returns the authenticated user.
@@ -118,5 +121,15 @@ public class SessionContext implements Serializable {
     public void setIdToken(String idToken) {
 
         this.idToken = idToken;
+    }
+
+    /**
+     * Returns the additional query params.
+     *
+     * @return Additional query params map.
+     */
+    public Map<String, Object> getAdditionalParams() {
+
+        return additionalParams;
     }
 }

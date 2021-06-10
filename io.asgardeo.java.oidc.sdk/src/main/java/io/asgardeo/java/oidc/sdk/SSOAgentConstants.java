@@ -38,6 +38,7 @@ public class SSOAgentConstants {
     public static final String REQUEST_CONTEXT = "request_context";
     public static final String SESSION_CONTEXT = "session_context";
     public static final String DEFAULT_CONTEXT_ROOT = "/";
+    public static final String IS_LOGOUT = "isLogout";
 
     // Keystore file properties.
     public static final String KEYSTORE_NAME = "keystorename";
@@ -72,6 +73,7 @@ public class SSOAgentConstants {
     public static final String HTTP_SIZE_LIMIT = "httpSizeLimit";
     public static final String STATE_PARAM = "state";
     public static final String ADDITIONAL_PARAMS_FOR_AUTHZ_EP = "additionalParamsForAuthorizeEndpoint";
+    public static final String ERROR_DESCRIPTION = "error_description";
 
     // Request headers.
     public static final String REFERER = "referer";
@@ -118,7 +120,7 @@ public class SSOAgentConstants {
         AGENT_CONFIG_CALLBACK_URL("18008",
                 "Callback URL/Redirection URL must not be null. This refers to the Relying Party's redirection URIs " +
                         "registered with the OpenID Provider."),
-        SERVLET_CONNECTION("18008", "Error found with connection.");
+        SERVLET_CONNECTION("18009", "Error found with connection.");
 
         private final String code;
         private final String message;
