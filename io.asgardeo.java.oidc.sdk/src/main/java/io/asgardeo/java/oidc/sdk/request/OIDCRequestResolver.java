@@ -121,6 +121,19 @@ public class OIDCRequestResolver {
     }
 
     /**
+     * Checks if the request contains is_logout parameter.
+     *
+     * @return True if the request contains a parameter called is_logout and its value is true, false otherwise.
+     */
+    public boolean isLogout() {
+
+        if (request.getAttribute(SSOAgentConstants.IS_LOGOUT) != null) {
+            return (boolean) request.getAttribute(SSOAgentConstants.IS_LOGOUT);
+        }
+        return false;
+    }
+
+    /**
      * Checks if the request is a callback response.
      *
      * @return True if the request contains the path of the callback URL configured in the {@link OIDCAgentConfig},
