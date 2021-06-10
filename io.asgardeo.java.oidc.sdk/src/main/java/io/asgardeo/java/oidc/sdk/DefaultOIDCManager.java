@@ -116,15 +116,27 @@ public class DefaultOIDCManager implements OIDCManager {
         Nonce nonce = requestContext.getNonce();
 
         try {
-            if (!requestResolver.isError() && requestResolver.isAuthorizationCodeResponse()) {
+            if (requestResolver.isAuthorizationCodeResponse()) {
+                // Auth code is received.
                 logger.log(Level.TRACE, "Handling the OIDC Authorization response.");
                 boolean isAuthenticated = handleAuthentication(request, sessionContext, nonce);
                 if (isAuthenticated) {
                     logger.log(Level.TRACE, "Authentication successful. Redirecting to the target page.");
                     return sessionContext;
                 }
+            } else if (requestResolver.isError()) {
+                // Error occurred.
+                if (StringUtils.isNotEmpty(request.getParameter(SSOAgentConstants.ERROR_DESCRIPTION))) {
+                    logger.log(Level.ERROR, "Authentication unsuccessful. Error description: " +
+                            request.getParameter(SSOAgentConstants.ERROR_DESCRIPTION));
+                    throw new SSOAgentServerException(request.getParameter(SSOAgentConstants.ERROR_DESCRIPTION),
+                            SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
+                }
+            } else {
+                // Successful logout.
+                sessionContext.getAdditionalParams().put(SSOAgentConstants.IS_LOGOUT, true);
+                return sessionContext;
             }
-
             logger.log(Level.ERROR, "Authentication unsuccessful. Clearing the active session and redirecting.");
             throw new SSOAgentServerException(SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getMessage(),
                     SSOAgentConstants.ErrorMessages.AUTHENTICATION_FAILED.getCode());
@@ -225,22 +237,29 @@ public class DefaultOIDCManager implements OIDCManager {
         }
     }
 
-    private void handleErrorTokenResponse(TokenRequest tokenRequest, TokenResponse tokenResponse) {
+    private void handleErrorTokenResponse(TokenRequest tokenRequest, TokenResponse tokenResponse)
+            throws SSOAgentServerException {
 
         TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
         JSONObject requestObject = requestToJson(tokenRequest);
         JSONObject responseObject = errorResponse.toJSONObject();
 
-        logger.log(Level.INFO, "Request object for the error response: ", requestObject);
-        logger.log(Level.INFO, "Error response object: ", responseObject);
+        logger.log(Level.INFO, "Request object for the error response: " + requestObject);
+        logger.log(Level.INFO, "Error response object: " + responseObject);
+
+        if (((TokenErrorResponse) tokenResponse).getErrorObject().getCode() != null &&
+                ((TokenErrorResponse) tokenResponse).getErrorObject().getDescription() != null) {
+            throw new SSOAgentServerException(((TokenErrorResponse) tokenResponse).getErrorObject().getDescription(),
+                    ((TokenErrorResponse) tokenResponse).getErrorObject().getCode());
+        }
     }
 
-    private void handleErrorAuthorizationResponse(AuthorizationResponse authzResponse) {
+    private void handleErrorAuthorizationResponse(AuthorizationResponse authorizationResponse) {
 
-        AuthorizationErrorResponse errorResponse = authzResponse.toErrorResponse();
+        AuthorizationErrorResponse errorResponse = authorizationResponse.toErrorResponse();
         JSONObject responseObject = errorResponse.getErrorObject().toJSONObject();
 
-        logger.log(Level.INFO, "Error response object: ", responseObject);
+        logger.log(Level.INFO, "Error response object: " + responseObject);
     }
 
     private TokenResponse getTokenResponse(TokenRequest tokenRequest) throws SSOAgentServerException {

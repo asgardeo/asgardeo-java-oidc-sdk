@@ -84,9 +84,15 @@ public class HTTPSessionBasedOIDCProcessor {
         SessionContext sessionContext = defaultOIDCManager.handleOIDCCallback(request, response, requestContext);
 
         if (sessionContext != null) {
-            clearSession(request);
-            HttpSession session = request.getSession();
-            session.setAttribute(SSOAgentConstants.SESSION_CONTEXT, sessionContext);
+            if (sessionContext.getAdditionalParams().containsKey(SSOAgentConstants.IS_LOGOUT) &&
+                    ((boolean)sessionContext.getAdditionalParams().get(SSOAgentConstants.IS_LOGOUT))) {
+                request.setAttribute(SSOAgentConstants.IS_LOGOUT, true);
+                clearSession(request);
+            } else {
+                clearSession(request);
+                HttpSession session = request.getSession();
+                session.setAttribute(SSOAgentConstants.SESSION_CONTEXT, sessionContext);
+            }
         } else {
             throw new SSOAgentServerException("Null session context.");
         }
