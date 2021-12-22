@@ -26,7 +26,7 @@
     <groupId>io.asgardeo.java.oidc.sdk</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>java-oidc-sdk</artifactId>
-    <version>0.1.16-SNAPSHOT</version>
+    <version>0.1.16</version>
     <packaging>pom</packaging>
     <name>Asgardeo - Java OIDC SDK Parent Module</name>
     <description>
@@ -38,7 +38,7 @@
         <url>https://github.com/asgardeo/asgardeo-java-oidc-sdk.git</url>
         <developerConnection>scm:git:https://github.com/asgardeo/asgardeo-java-oidc-sdk.git</developerConnection>
         <connection>scm:git:https://github.com/asgardeo/asgardeo-java-oidc-sdk.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.1.16</tag>
     </scm>
 
 
