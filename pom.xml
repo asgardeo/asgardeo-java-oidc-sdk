@@ -211,7 +211,7 @@
     <properties>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-        <nimbusds.version>8.19</nimbusds.version>
+        <nimbusds.version>9.19</nimbusds.version>
         <httpcomponents-apache.wso2.version>4.3.1.wso2v1</httpcomponents-apache.wso2.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <log4j.version>2.17.0</log4j.version>

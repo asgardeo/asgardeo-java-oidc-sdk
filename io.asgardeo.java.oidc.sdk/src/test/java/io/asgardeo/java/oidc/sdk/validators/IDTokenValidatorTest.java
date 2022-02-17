@@ -97,7 +97,7 @@ public class IDTokenValidatorTest {
                 .respond()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
-                .withBody(jwkSet.toJSONObject(true).toJSONString());
+                .withBody(jwkSet.toString(true));
     }
 
     private JWKSet generateJWKS() throws NoSuchAlgorithmException {
@@ -256,7 +256,7 @@ public class IDTokenValidatorTest {
                 .respond()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
-                .withBody(jwkSet.toJSONObject(true).toJSONString());
+                .withBody(jwkSet.toString(true));
 
         Nonce nonce = new Nonce();
         JWSAlgorithm jwsAlgorithm = new JWSAlgorithm(signatureAlgorithm);
