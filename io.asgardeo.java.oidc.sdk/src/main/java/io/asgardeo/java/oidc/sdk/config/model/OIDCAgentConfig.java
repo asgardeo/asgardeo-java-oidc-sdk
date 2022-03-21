@@ -38,6 +38,7 @@ public class OIDCAgentConfig {
     private Secret consumerSecret;
     private String indexPage;
     private String errorPage;
+    private String homePage;
     private String logoutURL;
     private URI callbackUrl;
     private Scope scope;
@@ -134,6 +135,26 @@ public class OIDCAgentConfig {
     public void setErrorPage(String errorPage) {
 
         this.errorPage = errorPage;
+    }
+
+    /**
+     * Returns the home page of the OIDC agent.
+     *
+     * @return Home page of the OIDC agent.
+     */
+    public String getHomePage() {
+
+        return homePage;
+    }
+
+    /**
+     * Sets the home page for the OIDC agent.
+     *
+     * @param homePage The home page of the OIDC agent.
+     */
+    public void setHomePage(String homePage) {
+
+        this.homePage = homePage;
     }
 
     /**

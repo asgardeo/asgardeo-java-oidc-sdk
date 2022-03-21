@@ -69,6 +69,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
                 new Secret(properties.getProperty(SSOAgentConstants.CONSUMER_SECRET)) : null;
         String indexPage = properties.getProperty(SSOAgentConstants.INDEX_PAGE);
         String errorPage = properties.getProperty(SSOAgentConstants.ERROR_PAGE);
+        String homePage = properties.getProperty(SSOAgentConstants.HOME_PAGE);
         String logoutURL = properties.getProperty(SSOAgentConstants.LOGOUT_URL);
         JWSAlgorithm jwsAlgorithm =
                 StringUtils.isNotBlank(properties.getProperty(SSOAgentConstants.ID_TOKEN_SIGN_ALG)) ?
@@ -149,6 +150,7 @@ public class FileBasedOIDCConfigProvider implements OIDCConfigProvider {
         oidcAgentConfig.setConsumerSecret(consumerSecret);
         oidcAgentConfig.setIndexPage(indexPage);
         oidcAgentConfig.setErrorPage(errorPage);
+        oidcAgentConfig.setHomePage(homePage);
         oidcAgentConfig.setLogoutURL(logoutURL);
         oidcAgentConfig.setIssuer(issuer);
         oidcAgentConfig.setSkipURIs(skipURIs);

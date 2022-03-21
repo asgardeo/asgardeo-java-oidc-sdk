@@ -49,8 +49,10 @@ public class SSOAgentConstants {
     public static final String CONSUMER_SECRET = "consumerSecret";
     public static final String CALL_BACK_URL = "callBackURL";
     public static final String SKIP_URIS = "skipURIs";
+    public static final String REDIRECT_URI_KEY = "redirectURI";
     public static final String INDEX_PAGE = "indexPage";
     public static final String ERROR_PAGE = "errorPage";
+    public static final String HOME_PAGE = "homePage";
     public static final String LOGOUT_URL = "logoutURL";
     public static final String SCOPE = "scope";
     public static final String OAUTH2_GRANT_TYPE = "grantType";
