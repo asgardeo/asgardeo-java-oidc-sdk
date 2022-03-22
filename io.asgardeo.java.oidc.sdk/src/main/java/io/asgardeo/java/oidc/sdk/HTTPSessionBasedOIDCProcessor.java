@@ -63,6 +63,10 @@ public class HTTPSessionBasedOIDCProcessor {
 
         HttpSession session = request.getSession();
         RequestContext requestContext = defaultOIDCManager.sendForLogin(request, response);
+        if (request.getRequestURI() != null) {
+            String redirectPageURI = request.getRequestURI().substring(request.getContextPath().length() + 1);
+            requestContext.setParameter(SSOAgentConstants.REDIRECT_URI_KEY, redirectPageURI);
+        }
         session.setAttribute(SSOAgentConstants.REQUEST_CONTEXT, requestContext);
     }
 
