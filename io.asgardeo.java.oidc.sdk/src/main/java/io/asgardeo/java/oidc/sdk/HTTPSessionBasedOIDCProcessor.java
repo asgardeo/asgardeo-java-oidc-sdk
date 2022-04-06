@@ -24,6 +24,7 @@ import io.asgardeo.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardeo.java.oidc.sdk.exception.SSOAgentClientException;
 import io.asgardeo.java.oidc.sdk.exception.SSOAgentException;
 import io.asgardeo.java.oidc.sdk.exception.SSOAgentServerException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,8 +65,12 @@ public class HTTPSessionBasedOIDCProcessor {
         HttpSession session = request.getSession();
         RequestContext requestContext = defaultOIDCManager.sendForLogin(request, response);
         if (request.getRequestURI() != null) {
-            String redirectPageURI = request.getRequestURI().substring(request.getContextPath().length() + 1);
-            requestContext.setParameter(SSOAgentConstants.REDIRECT_URI_KEY, redirectPageURI);
+            StringBuilder redirectPageURI = new StringBuilder();
+            redirectPageURI.append(request.getRequestURI().substring(request.getContextPath().length() + 1));
+            if (StringUtils.isNotBlank(request.getQueryString())) {
+                redirectPageURI.append("?").append(request.getQueryString());
+            }
+            requestContext.setParameter(SSOAgentConstants.REDIRECT_URI_KEY, redirectPageURI.toString());
         }
         session.setAttribute(SSOAgentConstants.REQUEST_CONTEXT, requestContext);
     }
