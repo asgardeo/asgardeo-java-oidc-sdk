@@ -214,13 +214,13 @@
         <nimbusds.version>9.19</nimbusds.version>
         <httpcomponents-apache.wso2.version>4.3.1.wso2v1</httpcomponents-apache.wso2.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
-        <log4j.version>2.17.0</log4j.version>
+        <log4j.version>2.17.1</log4j.version>
         <testng.version>7.3.0</testng.version>
         <org.powermock.version>2.0.7</org.powermock.version>
         <mockito.version>3.5.13</mockito.version>
         <mockito.api.version>2.0.7</mockito.api.version>
         <mockserver.version>3.10.8</mockserver.version>
-        <jadler.version>1.3.0</jadler.version>
+        <jadler.version>1.3.1</jadler.version>
     </properties>
 
     <modules>
