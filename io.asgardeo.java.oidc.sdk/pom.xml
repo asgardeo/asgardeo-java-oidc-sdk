@@ -103,6 +103,7 @@
         <dependency>
             <groupId>net.jadler</groupId>
             <artifactId>jadler-jetty</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
