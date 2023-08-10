@@ -1,6 +1,8 @@
 # Asgardeo OIDC SDK for Java
 
 [![Build Status](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fwso2.org%2Fjenkins%2Fjob%2Fasgardeo%2Fjob%2Fasgardeo-java-oidc-sdk%2F&style=flat)](https://wso2.org/jenkins/job/asgardeo/job/asgardeo-java-oidc-sdk/)
+[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B28356%2Fgithub.com%2Fasgardeo%2Fasgardeo-java-oidc-sdk.svg?type=shield&issueType=license)](https://app.fossa.com/projects/custom%2B28356%2Fgithub.com%2Fasgardeo%2Fasgardeo-java-oidc-sdk?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B28356%2Fgithub.com%2Fasgardeo%2Fasgardeo-java-oidc-sdk.svg?type=shield&issueType=security)](https://app.fossa.com/projects/custom%2B28356%2Fgithub.com%2Fasgardeo%2Fasgardeo-java-oidc-sdk?ref=badge_shield)
 [![Stackoverflow](https://img.shields.io/badge/Ask%20for%20help%20on-Stackoverflow-orange)](https://stackoverflow.com/questions/tagged/asgardeo)
 [![Join the chat at https://discord.gg/wso2](https://img.shields.io/badge/Join%20us%20on-Discord-%23e01563.svg)](https://discord.gg/wso2)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/asgardeo/asgardeo-java-oidc-sdk/blob/master/LICENSE)

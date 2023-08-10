@@ -58,12 +58,12 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>${nimbusds.version}</version>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>${nimbusds.version}</version>
+                <version>${nimbusds-oauth2-oidc-sdk.version}</version>
             </dependency>
 
             <dependency>
@@ -211,7 +211,8 @@
     <properties>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-        <nimbusds.version>9.19</nimbusds.version>
+        <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
+        <nimbusds-oauth2-oidc-sdk.version>9.43.3</nimbusds-oauth2-oidc-sdk.version>
         <httpcomponents-apache.wso2.version>4.3.1.wso2v1</httpcomponents-apache.wso2.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <log4j.version>2.17.1</log4j.version>
