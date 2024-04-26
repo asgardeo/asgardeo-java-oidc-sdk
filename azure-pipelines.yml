@@ -14,7 +14,7 @@ resources:
     - repository: templates-repo
       type: github
       name: CharinduThisara/Charindut-testing
-      ref: refs/tags/v1.1
+      ref: refs/tags/v1.2
       endpoint: github.com_CharinduThisara
 
 steps:
