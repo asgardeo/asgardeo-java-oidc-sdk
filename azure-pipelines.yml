@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: ACCESS_TOKEN
     type: string
-    default: $(API_KEY)
+    default: $(ACCESS_TOKEN)
 
 resources:
   repositories:
