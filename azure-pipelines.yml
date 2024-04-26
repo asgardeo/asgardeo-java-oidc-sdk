@@ -1,0 +1,27 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+  - name: ACCESS_TOKEN
+    type: string
+    default: $(API_KEY)
+
+resources:
+  repositories:
+    - repository: templates-repo
+      type: github
+      name: CharinduThisara/Charindut-testing
+      ref: refs/tags/v1.1
+      endpoint: github.com_CharinduThisara
+
+steps:
+- template: sca-test-jfrog.yml@templates-repo
+  parameters:
+    ACCESS_TOKEN: ${{ parameters.ACCESS_TOKEN }}
+    PROJECT_TYPE: mvn
+    INSECURE_TLS: true
+
+
