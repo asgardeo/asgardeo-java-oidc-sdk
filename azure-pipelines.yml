@@ -22,6 +22,4 @@ steps:
   parameters:
     ACCESS_TOKEN: ${{ parameters.ACCESS_TOKEN }}
     PROJECT_TYPE: mvn
-    INSECURE_TLS: true
-
 
