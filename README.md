@@ -1,4 +1,4 @@
-# Asgardeo OIDC SDK for Java
+# Asgardeo OIDC SDK for Java testing
 
 [![Build Status](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fwso2.org%2Fjenkins%2Fjob%2Fasgardeo%2Fjob%2Fasgardeo-java-oidc-sdk%2F&style=flat)](https://wso2.org/jenkins/job/asgardeo/job/asgardeo-java-oidc-sdk/)
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B28356%2Fgithub.com%2Fasgardeo%2Fasgardeo-java-oidc-sdk.svg?type=shield&issueType=license)](https://app.fossa.com/projects/custom%2B28356%2Fgithub.com%2Fasgardeo%2Fasgardeo-java-oidc-sdk?ref=badge_shield)
