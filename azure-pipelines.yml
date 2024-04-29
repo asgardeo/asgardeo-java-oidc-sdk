@@ -1,4 +1,4 @@
-trigger:
+pr:
 - main
 
 pool:
@@ -14,7 +14,7 @@ resources:
     - repository: templates-repo
       type: github
       name: CharinduThisara/Charindut-testing
-      ref: refs/tags/v1.2
+      ref: refs/tags/v1.3
       endpoint: github.com_CharinduThisara
 
 steps:
