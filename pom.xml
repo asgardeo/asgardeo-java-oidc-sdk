@@ -211,7 +211,7 @@
     <properties>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-        <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.37.2</nimbus-jose-jwt.version>
         <nimbusds-oauth2-oidc-sdk.version>9.43.3</nimbusds-oauth2-oidc-sdk.version>
         <httpcomponents-apache.wso2.version>4.3.1.wso2v1</httpcomponents-apache.wso2.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
