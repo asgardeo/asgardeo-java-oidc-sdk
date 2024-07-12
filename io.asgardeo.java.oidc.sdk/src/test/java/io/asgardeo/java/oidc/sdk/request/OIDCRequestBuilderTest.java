@@ -31,7 +31,6 @@ import io.asgardeo.java.oidc.sdk.request.model.LogoutRequest;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
-import org.testng.IObjectFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
@@ -103,11 +102,5 @@ public class OIDCRequestBuilderTest extends PowerMockTestCase {
                 "&post_logout_redirect_uri=http%3A%2F%2Ftest%2FsampleRedirectionURL&id_token_hint=eyJhbGciOiJIUzI1NiI" +
                 "sInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwR" +
                 "JSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
-    }
-
-    @ObjectFactory
-    public IObjectFactory getObjectFactory() {
-
-        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }

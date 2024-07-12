@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
-import org.testng.IObjectFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.ObjectFactory;
@@ -131,11 +130,5 @@ public class HTTPSessionBasedOIDCProcessorTest extends PowerMockTestCase {
         provider.logout(request, response);
 
         verify(session).setAttribute(SSOAgentConstants.REQUEST_CONTEXT, requestContext);
-    }
-
-    @ObjectFactory
-    public IObjectFactory getObjectFactory() {
-
-        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }

@@ -30,7 +30,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
-import org.testng.IObjectFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.ObjectFactory;
@@ -135,11 +134,5 @@ public class OIDCRequestResolverTest extends PowerMockTestCase {
     @AfterMethod
     public void tearDown() {
 
-    }
-
-    @ObjectFactory
-    public IObjectFactory getObjectFactory() {
-
-        return new org.powermock.modules.testng.PowerMockObjectFactory();
     }
 }
