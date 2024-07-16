@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2020-2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -97,12 +97,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.jadler</groupId>
-            <artifactId>jadler-core</artifactId>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.jadler</groupId>
-            <artifactId>jadler-jetty</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
