@@ -155,7 +155,7 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.github.tomakehurst</groupId>
+                <groupId>org.wiremock</groupId>
                 <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
                 <scope>test</scope>
@@ -265,7 +265,7 @@
         <mockito.version>3.5.13</mockito.version>
         <mockito.api.version>2.0.7</mockito.api.version>
         <mockserver.version>5.15.0</mockserver.version>
-        <wiremock.version>3.0.1</wiremock.version>
+        <wiremock.version>3.8.0</wiremock.version>
         <eclipse.jetty.version>11.0.22</eclipse.jetty.version>
     </properties>
 
