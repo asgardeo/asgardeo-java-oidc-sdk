@@ -1,23 +1,25 @@
-/*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+/**
+ * Copyright (c) 2020-2024, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
 package io.asgardeo.java.oidc.sdk;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -49,14 +51,11 @@ import io.asgardeo.java.oidc.sdk.validators.IDTokenValidator;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockserver.integration.ClientAndServer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
-import org.testng.IObjectFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 
 import java.net.URI;
@@ -68,6 +67,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -91,13 +91,16 @@ public class DefaultOIDCManagerTest extends PowerMockTestCase {
     SessionContext sessionContext;
 
     OIDCAgentConfig oidcAgentConfig = new OIDCAgentConfig();
-
-    private ClientAndServer mockServer;
+    private WireMockServer wireMockServer;
+    private static int SERVER_PORT = 9441;
 
     @BeforeMethod
     public void setUp() throws Exception {
 
-        mockServer = ClientAndServer.startClientAndServer(9441);
+        wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().port(SERVER_PORT));
+        wireMockServer.start();
+        configureFor("localhost", SERVER_PORT);
+
         Issuer issuer = new Issuer("issuer");
         ClientID clientID = new ClientID("sampleClientId");
         Secret clientSecret = new Secret("sampleClientSecret");
@@ -222,12 +225,6 @@ public class DefaultOIDCManagerTest extends PowerMockTestCase {
     @AfterMethod
     public void tearDown() {
 
-        mockServer.stop();
-    }
-
-    @ObjectFactory
-    public IObjectFactory getObjectFactory() {
-
-        return new org.powermock.modules.testng.PowerMockObjectFactory();
+        wireMockServer.stop();
     }
 }

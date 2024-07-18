@@ -1,23 +1,25 @@
-/*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+/**
+ * Copyright (c) 2020-2024, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
 package io.asgardeo.java.oidc.sdk.validators;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -39,7 +41,6 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import io.asgardeo.java.oidc.sdk.config.model.OIDCAgentConfig;
 import io.asgardeo.java.oidc.sdk.exception.SSOAgentServerException;
-import net.jadler.Jadler;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -61,43 +62,56 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static net.jadler.Jadler.closeJadler;
-import static net.jadler.Jadler.initJadler;
-import static net.jadler.Jadler.port;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class IDTokenValidatorTest {
 
+    private static int SERVER_PORT = 8099;
     private OIDCAgentConfig config;
     private RSAKey key;
+    private WireMockServer wireMockServer;
+    private JWKSet jwkSet;
 
     @BeforeMethod
     public void setUp() throws Exception {
 
-        initJadler();
-
         config = new OIDCAgentConfig();
-        JWKSet jwkSet = generateJWKS();
+        jwkSet = generateJWKS();
         key = (RSAKey) jwkSet.getKeys().get(0);
 
         Issuer issuer = new Issuer("issuer");
         ClientID clientID = new ClientID("sampleClientId");
         Secret clientSecret = new Secret("sampleClientSecret");
-        URL jwkSetURL = new URL("http://localhost:" + port() + "/jwksEP");
+        URL jwkSetURL = new URL("http://localhost:" + SERVER_PORT + "/jwksEP");
 
         config.setIssuer(issuer);
         config.setConsumerKey(clientID);
         config.setConsumerSecret(clientSecret);
         config.setJwksEndpoint(jwkSetURL.toURI());
 
-        Jadler.onRequest()
-                .havingMethodEqualTo("GET")
-                .havingPathEqualTo("/jwksEP")
-                .respond()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(jwkSet.toString(true));
+        initWireMockServer();
+    }
+
+    private void initWireMockServer() {
+
+        if (wireMockServer != null && wireMockServer.isRunning()) {
+            wireMockServer.stop();
+        }
+        wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().port(SERVER_PORT));
+        wireMockServer.start();
+        configureFor("localhost", SERVER_PORT);
+
+        stubFor(get(urlMatching("/jwksEP"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(jwkSet.toString(true))));
     }
 
     private JWKSet generateJWKS() throws NoSuchAlgorithmException {
@@ -248,15 +262,9 @@ public class IDTokenValidatorTest {
     @Test(dataProvider = "AlgorithmData")
     public void testJWSAlgorithm(String signatureAlgorithm, JWK key) throws JOSEException, SSOAgentServerException {
 
-        JWKSet jwkSet = new JWKSet(Collections.singletonList(key));
-
-        Jadler.onRequest()
-                .havingMethodEqualTo("GET")
-                .havingPathEqualTo("/jwksEP")
-                .respond()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(jwkSet.toString(true));
+        jwkSet = new JWKSet(Collections.singletonList(key));
+        // Reinitialize the mock server to add jwkSet.
+        initWireMockServer();
 
         Nonce nonce = new Nonce();
         JWSAlgorithm jwsAlgorithm = new JWSAlgorithm(signatureAlgorithm);
@@ -287,6 +295,6 @@ public class IDTokenValidatorTest {
     @AfterMethod
     public void tearDown() {
 
-        closeJadler();
+        wireMockServer.stop();
     }
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2020-2024, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
   ~
-  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ WSO2 LLC. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
   ~ in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -107,32 +107,34 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.mock-server</groupId>
-                <artifactId>mockserver-netty</artifactId>
-                <version>${mockserver.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mock-server</groupId>
-                <artifactId>mockserver-client-java</artifactId>
-                <version>${mockserver.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito2</artifactId>
                 <version>${mockito.api.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>net.jadler</groupId>
-                <artifactId>jadler-core</artifactId>
-                <version>${jadler.version}</version>
+                <groupId>org.wiremock</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>net.jadler</groupId>
-                <artifactId>jadler-jetty</artifactId>
-                <version>${jadler.version}</version>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${eclipse.jetty.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${eclipse.jetty.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${eclipse.jetty.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -211,17 +213,17 @@
     <properties>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-        <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.37.2</nimbus-jose-jwt.version>
         <nimbusds-oauth2-oidc-sdk.version>9.43.3</nimbusds-oauth2-oidc-sdk.version>
         <httpcomponents-apache.wso2.version>4.3.1.wso2v1</httpcomponents-apache.wso2.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <log4j.version>2.17.1</log4j.version>
-        <testng.version>7.3.0</testng.version>
+        <testng.version>7.10.2</testng.version>
         <org.powermock.version>2.0.7</org.powermock.version>
         <mockito.version>3.5.13</mockito.version>
         <mockito.api.version>2.0.7</mockito.api.version>
-        <mockserver.version>3.10.8</mockserver.version>
-        <jadler.version>1.3.1</jadler.version>
+        <wiremock.version>3.8.0</wiremock.version>
+        <eclipse.jetty.version>11.0.22</eclipse.jetty.version>
     </properties>
 
     <modules>
