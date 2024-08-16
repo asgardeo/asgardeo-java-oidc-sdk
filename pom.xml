@@ -249,7 +249,7 @@
         <wiremock.version>3.8.0</wiremock.version>
         <eclipse.jetty.version>11.0.22</eclipse.jetty.version>
     
-        <jacoco.version>0.8.6</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
     <modules>
